@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Array Visualizer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="app-wrapper">
+
+    <!-- HEADER -->
+    <header class="header">
+      <div class="header-title">
+        <span class="header-tag">[ DS ]</span>
+        <h1>Array<span class="accent">.</span>Visualizer</h1>
+      </div>
+      <p class="header-sub">Insert · Update · Delete · Step-by-step</p>
+    </header>
+
+    <!-- CANVAS AREA -->
+    <section class="canvas-section">
+      <canvas id="arrayCanvas"></canvas>
+      <div class="canvas-overlay" id="emptyState">
+        <span>Array is empty — insert an element to begin</span>
+      </div>
+    </section>
+
+    <!-- LOG -->
+    <section class="log-section">
+      <div class="log-header">
+        <span class="log-label">// operation log</span>
+        <button class="btn-clear-log" id="btnClearLog">clear</button>
+      </div>
+      <div class="log-body" id="logBody"></div>
+    </section>
+
+    <!-- CONTROLS -->
+    <section class="controls-section">
+
+      <!-- INSERT -->
+      <div class="control-card" id="cardInsert">
+        <div class="card-label">INSERT</div>
+        <div class="card-body">
+          <div class="input-group">
+            <label>Value</label>
+            <input type="number" id="inputInsertValue" placeholder="e.g. 42" />
+          </div>
+          <div class="input-group">
+            <label>Index <span class="hint">(optional, appends if empty)</span></label>
+            <input type="number" id="inputInsertIndex" placeholder="0 – n" />
+          </div>
+          <button class="btn btn-insert" id="btnInsert">Insert</button>
+        </div>
+      </div>
+
+      <!-- UPDATE -->
+      <div class="control-card" id="cardUpdate">
+        <div class="card-label">UPDATE</div>
+        <div class="card-body">
+          <div class="input-group">
+            <label>Index</label>
+            <input type="number" id="inputUpdateIndex" placeholder="0 – n-1" />
+          </div>
+          <div class="input-group">
+            <label>New Value</label>
+            <input type="number" id="inputUpdateValue" placeholder="e.g. 99" />
+          </div>
+          <button class="btn btn-update" id="btnUpdate">Update</button>
+        </div>
+      </div>
+
+      <!-- DELETE -->
+      <div class="control-card" id="cardDelete">
+        <div class="card-label">DELETE</div>
+        <div class="card-body">
+          <div class="input-group">
+            <label>Index</label>
+            <input type="number" id="inputDeleteIndex" placeholder="0 – n-1" />
+          </div>
+          <div class="spacer"></div>
+          <button class="btn btn-delete" id="btnDelete">Delete</button>
+        </div>
+      </div>
+
+      <!-- RESET -->
+      <div class="control-card control-card--reset" id="cardReset">
+        <div class="card-label">RESET</div>
+        <div class="card-body">
+          <p class="reset-desc">Clear the entire array and start fresh.</p>
+          <button class="btn btn-reset" id="btnReset">Reset Array</button>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <script src="array-ds.js"></script>
+  <script src="renderer.js"></script>
+  <script src="main.js"></script>
+</body>
+</html>
