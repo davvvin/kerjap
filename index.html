@@ -1,106 +1,136 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Array Visualizer</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KP 2372054</title>
+    <link rel="icon" type="image/x-icon" href="logo.jpg">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg: #0f0f0f;
+            --surface: #161616;
+            --border: #272727;
+            --text: #e8e8e8;
+            --text-dim: #666;
+            --accent: #c8f060;
+            --font-mono: 'IBM Plex Mono', monospace;
+            --font-display: 'DM Serif Display', serif;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--font-mono);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 24px;
+        }
+
+        .card {
+            width: 100%;
+            max-width: 560px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 40px;
+        }
+
+        .eyebrow {
+            font-size: 10px;
+            letter-spacing: 0.2em;
+            color: var(--accent);
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            font-family: var(--font-display);
+            font-size: 32px;
+            color: var(--text);
+            margin-bottom: 14px;
+        }
+
+        .desc {
+            font-size: 12px;
+            color: var(--text-dim);
+            margin-bottom: 32px;
+        }
+
+        .divider {
+            height: 1px;
+            background: var(--border);
+            margin-bottom: 24px;
+        }
+
+        .ds-grid {
+            display: grid;
+            gap: 8px;
+        }
+
+        .ds-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            text-decoration: none;
+            color: var(--text);
+            font-size: 13px;
+            background: var(--bg);
+        }
+
+        .ds-card:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .ds-card.disabled {
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        .badge {
+            font-size: 10px;
+            color: var(--text-dim);
+        }
+
+        .footer {
+            margin-top: 24px;
+            font-size: 10px;
+            color: var(--text-dim);
+            text-align: right;
+        }
+    </style>
 </head>
 <body>
 
-  <div class="app-wrapper">
+    <div class="card">
+        <p class="eyebrow">Data Structures · Visual Learning</p>
+        <h1>Algorithm Visualizer</h1>
+        <p class="desc">
+            Step-by-step visualization of core data structures.
+            Insert, update, and delete elements — watch every operation
+            reflected live on canvas alongside its Python equivalent.
+        </p>
 
-    <!-- HEADER -->
-    <header class="header">
-      <div class="header-title">
-        <span class="header-tag">[ DS ]</span>
-        <h1>Array<span class="accent">.</span>Visualizer</h1>
-      </div>
-      <p class="header-sub">Insert · Update · Delete · Step-by-step</p>
-    </header>
+        <div class="divider"></div>
 
-    <!-- CANVAS AREA -->
-    <section class="canvas-section">
-      <canvas id="arrayCanvas"></canvas>
-      <div class="canvas-overlay" id="emptyState">
-        <span>Array is empty — insert an element to begin</span>
-      </div>
-    </section>
-
-    <!-- LOG -->
-    <section class="log-section">
-      <div class="log-header">
-        <span class="log-label">// operation log</span>
-        <button class="btn-clear-log" id="btnClearLog">clear</button>
-      </div>
-      <div class="log-body" id="logBody"></div>
-    </section>
-
-    <!-- CONTROLS -->
-    <section class="controls-section">
-
-      <!-- INSERT -->
-      <div class="control-card" id="cardInsert">
-        <div class="card-label">INSERT</div>
-        <div class="card-body">
-          <div class="input-group">
-            <label>Value</label>
-            <input type="number" id="inputInsertValue" placeholder="e.g. 42" />
-          </div>
-          <div class="input-group">
-            <label>Index <span class="hint">(optional, appends if empty)</span></label>
-            <input type="number" id="inputInsertIndex" placeholder="0 – n" />
-          </div>
-          <button class="btn btn-insert" id="btnInsert">Insert</button>
+        <div class="ds-grid">
+            <a href="array.html" class="ds-card">Array →</a>
+            <a href="stack.html" class="ds-card">Stack →</a>
+            <a href="#" class="ds-card disabled">Queue <span class="badge">soon</span></a>
+            <a href="#" class="ds-card disabled">Linked List <span class="badge">soon</span></a>
+            <a href="#" class="ds-card disabled">Binary Search Tree <span class="badge">soon</span></a>
         </div>
-      </div>
 
-      <!-- UPDATE -->
-      <div class="control-card" id="cardUpdate">
-        <div class="card-label">UPDATE</div>
-        <div class="card-body">
-          <div class="input-group">
-            <label>Index</label>
-            <input type="number" id="inputUpdateIndex" placeholder="0 – n-1" />
-          </div>
-          <div class="input-group">
-            <label>New Value</label>
-            <input type="number" id="inputUpdateValue" placeholder="e.g. 99" />
-          </div>
-          <button class="btn btn-update" id="btnUpdate">Update</button>
-        </div>
-      </div>
+        <p class="footer">KP 2372054</p>
+    </div>
 
-      <!-- DELETE -->
-      <div class="control-card" id="cardDelete">
-        <div class="card-label">DELETE</div>
-        <div class="card-body">
-          <div class="input-group">
-            <label>Index</label>
-            <input type="number" id="inputDeleteIndex" placeholder="0 – n-1" />
-          </div>
-          <div class="spacer"></div>
-          <button class="btn btn-delete" id="btnDelete">Delete</button>
-        </div>
-      </div>
-
-      <!-- RESET -->
-      <div class="control-card control-card--reset" id="cardReset">
-        <div class="card-label">RESET</div>
-        <div class="card-body">
-          <p class="reset-desc">Clear the entire array and start fresh.</p>
-          <button class="btn btn-reset" id="btnReset">Reset Array</button>
-        </div>
-      </div>
-
-    </section>
-
-  </div>
-
-  <script src="array-ds.js"></script>
-  <script src="renderer.js"></script>
-  <script src="main.js"></script>
 </body>
 </html>

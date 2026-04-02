@@ -1,0 +1,149 @@
+// stack.js
+
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+
+const CELL_W = 160;
+const CELL_H = 50;
+const CELL_X = 20;
+
+let stack = [];     // index 0 = bottom, last = top
+let maxSize = 0;
+
+// ── Init ──────────────────────────────────────────────────────
+
+function initStack() {
+  const size = parseInt(document.getElementById('sizeInput').value);
+  if (!size || size < 1) { alert('Enter a valid size.'); return; }
+
+  maxSize = size;
+  stack = [];
+
+  document.getElementById('initScreen').style.display = 'none';
+  document.getElementById('mainScreen').style.display = 'block';
+
+  resizeCanvas();
+  draw();
+  setCode('# Create empty stack\nstack = []\nmax_size = ' + size);
+}
+
+function resetStack() {
+  stack = [];
+  draw();
+  setCode('# Reset stack\nstack = []\nmax_size = ' + maxSize);
+  setMsg('');
+}
+
+// ── Operations ────────────────────────────────────────────────
+
+function doPush() {
+  const val = parseFloat(document.getElementById('pushVal').value);
+  if (isNaN(val)) { setMsg('Enter a value to push.'); return; }
+
+  if (stack.length >= maxSize) {
+    setMsg('Stack overflow! Max size is ' + maxSize + '.');
+    setCode('# Stack is full — cannot push\n# Stack overflow!');
+    return;
+  }
+
+  stack.push(val);
+  draw();
+  setCode(
+    '# Push value onto top of stack\nstack.append(' + val + ')\n# Stack: ' + formatStack()
+  );
+  setMsg('Pushed ' + val + '. Stack size: ' + stack.length + '/' + maxSize);
+
+  document.getElementById('pushVal').value = '';
+}
+
+function doPop() {
+  if (stack.length === 0) {
+    setMsg('Stack underflow! Stack is empty.');
+    setCode('# Stack is empty — cannot pop\n# Stack underflow!');
+    return;
+  }
+
+  const val = stack.pop();
+  draw();
+  setCode(
+    '# Pop value from top of stack\nval = stack.pop()  # val = ' + val + '\n# Stack: ' + formatStack()
+  );
+  setMsg('Popped ' + val + '. Stack size: ' + stack.length + '/' + maxSize);
+}
+
+function doIsEmpty() {
+  const empty = stack.length === 0;
+  draw();
+  setCode(
+    '# Check if stack is empty\ndef is_empty(stack):\n    return len(stack) == 0\n\nis_empty(stack)  # → ' + empty
+  );
+  setMsg('isEmpty → ' + empty);
+}
+
+// ── Draw ──────────────────────────────────────────────────────
+
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  const totalSlots = maxSize;
+
+  for (let i = 0; i < totalSlots; i++) {
+    // draw from top down visually: slot 0 on canvas = top of stack
+    const visualRow = totalSlots - 1 - i;  // i=0 is bottom of stack, drawn at bottom
+    const stackVal = stack[i];             // undefined if slot empty
+    const isEmpty = stackVal === undefined;
+    const isTop = i === stack.length - 1 && !isEmpty;
+
+    const y = 10 + visualRow * CELL_H;
+
+    // cell bg
+    ctx.fillStyle = isTop ? '#fffbe6' : isEmpty ? '#f9f9f9' : '#fff';
+    ctx.fillRect(CELL_X, y, CELL_W, CELL_H);
+
+    // cell border
+    ctx.strokeStyle = isTop ? '#f0a500' : isEmpty ? '#ddd' : '#333';
+    ctx.lineWidth = isTop ? 2 : 1;
+    ctx.strokeRect(CELL_X, y, CELL_W, CELL_H);
+
+    // value
+    ctx.fillStyle = isEmpty ? '#bbb' : '#111';
+    ctx.font = isEmpty ? '12px Arial' : 'bold 15px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(isEmpty ? 'empty' : stackVal, CELL_X + CELL_W / 2, y + CELL_H / 2);
+
+    // TOP label
+    if (isTop) {
+      ctx.fillStyle = '#f0a500';
+      ctx.font = 'bold 11px Arial';
+      ctx.textAlign = 'left';
+      ctx.fillText('← TOP', CELL_X + CELL_W + 8, y + CELL_H / 2);
+    }
+  }
+
+  // bottom label
+  const bottomY = 10 + (totalSlots) * CELL_H;
+  ctx.fillStyle = '#888';
+  ctx.font = '11px Arial';
+  ctx.textAlign = 'center';
+  ctx.fillText('▲ BOTTOM', CELL_X + CELL_W / 2, bottomY + 14);
+}
+
+function resizeCanvas() {
+  canvas.width = CELL_X * 2 + CELL_W + 80;  // extra room for TOP label
+  canvas.height = 10 + maxSize * CELL_H + 30;
+}
+
+// ── Helpers ───────────────────────────────────────────────────
+
+function formatStack() {
+  return '[' + stack.join(', ') + ']';
+}
+
+function setCode(text) {
+  document.getElementById('codeDisplay').textContent = text;
+}
+
+function setMsg(text) {
+  document.getElementById('msg').textContent = text;
+}

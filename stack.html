@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>DS Visualizer</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- NAV TABS -->
+  <div class="tabs">
+    <a href="array.html" class="tab">Array</a>
+    <a href="stack.html" class="tab active">Stack</a>
+  </div>
+
+  <div class="page">
+
+    <!-- INIT SCREEN -->
+    <div id="initScreen">
+      <label>Stack max size: <input id="sizeInput" type="number" min="1" max="20" placeholder="e.g. 6" /></label>
+      <button onclick="initStack()">Create Stack</button>
+    </div>
+
+    <!-- MAIN SCREEN -->
+    <div id="mainScreen" style="display:none">
+
+      <!-- CONTROLS -->
+      <div class="controls">
+        <span class="ctrl-group">
+          <label>Push</label>
+          <input id="pushVal" type="number" placeholder="value" />
+          <button onclick="doPush()">Push</button>
+        </span>
+
+        <span class="ctrl-group">
+          <label>Pop</label>
+          <button onclick="doPop()">Pop</button>
+        </span>
+
+        <span class="ctrl-group">
+          <label>isEmpty</label>
+          <button onclick="doIsEmpty()">Check</button>
+        </span>
+
+        <span class="ctrl-group">
+          <button class="btn-reset" onclick="resetStack()">Reset</button>
+        </span>
+      </div>
+
+      <!-- CANVAS + CODE -->
+      <div class="viz-row">
+        <canvas id="c" width="200" height="400"></canvas>
+        <div class="code-panel">
+          <div class="code-label">// Python</div>
+          <pre id="codeDisplay">No operations yet.</pre>
+        </div>
+      </div>
+
+      <div id="msg" class="msg"></div>
+
+    </div>
+  </div>
+
+  <script src="stack.js"></script>
+</body>
+</html>

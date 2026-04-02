@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>DS Visualizer</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- NAV TABS -->
+  <div class="tabs">
+    <a href="index.html" class="tab active">Array</a>
+    <a href="stack.html" class="tab">Stack</a>
+  </div>
+
+  <div class="page">
+
+    <!-- INIT SCREEN -->
+    <div id="initScreen">
+      <label>Array size: <input id="sizeInput" type="number" min="1" max="20" placeholder="e.g. 6" /></label>
+      <button onclick="initArray()">Create Array</button>
+    </div>
+
+    <!-- MAIN SCREEN (hidden until array is created) -->
+    <div id="mainScreen" style="display:none">
+
+      <!-- CONTROLS (inline) -->
+      <div class="controls">
+        <span class="ctrl-group">
+          <label>Insert</label>
+          <input id="insVal" type="number" placeholder="value" />
+          <input id="insIdx" type="number" placeholder="index" />
+          <button onclick="doInsert()">Insert</button>
+        </span>
+
+        <span class="ctrl-group">
+          <label>Update</label>
+          <input id="updIdx" type="number" placeholder="index" />
+          <input id="updVal" type="number" placeholder="new value" />
+          <button onclick="doUpdate()">Update</button>
+        </span>
+
+        <span class="ctrl-group">
+          <label>Delete</label>
+          <input id="delIdx" type="number" placeholder="index" />
+          <button onclick="doDelete()">Delete</button>
+        </span>
+
+        <span class="ctrl-group">
+          <button class="btn-reset" onclick="resetArray()">Reset</button>
+        </span>
+      </div>
+
+      <!-- CANVAS + CODE side by side -->
+      <div class="viz-row">
+        <canvas id="c" height="140"></canvas>
+        <div class="code-panel">
+          <div class="code-label">// Python</div>
+          <pre id="codeDisplay">No operations yet.</pre>
+        </div>
+      </div>
+
+      <div id="msg" class="msg"></div>
+
+    </div>
+  </div>
+
+  <script src="array.js"></script>
+</body>
+</html>
