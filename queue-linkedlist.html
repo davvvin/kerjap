@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Queue (Linked List) – DS Visualizer</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<a href="index.html" class="back">← Back</a>
+<h2>Queue – Linked List Implementation</h2>
+
+<div id="initScreen">
+    <label>Max size: <input id="sizeInput" type="number" min="1" max="20" placeholder="e.g. 6" /></label>
+    <button onclick="initQueue()">Create Queue</button>
+</div>
+
+<div id="mainScreen" style="display:none">
+    <div class="controls">
+        <span class="ctrl-group">
+            <label>Enqueue</label>
+            <input id="enqVal" type="number" placeholder="value" />
+            <button onclick="doEnqueue()">Enqueue</button>
+        </span>
+        <span class="ctrl-group">
+            <label>Dequeue</label>
+            <button onclick="doDequeue()">Dequeue</button>
+        </span>
+        <span class="ctrl-group">
+            <label>isEmpty</label>
+            <button onclick="doIsEmpty()">Check</button>
+        </span>
+        <span class="ctrl-group">
+            <button class="btn-reset" onclick="resetQueue()">Reset</button>
+        </span>
+    </div>
+
+    <div class="viz-row">
+        <canvas id="c" height="110"></canvas>
+        <div class="code-panel">
+            <div class="code-label">// Python</div>
+            <pre id="codeDisplay">No operations yet.</pre>
+        </div>
+    </div>
+    <div id="msg" class="msg"></div>
+</div>
+
+<!-- POPUP -->
+<div class="popup-overlay" id="popupOverlay">
+    <div class="popup-box">
+        <div class="popup-icon">⚠️</div>
+        <p id="popupMsg"></p>
+        <button onclick="closePopup()">OK</button>
+    </div>
+</div>
+
+<script src="popup.js"></script>
+<script>
+// Horizontal: FRONT on left (dequeue), REAR on right (enqueue)
+// head = front, tail = rear
+
+const NODE_W  = 80, NODE_H = 50, PTR_W = 30;
+const TOTAL_W = NODE_W + PTR_W;
+const START_X = 20, NODE_Y = 35;
+
+const canvas = document.getElementById('c');
+const ctx    = canvas.getContext('2d');
+
+function Node(val) { this.value = val; this.next = null; }
+
+let head    = null;
+let tail    = null;
+let size    = 0;
+let maxSize = 0;
+
+function initQueue() {
+    const s = parseInt(document.getElementById('sizeInput').value);
+    if (!s || s < 1) { showPopup('Please enter a valid size.'); return; }
+    maxSize = s;
+    head = tail = null;
+    size = 0;
+    document.getElementById('initScreen').style.display = 'none';
+    document.getElementById('mainScreen').style.display = 'block';
+    resizeCanvas();
+    draw();
+    setCode('# Queue via linked list\nclass Node:\n    def __init__(self, val):\n        self.value = val\n        self.next  = None\n\nhead = None  # front\ntail = None  # rear');
+}
+
+function resetQueue() {
+    head = tail = null;
+    size = 0;
+    draw();
+    setCode('# Reset queue\nhead = None\ntail = None');
+    setMsg('');
+}
+
+function doEnqueue() {
+    const val = parseFloat(document.getElementById('enqVal').value);
+    if (isNaN(val)) { showPopup('Please enter a value to enqueue.'); return; }
+    if (size >= maxSize) { showPopup('Queue is full! Max size is ' + maxSize + '.'); return; }
+
+    const node = new Node(val);
+    if (tail === null) {
+        head = tail = node;
+    } else {
+        tail.next = node;
+        tail = node;
+    }
+    size++;
+    draw();
+    setCode('# Enqueue — add to rear\nnew_node = Node(' + val + ')\nif tail:\n    tail.next = new_node\ntail = new_node\nif not head:\n    head = tail');
+    setMsg('Enqueued ' + val + '. Size: ' + size + '/' + maxSize);
+    document.getElementById('enqVal').value = '';
+}
+
+function doDequeue() {
+    if (!head) { showPopup('Queue is empty! Cannot dequeue.'); return; }
+    const val = head.value;
+    head = head.next;
+    if (!head) tail = null;
+    size--;
+    draw();
+    setCode('# Dequeue — remove from front\nval = head.value  # val = ' + val + '\nhead = head.next\nif not head:\n    tail = None');
+    setMsg('Dequeued ' + val + '. Size: ' + size + '/' + maxSize);
+}
+
+function doIsEmpty() {
+    const empty = head === null;
+    draw();
+    setCode('# Check if empty\ndef is_empty():\n    return head is None\n\nis_empty()  # → ' + empty);
+    setMsg('isEmpty → ' + empty);
+}
+
+function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    if (!head) {
+        ctx.fillStyle    = '#aaa';
+        ctx.font         = '13px Arial';
+        ctx.textAlign    = 'left';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('Queue is empty', START_X, NODE_Y + NODE_H / 2);
+        return;
+    }
+
+    let node = head;
+    let i    = 0;
+
+    while (node !== null) {
+        const x       = START_X + i * (TOTAL_W + 4);
+        const isFront = (i === 0);
+        const isRear  = (node.next === null);
+
+        // value box
+        ctx.fillStyle   = isFront ? '#e8f5e9' : isRear ? '#fffbe6' : '#fff';
+        ctx.fillRect(x, NODE_Y, NODE_W, NODE_H);
+        ctx.strokeStyle = isFront ? '#4CAF50' : isRear ? '#f0a500' : '#333';
+        ctx.lineWidth   = (isFront || isRear) ? 2 : 1.5;
+        ctx.strokeRect(x, NODE_Y, NODE_W, NODE_H);
+
+        ctx.fillStyle    = '#111';
+        ctx.font         = 'bold 15px Arial';
+        ctx.textAlign    = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(node.value, x + NODE_W / 2, NODE_Y + NODE_H / 2);
+
+        // pointer box
+        const ptrX = x + NODE_W;
+        ctx.fillStyle   = '#f0f0f0';
+        ctx.fillRect(ptrX, NODE_Y, PTR_W, NODE_H);
+        ctx.strokeStyle = '#aaa';
+        ctx.lineWidth   = 1;
+        ctx.strokeRect(ptrX, NODE_Y, PTR_W, NODE_H);
+
+        if (node.next !== null) {
+            const aS  = ptrX + PTR_W;
+            const aE  = aS + 4;
+            const midY = NODE_Y + NODE_H / 2;
+            ctx.strokeStyle = '#555';
+            ctx.lineWidth   = 1.5;
+            ctx.beginPath(); ctx.moveTo(aS, midY); ctx.lineTo(aE, midY); ctx.stroke();
+            ctx.fillStyle = '#555';
+            ctx.beginPath();
+            ctx.moveTo(aE + 6, midY);
+            ctx.lineTo(aE, midY - 4);
+            ctx.lineTo(aE, midY + 4);
+            ctx.fill();
+        } else {
+            ctx.fillStyle    = '#aaa';
+            ctx.font         = '10px Arial';
+            ctx.textAlign    = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('NULL', ptrX + PTR_W / 2, NODE_Y + NODE_H / 2);
+        }
+
+        // labels above node
+        ctx.font         = 'bold 11px Arial';
+        ctx.textAlign    = 'center';
+        ctx.textBaseline = 'bottom';
+        if (isFront && isRear) {
+            ctx.fillStyle = '#888';
+            ctx.fillText('FRONT & REAR', x + NODE_W / 2, NODE_Y - 4);
+        } else if (isFront) {
+            ctx.fillStyle = '#4CAF50';
+            ctx.fillText('FRONT', x + NODE_W / 2, NODE_Y - 4);
+        } else if (isRear) {
+            ctx.fillStyle = '#f0a500';
+            ctx.fillText('REAR', x + NODE_W / 2, NODE_Y - 4);
+        }
+
+        node = node.next;
+        i++;
+    }
+}
+
+function resizeCanvas() {
+    canvas.width = START_X * 2 + maxSize * (TOTAL_W + 4) + 20;
+}
+
+function setCode(t) { document.getElementById('codeDisplay').textContent = t; }
+function setMsg(t)  { document.getElementById('msg').textContent = t; }
+</script>
+</body>
+</html>

@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stack (Array) – DS Visualizer</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<a href="index.html" class="back">← Back</a>
+<h2>Stack – Array Implementation</h2>
+
+<div id="initScreen">
+    <label>Max size: <input id="sizeInput" type="number" min="1" max="20" placeholder="e.g. 6" /></label>
+    <button onclick="initStack()">Create Stack</button>
+</div>
+
+<div id="mainScreen" style="display:none">
+    <div class="controls">
+        <span class="ctrl-group">
+            <label>Push</label>
+            <input id="pushVal" type="number" placeholder="value" />
+            <button onclick="doPush()">Push</button>
+        </span>
+        <span class="ctrl-group">
+            <label>Pop</label>
+            <button onclick="doPop()">Pop</button>
+        </span>
+        <span class="ctrl-group">
+            <label>isEmpty</label>
+            <button onclick="doIsEmpty()">Check</button>
+        </span>
+        <span class="ctrl-group">
+            <button class="btn-reset" onclick="resetStack()">Reset</button>
+        </span>
+    </div>
+
+    <div class="viz-row">
+        <canvas id="c"></canvas>
+        <div class="code-panel">
+            <div class="code-label">// Python</div>
+            <pre id="codeDisplay">No operations yet.</pre>
+        </div>
+    </div>
+    <div id="msg" class="msg"></div>
+</div>
+
+<!-- POPUP -->
+<div class="popup-overlay" id="popupOverlay">
+    <div class="popup-box">
+        <div class="popup-icon">⚠️</div>
+        <p id="popupMsg"></p>
+        <button onclick="closePopup()">OK</button>
+    </div>
+</div>
+
+<script src="popup.js"></script>
+<script>
+const CELL_W = 160, CELL_H = 50, CELL_X = 20;
+const canvas = document.getElementById('c');
+const ctx    = canvas.getContext('2d');
+
+let stack   = [];
+let maxSize = 0;
+
+function initStack() {
+    const size = parseInt(document.getElementById('sizeInput').value);
+    if (!size || size < 1) { showPopup('Please enter a valid size.'); return; }
+    maxSize = size;
+    stack   = [];
+    document.getElementById('initScreen').style.display = 'none';
+    document.getElementById('mainScreen').style.display = 'block';
+    resizeCanvas();
+    draw();
+    setCode('# Create stack (array-based)\nstack = []\nmax_size = ' + size);
+}
+
+function resetStack() {
+    stack = [];
+    draw();
+    setCode('# Reset stack\nstack = []\nmax_size = ' + maxSize);
+    setMsg('');
+}
+
+function doPush() {
+    const val = parseFloat(document.getElementById('pushVal').value);
+    if (isNaN(val)) { showPopup('Please enter a value to push.'); return; }
+    if (stack.length >= maxSize) { showPopup('Stack overflow! Max size is ' + maxSize + '.'); return; }
+    stack.push(val);
+    draw();
+    setCode('# Push onto stack\nstack.append(' + val + ')\n# Stack: ' + fmt());
+    setMsg('Pushed ' + val + '. Size: ' + stack.length + '/' + maxSize);
+    document.getElementById('pushVal').value = '';
+}
+
+function doPop() {
+    if (stack.length === 0) { showPopup('Stack underflow! Stack is empty.'); return; }
+    const val = stack.pop();
+    draw();
+    setCode('# Pop from stack\nval = stack.pop()  # val = ' + val + '\n# Stack: ' + fmt());
+    setMsg('Popped ' + val + '. Size: ' + stack.length + '/' + maxSize);
+}
+
+function doIsEmpty() {
+    const empty = stack.length === 0;
+    draw();
+    setCode('# Check if empty\ndef is_empty(stack):\n    return len(stack) == 0\n\nis_empty(stack)  # → ' + empty);
+    setMsg('isEmpty → ' + empty);
+}
+
+function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    for (let slot = 0; slot < maxSize; slot++) {
+        // slot 0 = bottom of stack = visually bottom row
+        const visualRow = maxSize - 1 - slot;
+        const y         = 10 + visualRow * CELL_H;
+        const val       = stack[slot];
+        const hasVal    = val !== undefined;
+        const isTop     = hasVal && slot === stack.length - 1;
+
+        ctx.fillStyle   = isTop ? '#fffbe6' : hasVal ? '#fff' : '#f9f9f9';
+        ctx.fillRect(CELL_X, y, CELL_W, CELL_H);
+        ctx.strokeStyle = isTop ? '#f0a500' : hasVal ? '#333' : '#ddd';
+        ctx.lineWidth   = isTop ? 2 : 1;
+        ctx.strokeRect(CELL_X, y, CELL_W, CELL_H);
+
+        ctx.fillStyle    = hasVal ? '#111' : '#bbb';
+        ctx.font         = hasVal ? 'bold 15px Arial' : '12px Arial';
+        ctx.textAlign    = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(hasVal ? val : 'empty', CELL_X + CELL_W / 2, y + CELL_H / 2);
+
+        if (isTop) {
+            ctx.fillStyle = '#f0a500';
+            ctx.font      = 'bold 11px Arial';
+            ctx.textAlign = 'left';
+            ctx.fillText('← TOP', CELL_X + CELL_W + 8, y + CELL_H / 2);
+        }
+    }
+
+    // BOTTOM label
+    ctx.fillStyle    = '#888';
+    ctx.font         = '11px Arial';
+    ctx.textAlign    = 'center';
+    ctx.textBaseline = 'top';
+    ctx.fillText('▲ BOTTOM', CELL_X + CELL_W / 2, 10 + maxSize * CELL_H + 6);
+}
+
+function resizeCanvas() {
+    canvas.width  = CELL_X * 2 + CELL_W + 80;
+    canvas.height = 10 + maxSize * CELL_H + 30;
+}
+
+function fmt() { return '[' + stack.join(', ') + ']'; }
+function setCode(t) { document.getElementById('codeDisplay').textContent = t; }
+function setMsg(t)  { document.getElementById('msg').textContent = t; }
+</script>
+</body>
+</html>

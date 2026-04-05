@@ -5,132 +5,52 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KP 2372054</title>
     <link rel="icon" type="image/x-icon" href="logo.jpg">
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
-    <style>
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-        :root {
-            --bg: #0f0f0f;
-            --surface: #161616;
-            --border: #272727;
-            --text: #e8e8e8;
-            --text-dim: #666;
-            --accent: #c8f060;
-            --font-mono: 'IBM Plex Mono', monospace;
-            --font-display: 'DM Serif Display', serif;
-        }
-
-        body {
-            background: var(--bg);
-            color: var(--text);
-            font-family: var(--font-mono);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 40px 24px;
-        }
-
-        .card {
-            width: 100%;
-            max-width: 560px;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 4px;
-            padding: 40px;
-        }
-
-        .eyebrow {
-            font-size: 10px;
-            letter-spacing: 0.2em;
-            color: var(--accent);
-            text-transform: uppercase;
-            margin-bottom: 10px;
-        }
-
-        h1 {
-            font-family: var(--font-display);
-            font-size: 32px;
-            color: var(--text);
-            margin-bottom: 14px;
-        }
-
-        .desc {
-            font-size: 12px;
-            color: var(--text-dim);
-            margin-bottom: 32px;
-        }
-
-        .divider {
-            height: 1px;
-            background: var(--border);
-            margin-bottom: 24px;
-        }
-
-        .ds-grid {
-            display: grid;
-            gap: 8px;
-        }
-
-        .ds-card {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 12px 16px;
-            border: 1px solid var(--border);
-            border-radius: 4px;
-            text-decoration: none;
-            color: var(--text);
-            font-size: 13px;
-            background: var(--bg);
-        }
-
-        .ds-card:hover {
-            border-color: var(--accent);
-            color: var(--accent);
-        }
-
-        .ds-card.disabled {
-            opacity: 0.3;
-            pointer-events: none;
-        }
-
-        .badge {
-            font-size: 10px;
-            color: var(--text-dim);
-        }
-
-        .footer {
-            margin-top: 24px;
-            font-size: 10px;
-            color: var(--text-dim);
-            text-align: right;
-        }
-    </style>
 </head>
+<style>
+    body{
+        background-image:url(logo.jpg);
+        background-size: cover;
+    }
+    body h1,p{
+        font-family: Arial, sans-serif;
+        padding: 20px;
+        margin:0;
+        text-align: center;
+    }
+    .selection {
+        text-align: center;
+    }
+    .selection a{
+        margin-top: 30px;
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #4CAF50;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+    .selection a:hover {
+        background-color: #2e8b57;
+    }
+</style>
 <body>
-
-    <div class="card">
-        <p class="eyebrow">Data Structures · Visual Learning</p>
-        <h1>Algorithm Visualizer</h1>
-        <p class="desc">
-            Step-by-step visualization of core data structures.
-            Insert, update, and delete elements — watch every operation
-            reflected live on canvas alongside its Python equivalent.
-        </p>
-
-        <div class="divider"></div>
-
-        <div class="ds-grid">
-            <a href="array.html" class="ds-card">Array →</a>
-            <a href="stack.html" class="ds-card">Stack →</a>
-            <a href="#" class="ds-card disabled">Queue <span class="badge">soon</span></a>
-            <a href="#" class="ds-card disabled">Linked List <span class="badge">soon</span></a>
-            <a href="#" class="ds-card disabled">Binary Search Tree <span class="badge">soon</span></a>
-        </div>
-
-        <p class="footer">KP 2372054</p>
+    <h1>Welcome To The Algorithm Visualizer Program</h1>
+    <p>This program is designed to help you visualize the operations of an algorithm taught in a programming data structure. You can insert, update, and delete elements from the algorithms, and see the changes reflected in a graphical representation.</p>
+    <p>To get started, simply enter a value and an optional index in the input fields below, and click the "Insert" button to add an element to the algorithm. You can also update or delete elements by entering the appropriate index and value, and clicking the corresponding buttons.</p>
+    <p>As you perform operations on the algorithm, a visual representation will be displayed on the canvas below, showing the current state of the algorithm. Each element will be represented as a box with its value and index displayed.</p>
+    <p>Feel free to experiment with different operations and see how the algorithm changes. This program is a great way to learn about algorithms and how they work in programming!</p>
+    <p>Enjoy exploring the world of algorithm & data structures!</p>
+    <div class="selection">
+        <a href="array.html">Arrays</a>
+        <a href="stack-array.html">Stack Array</a>
+        <a href="stack-linkedlist.html">Stack Linked List</a>
+        <a href="queue-array.html">Queue Array</a>
+        <a href="queue-linkedlist.html">Queue Linked List</a>
+        <a href="linkedlist.html">Linked List</a>
     </div>
-
 </body>
 </html>

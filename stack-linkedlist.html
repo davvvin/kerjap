@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stack (Linked List) – DS Visualizer</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<a href="index.html" class="back">← Back</a>
+<h2>Stack – Linked List Implementation</h2>
+
+<div id="initScreen">
+    <label>Max size: <input id="sizeInput" type="number" min="1" max="20" placeholder="e.g. 6" /></label>
+    <button onclick="initStack()">Create Stack</button>
+</div>
+
+<div id="mainScreen" style="display:none">
+    <div class="controls">
+        <span class="ctrl-group">
+            <label>Push</label>
+            <input id="pushVal" type="number" placeholder="value" />
+            <button onclick="doPush()">Push</button>
+        </span>
+        <span class="ctrl-group">
+            <label>Pop</label>
+            <button onclick="doPop()">Pop</button>
+        </span>
+        <span class="ctrl-group">
+            <label>isEmpty</label>
+            <button onclick="doIsEmpty()">Check</button>
+        </span>
+        <span class="ctrl-group">
+            <button class="btn-reset" onclick="resetStack()">Reset</button>
+        </span>
+    </div>
+
+    <div class="viz-row">
+        <canvas id="c" height="110"></canvas>
+        <div class="code-panel">
+            <div class="code-label">// Python</div>
+            <pre id="codeDisplay">No operations yet.</pre>
+        </div>
+    </div>
+    <div id="msg" class="msg"></div>
+</div>
+
+<!-- POPUP -->
+<div class="popup-overlay" id="popupOverlay">
+    <div class="popup-box">
+        <div class="popup-icon">⚠️</div>
+        <p id="popupMsg"></p>
+        <button onclick="closePopup()">OK</button>
+    </div>
+</div>
+
+<script src="popup.js"></script>
+<script>
+// Node structure: { value, next }
+// TOP of stack = head of linked list (leftmost node visually)
+
+const NODE_W  = 80,  NODE_H  = 50;
+const PTR_W   = 30;  // width of the next-pointer box
+const TOTAL_W = NODE_W + PTR_W; // total width per node slot
+const START_X = 20, NODE_Y = 30;
+
+const canvas = document.getElementById('c');
+const ctx    = canvas.getContext('2d');
+
+let head    = null;  // linked list head
+let size    = 0;
+let maxSize = 0;
+
+// ── Node class ────────────────────────────────────────────────
+function Node(val) { this.value = val; this.next = null; }
+
+function initStack() {
+    const s = parseInt(document.getElementById('sizeInput').value);
+    if (!s || s < 1) { showPopup('Please enter a valid size.'); return; }
+    maxSize = s;
+    head    = null;
+    size    = 0;
+    document.getElementById('initScreen').style.display = 'none';
+    document.getElementById('mainScreen').style.display = 'block';
+    resizeCanvas();
+    draw();
+    setCode('# Stack via linked list\nclass Node:\n    def __init__(self, val):\n        self.value = val\n        self.next  = None\n\nhead = None  # empty stack');
+}
+
+function resetStack() {
+    head = null;
+    size = 0;
+    draw();
+    setCode('# Reset stack\nhead = None');
+    setMsg('');
+}
+
+function doPush() {
+    const val = parseFloat(document.getElementById('pushVal').value);
+    if (isNaN(val)) { showPopup('Please enter a value to push.'); return; }
+    if (size >= maxSize) { showPopup('Stack overflow! Max size is ' + maxSize + '.'); return; }
+
+    const node = new Node(val);
+    node.next  = head;
+    head       = node;
+    size++;
+    draw();
+    setCode('# Push — insert at head\nnew_node = Node(' + val + ')\nnew_node.next = head\nhead = new_node');
+    setMsg('Pushed ' + val + '. Size: ' + size + '/' + maxSize);
+    document.getElementById('pushVal').value = '';
+}
+
+function doPop() {
+    if (!head) { showPopup('Stack underflow! Stack is empty.'); return; }
+    const val = head.value;
+    head = head.next;
+    size--;
+    draw();
+    setCode('# Pop — remove head\nval = head.value  # val = ' + val + '\nhead = head.next');
+    setMsg('Popped ' + val + '. Size: ' + size + '/' + maxSize);
+}
+
+function doIsEmpty() {
+    const empty = head === null;
+    draw();
+    setCode('# Check if empty\ndef is_empty():\n    return head is None\n\nis_empty()  # → ' + empty);
+    setMsg('isEmpty → ' + empty);
+}
+
+// ── Draw ──────────────────────────────────────────────────────
+function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    if (!head) {
+        ctx.fillStyle    = '#aaa';
+        ctx.font         = '13px Arial';
+        ctx.textAlign    = 'left';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('Stack is empty', START_X, NODE_Y + NODE_H / 2);
+        return;
+    }
+
+    let node = head;
+    let i    = 0;
+
+    while (node !== null) {
+        const x     = START_X + i * (TOTAL_W + 4);
+        const isTop = (i === 0);
+
+        // value box
+        ctx.fillStyle   = isTop ? '#fffbe6' : '#fff';
+        ctx.fillRect(x, NODE_Y, NODE_W, NODE_H);
+        ctx.strokeStyle = isTop ? '#f0a500' : '#333';
+        ctx.lineWidth   = isTop ? 2 : 1.5;
+        ctx.strokeRect(x, NODE_Y, NODE_W, NODE_H);
+
+        ctx.fillStyle    = '#111';
+        ctx.font         = 'bold 15px Arial';
+        ctx.textAlign    = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(node.value, x + NODE_W / 2, NODE_Y + NODE_H / 2);
+
+        // pointer box
+        const ptrX = x + NODE_W;
+        ctx.fillStyle   = '#f0f0f0';
+        ctx.fillRect(ptrX, NODE_Y, PTR_W, NODE_H);
+        ctx.strokeStyle = '#aaa';
+        ctx.lineWidth   = 1;
+        ctx.strokeRect(ptrX, NODE_Y, PTR_W, NODE_H);
+
+        if (node.next !== null) {
+            // draw arrow
+            const arrowStart = ptrX + PTR_W;
+            const arrowEnd   = arrowStart + 4;
+            const midY       = NODE_Y + NODE_H / 2;
+            ctx.strokeStyle  = '#555';
+            ctx.lineWidth    = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(arrowStart, midY);
+            ctx.lineTo(arrowEnd, midY);
+            ctx.stroke();
+            // arrowhead
+            ctx.fillStyle = '#555';
+            ctx.beginPath();
+            ctx.moveTo(arrowEnd + 6, midY);
+            ctx.lineTo(arrowEnd, midY - 4);
+            ctx.lineTo(arrowEnd, midY + 4);
+            ctx.fill();
+        } else {
+            // NULL label
+            ctx.fillStyle    = '#aaa';
+            ctx.font         = '10px Arial';
+            ctx.textAlign    = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('NULL', ptrX + PTR_W / 2, NODE_Y + NODE_H / 2);
+        }
+
+        // TOP label
+        if (isTop) {
+            ctx.fillStyle    = '#f0a500';
+            ctx.font         = 'bold 11px Arial';
+            ctx.textAlign    = 'center';
+            ctx.textBaseline = 'bottom';
+            ctx.fillText('TOP', x + NODE_W / 2, NODE_Y - 4);
+        }
+
+        node = node.next;
+        i++;
+    }
+}
+
+function resizeCanvas() {
+    canvas.width = START_X * 2 + maxSize * (TOTAL_W + 4) + 20;
+}
+
+function setCode(t) { document.getElementById('codeDisplay').textContent = t; }
+function setMsg(t)  { document.getElementById('msg').textContent = t; }
+</script>
+</body>
+</html>
