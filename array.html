@@ -114,7 +114,7 @@ function doInsert() {
             arr[nextEmpty] = v;
             ghostIdx = null;
             draw();
-            setCode('# Insert into next empty slot\narr[' + nextEmpty + '] = ' + v);
+            setCode('# Menambahkan data X pada posisi ke-i\n# def addDataPoske_i(i,X)\n\naddDataPoske_i(' + nextEmpty + ', ' + v + ')');
             setMsg('Inserted ' + v + ' at index ' + nextEmpty + '.');
         } else {
             ghostIdx = nextEmpty;
@@ -133,7 +133,7 @@ function doInsert() {
             // empty slot — fill
             arr[idx] = v;
             draw();
-            setCode('# Insert into empty slot\narr[' + idx + '] = ' + v);
+            setCode('# Menambahkan data X pada posisi ke-i\n# def addDataPoske_i(i,X)\n\naddDataPoske_i(' + idx + ', ' + v + ')');
             setMsg('Inserted ' + v + ' at index ' + idx + '.');
         } else {
             // occupied — overwrite (no shifting in fixed-size)
@@ -173,7 +173,7 @@ function doDelete() {
     arr[idx] = NaN;
     ghostIdx = null;
     draw();
-    setCode('# Delete — set slot to None (no shifting)\narr[' + idx + '] = None  # was: ' + (isNaN(old) ? 'None' : old));
+    setCode('# Menghapus data pada posisi ke-i\n# def delDataPosKe_i(i)\n\nremoved_val = delDataPosKe_i(' + idx + ')\n# removed_val = ' + (isNaN(old) ? 'None' : old));
     setMsg('Deleted index ' + idx + ' (was: ' + (isNaN(old) ? 'None' : old) + '). Slot is now empty.');
     document.getElementById('delIdx').value = '';
 }

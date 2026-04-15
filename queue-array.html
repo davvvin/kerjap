@@ -76,13 +76,13 @@ function initQueue() {
     document.getElementById('mainScreen').style.display = 'block';
     resizeCanvas();
     draw();
-    setCode('# Create queue (array-based)\nfrom collections import deque\nqueue = deque()\nmax_size = ' + size);
+    setCode('# Create ADT Queue (Static Structure)\nclass Queue:\n    # Limitations: Space O(n)\n    max_size = ' + size);
 }
 
 function resetQueue() {
     queue = [];
     draw();
-    setCode('# Reset queue\nqueue = deque()\nmax_size = ' + maxSize);
+    setCode('# Reset ADT Queue\n# head = 0, tail = 0');
     setMsg('');
 }
 
@@ -92,7 +92,7 @@ function doEnqueue() {
     if (queue.length >= maxSize) { showPopup('Queue is full! Max size is ' + maxSize + '.'); return; }
     queue.push(val);  // add to rear
     draw();
-    setCode('# Enqueue — add to rear\nqueue.append(' + val + ')\n# Queue (front→rear): ' + fmt());
+    setCode('# Performance: O(1)\n# Menambah elemen di Rear\n\nenqueue(' + val + ')\n\n# State (Front→Rear): ' + fmt());
     setMsg('Enqueued ' + val + '. Size: ' + queue.length + '/' + maxSize);
     document.getElementById('enqVal').value = '';
 }
@@ -101,14 +101,14 @@ function doDequeue() {
     if (queue.length === 0) { showPopup('Queue is empty! Cannot dequeue.'); return; }
     const val = queue.shift();  // remove from front
     draw();
-    setCode('# Dequeue — remove from front\nval = queue.popleft()  # val = ' + val + '\n# Queue (front→rear): ' + fmt());
+    setCode('# Performance: O(1)\n# Menghapus elemen di Front\n\nremoved_val = dequeue()\n# removed_val = ' + val + '\n\n# State (Front→Rear): ' + fmt());
     setMsg('Dequeued ' + val + '. Size: ' + queue.length + '/' + maxSize);
 }
 
 function doIsEmpty() {
     const empty = queue.length === 0;
     draw();
-    setCode('# Check if empty\ndef is_empty(q):\n    return len(q) == 0\n\nis_empty(queue)  # → ' + empty);
+    setCode('# Performance: O(1)\n# Mengecek apakah queue kosong\n\nstatus = isempty()\n# status = ' + empty);
     setMsg('isEmpty → ' + empty);
 }
 

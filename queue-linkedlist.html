@@ -84,14 +84,14 @@ function initQueue() {
     document.getElementById('mainScreen').style.display = 'block';
     resizeCanvas();
     draw();
-    setCode('# Queue via linked list\nclass Node:\n    def __init__(self, val):\n        self.value = val\n        self.next  = None\n\nhead = None  # front\ntail = None  # rear');
+    setCode('# Queue via List Linier\nclass Node:\n    def __init__(self, val):\n        self.info = val\n        self.next = None\n\n# Front = Head, Rear = Tail\nhead = None\ntail = None');
 }
 
 function resetQueue() {
     head = tail = null;
     size = 0;
     draw();
-    setCode('# Reset queue\nhead = None\ntail = None');
+    setCode('# Reset Queue List Linier\nhead = None\ntail = None');
     setMsg('');
 }
 
@@ -109,7 +109,7 @@ function doEnqueue() {
     }
     size++;
     draw();
-    setCode('# Enqueue — add to rear\nnew_node = Node(' + val + ')\nif tail:\n    tail.next = new_node\ntail = new_node\nif not head:\n    head = tail');
+    setCode('# Insert di Rear (Sama dengan InsertLast)\n\nenqueue(' + val + ')\n# node baru ditambahkan di akhir (tail)');
     setMsg('Enqueued ' + val + '. Size: ' + size + '/' + maxSize);
     document.getElementById('enqVal').value = '';
 }
@@ -121,14 +121,14 @@ function doDequeue() {
     if (!head) tail = null;
     size--;
     draw();
-    setCode('# Dequeue — remove from front\nval = head.value  # val = ' + val + '\nhead = head.next\nif not head:\n    tail = None');
+    setCode('# Delete di Front (Sama dengan DeleteFirst)\n\nremoved_val = dequeue()\n# removed_val = ' + val + '\n# head bergeser ke elemen berikutnya');
     setMsg('Dequeued ' + val + '. Size: ' + size + '/' + maxSize);
 }
 
 function doIsEmpty() {
     const empty = head === null;
     draw();
-    setCode('# Check if empty\ndef is_empty():\n    return head is None\n\nis_empty()  # → ' + empty);
+    setCode('# Mengecek apakah queue kosong\n\nstatus = isempty()\n# status = ' + empty);
     setMsg('isEmpty → ' + empty);
 }
 

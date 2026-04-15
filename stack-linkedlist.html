@@ -85,14 +85,14 @@ function initStack() {
     document.getElementById('mainScreen').style.display = 'block';
     resizeCanvas();
     draw();
-    setCode('# Stack via linked list\nclass Node:\n    def __init__(self, val):\n        self.value = val\n        self.next  = None\n\nhead = None  # empty stack');
+    setCode('# Stack via List Linier\nclass Node:\n    def __init__(self, val):\n        self.info = val\n        self.next = None\n\n# Top menunjuk elemen pertama list (Head)\nhead = None');
 }
 
 function resetStack() {
     head = null;
     size = 0;
     draw();
-    setCode('# Reset stack\nhead = None');
+    setCode('# Reset Stack List Linier\nhead = None');
     setMsg('');
 }
 
@@ -106,7 +106,7 @@ function doPush() {
     head       = node;
     size++;
     draw();
-    setCode('# Push — insert at head\nnew_node = Node(' + val + ')\nnew_node.next = head\nhead = new_node');
+    setCode('# Insert di Top (Sama dengan InsertFirst)\n\npush(' + val + ')\n# node baru menjadi Top (Head) yang baru');
     setMsg('Pushed ' + val + '. Size: ' + size + '/' + maxSize);
     document.getElementById('pushVal').value = '';
 }
@@ -117,14 +117,14 @@ function doPop() {
     head = head.next;
     size--;
     draw();
-    setCode('# Pop — remove head\nval = head.value  # val = ' + val + '\nhead = head.next');
+    setCode('# Delete di Top (Sama dengan DeleteFirst)\n\nremoved_val = pop()\n# removed_val = ' + val + '\n# Top (Head) bergeser ke elemen berikutnya');
     setMsg('Popped ' + val + '. Size: ' + size + '/' + maxSize);
 }
 
 function doIsEmpty() {
     const empty = head === null;
     draw();
-    setCode('# Check if empty\ndef is_empty():\n    return head is None\n\nis_empty()  # → ' + empty);
+    setCode('# Mengecek apakah stack kosong\n\nstatus = isempty()\n# status = ' + empty);
     setMsg('isEmpty → ' + empty);
 }
 
