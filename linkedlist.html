@@ -17,8 +17,8 @@
             <label>Insert</label>
             <input id="insVal" type="number" placeholder="value" />
             <select id="insPos">
-                <option value="head">at Head</option>
-                <option value="tail">at Tail</option>
+                <option value="head">at First</option>
+                <option value="tail">at Last</option>
                 <option value="index">at Index</option>
             </select>
             <input id="insIdx" type="number" placeholder="index" style="display:none; width:70px" />
@@ -27,8 +27,8 @@
         <span class="ctrl-group">
             <label>Delete</label>
             <select id="delPos">
-                <option value="head">Head</option>
-                <option value="tail">Tail</option>
+                <option value="head">First</option>
+                <option value="tail">Last</option>
                 <option value="index">at Index</option>
             </select>
             <input id="delIdx" type="number" placeholder="index" style="display:none; width:70px" />
@@ -101,8 +101,12 @@ function doInsert() {
         head = node;
         size++;
         draw();
-        setCode('# Insert at head\nnew_node = Node(' + val + ')\nnew_node.next = head\nhead = new_node');
-        setMsg('Inserted ' + val + ' at head.');
+        setCode(`def InsertFirst(self, Q):
+    # Q = Node(${val})
+    Q.next = self.first
+    self.first = Q
+    return`);
+        setMsg('Inserted ' + val + ' at first.');
 
     } else if (pos === 'tail') {
         if (!head) {
@@ -114,8 +118,17 @@ function doInsert() {
         }
         size++;
         draw();
-        setCode('# Insert at tail\nnew_node = Node(' + val + ')\nif not head:\n    head = new_node\nelse:\n    cur = head\n    while cur.next:\n        cur = cur.next\n    cur.next = new_node');
-        setMsg('Inserted ' + val + ' at tail.');
+        setCode(`def InsertLast(self, Q):
+    # Q = Node(${val})
+    if (self.first == None):
+        self.InsertFirst(Q)
+    else:
+        last = self.first
+        while (last.next != None):
+            last = last.next
+        last.next = Q
+    return`);
+        setMsg('Inserted ' + val + ' at last.');
 
     } else {
         const idx = parseInt(document.getElementById('insIdx').value);
@@ -133,7 +146,11 @@ function doInsert() {
         }
         size++;
         draw();
-        setCode('# Insert at index ' + idx + '\nnew_node = Node(' + val + ')\ncur = head\nfor _ in range(' + (idx-1) + '):\n    cur = cur.next\nnew_node.next = cur.next\ncur.next = new_node');
+        setCode(`def InsertAfter(self, prev, Q):
+    # prev = node[${idx}-1], Q = Node(${val})
+    Q.next = prev.next
+    prev.next = Q
+    return`);
         setMsg('Inserted ' + val + ' at index ' + idx + '.');
     }
 
@@ -153,8 +170,14 @@ function doDelete() {
         head    = head.next;
         size--;
         draw();
-        setCode('# Delete head\nremoved = head.value  # ' + removed + '\nhead = head.next');
-        setMsg('Deleted head (was: ' + removed + ').');
+        setCode(`def DeleteFirst(self):
+    Q = self.first
+    self.first = self.first.next
+    Q.next = None
+    return Q
+
+# removed_val = ${removed}`);
+        setMsg('Deleted first (was: ' + removed + ').');
 
     } else if (pos === 'tail') {
         if (!head.next) {
@@ -168,8 +191,21 @@ function doDelete() {
         }
         size--;
         draw();
-        setCode('# Delete tail\ncur = head\nwhile cur.next.next:\n    cur = cur.next\nremoved = cur.next.value  # ' + removed + '\ncur.next = None');
-        setMsg('Deleted tail (was: ' + removed + ').');
+        setCode(`def DeleteLast(self):
+    if (self.first.next == None):
+        last = self.first
+        self.first = None
+    else:
+        prevlast = None  
+        last = self.first
+        while (last.next != None):
+            prevlast = last
+            last = last.next
+        prevlast.next = None
+    return last 
+
+# removed_val = ${removed}`);
+        setMsg('Deleted last (was: ' + removed + ').');
 
     } else {
         const idx = parseInt(document.getElementById('delIdx').value);
@@ -187,7 +223,14 @@ function doDelete() {
         }
         size--;
         draw();
-        setCode('# Delete at index ' + idx + '\ncur = head\nfor _ in range(' + (idx-1) + '):\n    cur = cur.next\nremoved = cur.next.value  # ' + removed + '\ncur.next = cur.next.next');
+        setCode(`def DeleteAfter(self, prev):
+    # prev = node[${idx}-1]
+    Q = prev.next
+    prev.next = prev.next.next
+    Q.next = None
+    return Q 
+
+# removed_val = ${removed}`);
         setMsg('Deleted index ' + idx + ' (was: ' + removed + ').');
         document.getElementById('delIdx').value = '';
     }
@@ -269,13 +312,13 @@ function draw() {
         ctx.textBaseline = 'bottom';
         if (isHead && isTail) {
             ctx.fillStyle = '#888';
-            ctx.fillText('HEAD & TAIL', x + NODE_W / 2, NODE_Y - 4);
+            ctx.fillText('FIRST & LAST', x + NODE_W / 2, NODE_Y - 4);
         } else if (isHead) {
             ctx.fillStyle = '#1976d2';
-            ctx.fillText('HEAD', x + NODE_W / 2, NODE_Y - 4);
+            ctx.fillText('FIRST', x + NODE_W / 2, NODE_Y - 4);
         } else if (isTail) {
             ctx.fillStyle = '#555';
-            ctx.fillText('TAIL', x + NODE_W / 2, NODE_Y - 4);
+            ctx.fillText('LAST', x + NODE_W / 2, NODE_Y - 4);
         }
 
         node = node.next;

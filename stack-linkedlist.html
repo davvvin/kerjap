@@ -106,7 +106,12 @@ function doPush() {
     head       = node;
     size++;
     draw();
-    setCode('# Insert di Top (Sama dengan InsertFirst)\n\npush(' + val + ')\n# node baru menjadi Top (Head) yang baru');
+    setCode(`def push(self, X):
+    # X = ${val}
+    Q = Node(X)
+    Q.next = self.top
+    self.top = Q
+    return`);
     setMsg('Pushed ' + val + '. Size: ' + size + '/' + maxSize);
     document.getElementById('pushVal').value = '';
 }
@@ -117,14 +122,23 @@ function doPop() {
     head = head.next;
     size--;
     draw();
-    setCode('# Delete di Top (Sama dengan DeleteFirst)\n\nremoved_val = pop()\n# removed_val = ' + val + '\n# Top (Head) bergeser ke elemen berikutnya');
+    setCode(`def pop(self):
+    Q = self.top
+    self.top = self.top.next
+    Q.next = None
+    return Q.info
+
+# removed_val = ${val}`);
     setMsg('Popped ' + val + '. Size: ' + size + '/' + maxSize);
 }
 
 function doIsEmpty() {
     const empty = head === null;
     draw();
-    setCode('# Mengecek apakah stack kosong\n\nstatus = isempty()\n# status = ' + empty);
+    setCode(`def isEmpty(self):
+    return (self.top == None)
+
+# status = ${empty}`);
     setMsg('isEmpty → ' + empty);
 }
 

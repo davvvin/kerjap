@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Binary Search Tree – DS Visualizer</title>
+    <link rel="stylesheet" href="style.css" />
+    <style>
+        .viz-row {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Overriding row limit for Trees */
+    </style>
+</head>
+
+<body>
+
+    <a href="index.html" class="back">← Back</a>
+    <h2>Binary Search Tree</h2>
+
+    <div id="mainScreen">
+        <div class="controls">
+            <span class="ctrl-group">
+                <label>Insert</label>
+                <input id="insVal" type="number" placeholder="value" />
+                <button onclick="doInsert()">Insert</button>
+            </span>
+            <span class="ctrl-group">
+                <label>Update</label>
+                <input id="updOld" type="number" placeholder="old val" />
+                <input id="updNew" type="number" placeholder="new val" />
+                <button onclick="doUpdate()">Update</button>
+            </span>
+            <span class="ctrl-group">
+                <label>Delete</label>
+                <input id="delVal" type="number" placeholder="value" />
+                <button onclick="doDelete()">Delete</button>
+            </span>
+            <span class="ctrl-group">
+                <button class="btn-reset" onclick="resetTree()">Reset</button>
+            </span>
+        </div>
+
+        <div class="viz-row">
+            <canvas id="c" width="800" height="300"></canvas>
+            <div class="code-panel" style="width:100%; max-width:800px;">
+                <div class="code-label">// Python - BST</div>
+                <pre id="codeDisplay">No operations yet.</pre>
+            </div>
+        </div>
+        <div id="msg" class="msg"></div>
+    </div>
+
+    <!-- POPUP -->
+    <div class="popup-overlay" id="popupOverlay">
+        <div class="popup-box">
+            <div class="popup-icon">⚠️</div>
+            <p id="popupMsg"></p>
+            <button onclick="closePopup()">OK</button>
+        </div>
+    </div>
+
+    <script src="popup.js"></script>
+    <script>
+        const RADIUS = 20;
+        const canvas = document.getElementById('c');
+        const ctx = canvas.getContext('2d');
+
+        class Node {
+            constructor(val) {
+                this.info = val;
+                this.left = null;
+                this.right = null;
+                this.x = 0;
+                this.y = 0;
+            }
+        }
+
+        let root = null;
+
+        function resetTree() {
+            root = null;
+            draw();
+            setCode('# Root pointer reset to None\nroot = None');
+            setMsg('Tree has been reset.');
+        }
+
+        // ── BST Logic ───────────────────────────────────────────────
+        function insertBST(node, val) {
+            if (!node) return new Node(val);
+            if (val < node.info) {
+                node.left = insertBST(node.left, val);
+            } else if (val > node.info) {
+                node.right = insertBST(node.right, val);
+            }
+            return node;
+        }
+
+        function findMin(node) {
+            let curr = node;
+            while (curr.left !== null) curr = curr.left;
+            return curr;
+        }
+
+        function deleteBST(node, val) {
+            if (!node) return null;
+
+            if (val < node.info) {
+                node.left = deleteBST(node.left, val);
+            } else if (val > node.info) {
+                node.right = deleteBST(node.right, val);
+            } else {
+                // Node found
+                // Case 1 & 2: 0 or 1 child
+                if (!node.left) return node.right;
+                if (!node.right) return node.left;
+
+                // Case 3: 2 children. Find min in right subtree
+                let temp = findMin(node.right);
+                node.info = temp.info;
+                node.right = deleteBST(node.right, temp.info);
+            }
+            return node;
+        }
+
+        function exists(node, val) {
+            if (!node) return false;
+            if (node.info === val) return true;
+            return val < node.info ? exists(node.left, val) : exists(node.right, val);
+        }
+
+        // ── UI Actions ──────────────────────────────────────────────
+        function doInsert() {
+            const val = parseFloat(document.getElementById('insVal').value);
+            if (isNaN(val)) { showPopup('Please enter a valid number.'); return; }
+
+            if (exists(root, val)) {
+                showPopup('Value ' + val + ' already exists in BST.'); return;
+            }
+
+            root = insertBST(root, val);
+            draw();
+            setCode(`def insert(self, root, key):
+    # key = ${val}
+    if root is None:
+        return Node(key)
+    if key < root.info:
+        root.left = self.insert(root.left, key)
+    elif key > root.info:
+        root.right = self.insert(root.right, key)
+    return root`);
+            setMsg('Inserted ' + val + '.');
+            document.getElementById('insVal').value = '';
+        }
+
+        function doUpdate() {
+            const oldV = parseFloat(document.getElementById('updOld').value);
+            const newV = parseFloat(document.getElementById('updNew').value);
+            if (isNaN(oldV) || isNaN(newV)) { showPopup('Please provide both old and new values.'); return; }
+
+            if (!exists(root, oldV)) { showPopup('Value ' + oldV + ' not found.'); return; }
+
+            root = deleteBST(root, oldV);
+            root = insertBST(root, newV);
+            draw();
+            setCode(`def update(self, root, old_key, new_key):
+    # old_key = ${oldV}, new_key = ${newV}
+    # BST Update is performed as Delete(old) -> Insert(new)
+    root = self.delete(root, old_key)
+    root = self.insert(root, new_key)
+    return root`);
+            setMsg('Updated ' + oldV + ' to ' + newV + '.');
+        }
+
+        function doDelete() {
+            const val = parseFloat(document.getElementById('delVal').value);
+            if (isNaN(val)) { showPopup('Please enter a valid number to delete.'); return; }
+
+            if (!exists(root, val)) { showPopup('Value ' + val + ' not found in tree.'); return; }
+
+            root = deleteBST(root, val);
+            draw();
+            setCode(`def delete(self, root, key):
+    # key = ${val}
+    if not root: return root
+    if key < root.info:
+        root.left = self.delete(root.left, key)
+    elif key > root.info:
+        root.right = self.delete(root.right, key)
+    else:
+        if root.left is None:
+            return root.right
+        elif root.right is None:
+            return root.left
+        temp = self.minValueNode(root.right)
+        root.info = temp.info
+        root.right = self.delete(root.right, temp.info)
+    return root`);
+            setMsg('Deleted ' + val + '.');
+            document.getElementById('delVal').value = '';
+        }
+
+        // ── Drawing ──────────────────────────────────────────────────
+        function calcTree(node, x, y, dx) {
+            if (!node) return;
+            node.x = x;
+            node.y = y;
+            calcTree(node.left, x - dx, y + 60, dx / 2);
+            calcTree(node.right, x + dx, y + 60, dx / 2);
+        }
+
+        function drawConnections(node) {
+            if (!node) return;
+
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = '#555';
+
+            if (node.left) {
+                ctx.beginPath();
+                ctx.moveTo(node.x, node.y);
+                ctx.lineTo(node.left.x, node.left.y);
+                ctx.stroke();
+                drawConnections(node.left);
+            }
+            if (node.right) {
+                ctx.beginPath();
+                ctx.moveTo(node.x, node.y);
+                ctx.lineTo(node.right.x, node.right.y);
+                ctx.stroke();
+                drawConnections(node.right);
+            }
+        }
+
+        function drawNodes(node) {
+            if (!node) return;
+
+            ctx.beginPath();
+            ctx.arc(node.x, node.y, RADIUS, 0, 2 * Math.PI);
+            ctx.fillStyle = '#fffbe6';
+            ctx.fill();
+            ctx.strokeStyle = '#f0a500';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            ctx.fillStyle = '#111';
+            ctx.font = 'bold 15px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(node.info, node.x, node.y);
+
+            drawNodes(node.left);
+            drawNodes(node.right);
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if (!root) {
+                ctx.fillStyle = '#aaa';
+                ctx.font = '15px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('Tree is empty', canvas.width / 2, canvas.height / 2);
+                return;
+            }
+            calcTree(root, canvas.width / 2, RADIUS + 10, canvas.width / 4);
+            drawConnections(root);
+            drawNodes(root);
+        }
+
+        function setCode(t) { document.getElementById('codeDisplay').textContent = t; }
+        function setMsg(t) { document.getElementById('msg').textContent = t; }
+
+        draw();
+        setCode('# Class Definitions for BST\\nclass Node:\\n    def __init__(self, key):\\n        self.info = key\\n        self.left = None\\n        self.right = None\\n\\nroot = None');
+    </script>
+</body>
+
+</html>

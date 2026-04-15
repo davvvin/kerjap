@@ -89,7 +89,14 @@ function doPush() {
     if (stack.length >= maxSize) { showPopup('Stack overflow! Max size is ' + maxSize + '.'); return; }
     stack.push(val);
     draw();
-    setCode('# Performance: O(1)\n# Menambah elemen di Top\n\npush(' + val + ')\n\n# State: ' + fmt() + '\n# size() = ' + stack.length);
+    setCode(`def push(self, X):
+    # X = ${val}
+    self.top = self.top + 1
+    self.items[self.top] = X
+    return
+
+# State: ${fmt()}
+# size() = ${stack.length}`);
     setMsg('Pushed ' + val + '. Size: ' + stack.length + '/' + maxSize);
     document.getElementById('pushVal').value = '';
 }
@@ -98,14 +105,24 @@ function doPop() {
     if (stack.length === 0) { showPopup('Stack underflow! Stack is empty.'); return; }
     const val = stack.pop();
     draw();
-    setCode('# Performance: O(1)\n# Menghapus elemen di Top\n\nremoved_val = pop()\n# removed_val = ' + val + '\n\n# State: ' + fmt() + '\n# size() = ' + stack.length);
+    setCode(`def pop(self):
+    X = self.items[self.top]
+    self.top = self.top - 1
+    return X
+    
+# removed_val = ${val}
+# State: ${fmt()}
+# size() = ${stack.length}`);
     setMsg('Popped ' + val + '. Size: ' + stack.length + '/' + maxSize);
 }
 
 function doIsEmpty() {
     const empty = stack.length === 0;
     draw();
-    setCode('# Performance: O(1)\n# Mengecek apakah stack kosong\n\nstatus = isempty()\n# status = ' + empty);
+    setCode(`def isEmpty(self):
+    return self.top == 0
+
+# status = ${empty}`);
     setMsg('isEmpty → ' + empty);
 }
 

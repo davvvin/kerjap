@@ -109,7 +109,16 @@ function doEnqueue() {
     }
     size++;
     draw();
-    setCode('# Insert di Rear (Sama dengan InsertLast)\n\nenqueue(' + val + ')\n# node baru ditambahkan di akhir (tail)');
+    setCode(`def insert(self, X):
+    # X = ${val}
+    Q = Node(X)
+    if self.IsEmpty():
+        self.head = Q
+        self.tail = Q
+    else:
+        self.tail.next = Q
+        self.tail = Q
+    return`);
     setMsg('Enqueued ' + val + '. Size: ' + size + '/' + maxSize);
     document.getElementById('enqVal').value = '';
 }
@@ -121,14 +130,26 @@ function doDequeue() {
     if (!head) tail = null;
     size--;
     draw();
-    setCode('# Delete di Front (Sama dengan DeleteFirst)\n\nremoved_val = dequeue()\n# removed_val = ' + val + '\n# head bergeser ke elemen berikutnya');
+    setCode(`def delete(self):
+    Q = self.head
+    if self.head == self.tail:
+        self.head = None
+        self.tail = None
+    else:
+        self.head = self.head.next
+    return Q.info
+
+# removed_val = ${val}`);
     setMsg('Dequeued ' + val + '. Size: ' + size + '/' + maxSize);
 }
 
 function doIsEmpty() {
     const empty = head === null;
     draw();
-    setCode('# Mengecek apakah queue kosong\n\nstatus = isempty()\n# status = ' + empty);
+    setCode(`def isEmpty(self):
+    return (self.head == None)
+
+# status = ${empty}`);
     setMsg('isEmpty → ' + empty);
 }
 

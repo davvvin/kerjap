@@ -48,9 +48,13 @@ function doPush() {
 
   stack.push(val);
   draw();
-  setCode(
-    '# Push value onto top of stack\nstack.append(' + val + ')\n# Stack: ' + formatStack()
-  );
+  setCode(`def push(self, X):
+    # X = ${val}
+    self.top = self.top + 1
+    self.items[self.top] = X
+    return
+
+# Stack: ${formatStack()}`);
   setMsg('Pushed ' + val + '. Stack size: ' + stack.length + '/' + maxSize);
 
   document.getElementById('pushVal').value = '';
@@ -65,18 +69,23 @@ function doPop() {
 
   const val = stack.pop();
   draw();
-  setCode(
-    '# Pop value from top of stack\nval = stack.pop()  # val = ' + val + '\n# Stack: ' + formatStack()
-  );
+  setCode(`def pop(self):
+    X = self.items[self.top]
+    self.top = self.top - 1
+    return X
+
+# val = ${val}
+# Stack: ${formatStack()}`);
   setMsg('Popped ' + val + '. Stack size: ' + stack.length + '/' + maxSize);
 }
 
 function doIsEmpty() {
   const empty = stack.length === 0;
   draw();
-  setCode(
-    '# Check if stack is empty\ndef is_empty(stack):\n    return len(stack) == 0\n\nis_empty(stack)  # → ' + empty
-  );
+  setCode(`def isEmpty(self):
+    return self.top == 0
+
+# is_empty(stack)  # → ${empty}`);
   setMsg('isEmpty → ' + empty);
 }
 

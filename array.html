@@ -1,238 +1,251 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Array – DS Visualizer</title>
     <link rel="stylesheet" href="style.css" />
 </head>
+
 <body>
 
-<a href="index.html" class="back">← Back</a>
-<h2>Array (Fixed-Size)</h2>
+    <a href="index.html" class="back">← Back</a>
+    <h2>Array (Fixed-Size)</h2>
 
-<!-- INIT -->
-<div id="initScreen">
-    <label>Array size: <input id="sizeInput" type="number" min="1" max="20" placeholder="e.g. 6" /></label>
-    <button onclick="initArray()">Create Array</button>
-</div>
-
-<!-- MAIN -->
-<div id="mainScreen" style="display:none">
-    <div class="controls">
-        <span class="ctrl-group">
-            <label>Insert</label>
-            <input id="insVal" type="number" placeholder="value" />
-            <input id="insIdx" type="number" placeholder="index (opt.)" />
-            <button onclick="doInsert()">Insert</button>
-        </span>
-        <span class="ctrl-group">
-            <label>Update</label>
-            <input id="updIdx" type="number" placeholder="index" />
-            <input id="updVal" type="number" placeholder="new value" />
-            <button onclick="doUpdate()">Update</button>
-        </span>
-        <span class="ctrl-group">
-            <label>Delete</label>
-            <input id="delIdx" type="number" placeholder="index" />
-            <button onclick="doDelete()">Delete</button>
-        </span>
-        <span class="ctrl-group">
-            <button class="btn-reset" onclick="resetArray()">Reset</button>
-        </span>
+    <!-- INIT -->
+    <div id="initScreen">
+        <label>Array size: <input id="sizeInput" type="number" min="1" max="20" placeholder="e.g. 6" /></label>
+        <button onclick="initArray()">Create Array</button>
     </div>
 
-    <div class="viz-row">
-        <canvas id="c" height="140"></canvas>
-        <div class="code-panel">
-            <div class="code-label">// Python</div>
-            <pre id="codeDisplay">No operations yet.</pre>
+    <!-- MAIN -->
+    <div id="mainScreen" style="display:none">
+        <div class="controls">
+            <span class="ctrl-group">
+                <label>Insert</label>
+                <input id="insVal" type="number" placeholder="value" />
+                <input id="insIdx" type="number" placeholder="index (opt.)" />
+                <button onclick="doInsert()">Insert</button>
+            </span>
+            <span class="ctrl-group">
+                <label>Update</label>
+                <input id="updIdx" type="number" placeholder="index" />
+                <input id="updVal" type="number" placeholder="new value" />
+                <button onclick="doUpdate()">Update</button>
+            </span>
+            <span class="ctrl-group">
+                <label>Delete</label>
+                <input id="delIdx" type="number" placeholder="index" />
+                <button onclick="doDelete()">Delete</button>
+            </span>
+            <span class="ctrl-group">
+                <button class="btn-reset" onclick="resetArray()">Reset</button>
+            </span>
+        </div>
+
+        <div class="viz-row">
+            <canvas id="c" height="140"></canvas>
+            <div class="code-panel">
+                <div class="code-label">// Python</div>
+                <pre id="codeDisplay">No operations yet.</pre>
+            </div>
+        </div>
+        <div id="msg" class="msg"></div>
+    </div>
+
+    <!-- POPUP -->
+    <div class="popup-overlay" id="popupOverlay">
+        <div class="popup-box">
+            <div class="popup-icon">⚠️</div>
+            <p id="popupMsg"></p>
+            <button onclick="closePopup()">OK</button>
         </div>
     </div>
-    <div id="msg" class="msg"></div>
-</div>
 
-<!-- POPUP -->
-<div class="popup-overlay" id="popupOverlay">
-    <div class="popup-box">
-        <div class="popup-icon">⚠️</div>
-        <p id="popupMsg"></p>
-        <button onclick="closePopup()">OK</button>
-    </div>
-</div>
+    <script src="popup.js"></script>
+    <script>
+        const CELL_W = 60, CELL_H = 50, START_X = 10, START_Y = 30;
+        const canvas = document.getElementById('c');
+        const ctx = canvas.getContext('2d');
 
-<script src="popup.js"></script>
-<script>
-const CELL_W = 60, CELL_H = 50, START_X = 10, START_Y = 30;
-const canvas = document.getElementById('c');
-const ctx    = canvas.getContext('2d');
+        let arr = [];   // NaN = empty
+        let capacity = 0;
+        let ghostIdx = null; // index of ghost box to show
 
-let arr      = [];   // NaN = empty
-let capacity = 0;
-let ghostIdx = null; // index of ghost box to show
-
-function initArray() {
-    const size = parseInt(document.getElementById('sizeInput').value);
-    if (!size || size < 1) { showPopup('Please enter a valid size.'); return; }
-    capacity = size;
-    arr = Array(size).fill(NaN);
-    ghostIdx = null;
-    document.getElementById('initScreen').style.display = 'none';
-    document.getElementById('mainScreen').style.display = 'block';
-    resizeCanvas();
-    draw();
-    setCode('# Create fixed-size array\narr = [None] * ' + size);
-}
-
-function resetArray() {
-    arr = Array(capacity).fill(NaN);
-    ghostIdx = null;
-    draw();
-    setCode('# Reset array\narr = [None] * ' + capacity);
-    setMsg('');
-}
-
-// ── Insert ────────────────────────────────────────────────────
-function doInsert() {
-    const val    = document.getElementById('insVal').value.trim();
-    const idxRaw = document.getElementById('insIdx').value.trim();
-
-    if (val === '') { showPopup('Please enter a value.'); return; }
-    const v = parseFloat(val);
-
-    if (idxRaw === '') {
-        // no index — find next empty slot, show ghost at that slot
-        const nextEmpty = arr.findIndex(x => isNaN(x));
-        if (nextEmpty === -1) {
-            showPopup('Array is full. Delete a slot first.');
-            return;
+        function initArray() {
+            const size = parseInt(document.getElementById('sizeInput').value);
+            if (!size || size < 1) { showPopup('Please enter a valid size.'); return; }
+            capacity = size;
+            arr = Array(size).fill(NaN);
+            ghostIdx = null;
+            document.getElementById('initScreen').style.display = 'none';
+            document.getElementById('mainScreen').style.display = 'block';
+            resizeCanvas();
+            draw();
+            setCode('# Create fixed-size array\narr = [None] * ' + size);
         }
-        // if ghost is already showing at nextEmpty, it means user wants to confirm
-        // otherwise just show ghost
-        if (ghostIdx === nextEmpty) {
-            // confirm: fill it
-            arr[nextEmpty] = v;
+
+        function resetArray() {
+            arr = Array(capacity).fill(NaN);
             ghostIdx = null;
             draw();
-            setCode('# Menambahkan data X pada posisi ke-i\n# def addDataPoske_i(i,X)\n\naddDataPoske_i(' + nextEmpty + ', ' + v + ')');
-            setMsg('Inserted ' + v + ' at index ' + nextEmpty + '.');
-        } else {
-            ghostIdx = nextEmpty;
-            draw();
-            setMsg('Ghost shown at index ' + nextEmpty + '. Press Insert again to confirm.');
-            return;
+            setCode('# Reset array\narr = [None] * ' + capacity);
+            setMsg('');
         }
-    } else {
-        const idx = parseInt(idxRaw);
-        if (isNaN(idx) || idx < 0 || idx >= capacity) {
-            showPopup('Index must be between 0 and ' + (capacity - 1) + '.');
-            return;
+
+        // ── Insert ────────────────────────────────────────────────────
+        function doInsert() {
+            const val = document.getElementById('insVal').value.trim();
+            const idxRaw = document.getElementById('insIdx').value.trim();
+
+            if (val === '') { showPopup('Please enter a value.'); return; }
+            const v = parseFloat(val);
+
+            if (idxRaw === '') {
+                const nextEmpty = arr.findIndex(x => isNaN(x));
+                if (nextEmpty === -1) {
+                    showPopup('Array is full. Delete a slot first.');
+                    return;
+                }
+
+                // fill immediately
+                arr[nextEmpty] = v;
+                ghostIdx = null;
+                draw();
+                setCode(`def addData(self, newData):
+    # newData = ${v}
+    self.items[self.N] = newData
+    self.N = self.N + 1
+    return`);
+                setMsg('Inserted ' + v + ' at index ' + nextEmpty + '.');
+            } else {
+                const idx = parseInt(idxRaw);
+                if (isNaN(idx) || idx < 0 || idx >= capacity) {
+                    showPopup('Index must be between 0 and ' + (capacity - 1) + '.');
+                    return;
+                }
+                ghostIdx = null;
+                if (isNaN(arr[idx])) {
+                    // empty slot — fill
+                    arr[idx] = v;
+                    draw();
+                    setCode(`def addData(self, newData):
+    # newData = ${v}
+    self.items[self.N] = newData
+    self.N = self.N + 1
+    return`);
+                    setMsg('Inserted ' + v + ' at index ' + idx + '.');
+                } else {
+                    // occupied — overwrite (no shifting in fixed-size)
+                    const old = arr[idx];
+                    arr[idx] = v;
+                    draw();
+                    setCode(`def setElemen(self, i, value):
+    # i = ${idx}, value = ${v}
+    self.items[i] = value
+    return`);
+                    setMsg('Overwrote index ' + idx + ': ' + old + ' → ' + v + '.');
+                }
+            }
+
+            document.getElementById('insVal').value = '';
+            document.getElementById('insIdx').value = '';
         }
-        ghostIdx = null;
-        if (isNaN(arr[idx])) {
-            // empty slot — fill
-            arr[idx] = v;
-            draw();
-            setCode('# Menambahkan data X pada posisi ke-i\n# def addDataPoske_i(i,X)\n\naddDataPoske_i(' + idx + ', ' + v + ')');
-            setMsg('Inserted ' + v + ' at index ' + idx + '.');
-        } else {
-            // occupied — overwrite (no shifting in fixed-size)
+
+        // ── Update ────────────────────────────────────────────────────
+        function doUpdate() {
+            const idx = parseInt(document.getElementById('updIdx').value);
+            const val = parseFloat(document.getElementById('updVal').value);
+            if (isNaN(idx) || idx < 0 || idx >= capacity) { showPopup('Index must be between 0 and ' + (capacity - 1) + '.'); return; }
+            if (isNaN(val)) { showPopup('Please enter a new value.'); return; }
             const old = arr[idx];
-            arr[idx] = v;
+            arr[idx] = val;
+            ghostIdx = null;
             draw();
-            setCode('# Slot occupied — overwrite (fixed-size)\narr[' + idx + '] = ' + v + '  # was: ' + old);
-            setMsg('Overwrote index ' + idx + ': ' + old + ' → ' + v + '.');
-        }
-    }
-
-    document.getElementById('insVal').value = '';
-    document.getElementById('insIdx').value = '';
-}
-
-// ── Update ────────────────────────────────────────────────────
-function doUpdate() {
-    const idx = parseInt(document.getElementById('updIdx').value);
-    const val = parseFloat(document.getElementById('updVal').value);
-    if (isNaN(idx) || idx < 0 || idx >= capacity) { showPopup('Index must be between 0 and ' + (capacity-1) + '.'); return; }
-    if (isNaN(val)) { showPopup('Please enter a new value.'); return; }
-    const old = arr[idx];
-    arr[idx] = val;
-    ghostIdx = null;
-    draw();
-    setCode('# Update value\narr[' + idx + '] = ' + val + '  # was: ' + (isNaN(old) ? 'None' : old));
-    setMsg('Updated index ' + idx + ': ' + (isNaN(old) ? 'None' : old) + ' → ' + val);
-    document.getElementById('updIdx').value = '';
-    document.getElementById('updVal').value = '';
-}
-
-// ── Delete ────────────────────────────────────────────────────
-function doDelete() {
-    const idx = parseInt(document.getElementById('delIdx').value);
-    if (isNaN(idx) || idx < 0 || idx >= capacity) { showPopup('Index must be between 0 and ' + (capacity-1) + '.'); return; }
-    const old = arr[idx];
-    arr[idx] = NaN;
-    ghostIdx = null;
-    draw();
-    setCode('# Menghapus data pada posisi ke-i\n# def delDataPosKe_i(i)\n\nremoved_val = delDataPosKe_i(' + idx + ')\n# removed_val = ' + (isNaN(old) ? 'None' : old));
-    setMsg('Deleted index ' + idx + ' (was: ' + (isNaN(old) ? 'None' : old) + '). Slot is now empty.');
-    document.getElementById('delIdx').value = '';
-}
-
-// ── Draw ──────────────────────────────────────────────────────
-function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // draw capacity slots
-    for (let i = 0; i < capacity; i++) {
-        const x       = START_X + i * CELL_W;
-        const y       = START_Y;
-        const isEmpty = isNaN(arr[i]);
-        const isGhost = (ghostIdx === i);
-
-        if (isGhost) {
-            // ghost box — dashed outline, no fill
-            ctx.setLineDash([5, 4]);
-            ctx.strokeStyle = '#4CAF50';
-            ctx.lineWidth   = 2;
-            ctx.strokeRect(x, y, CELL_W, CELL_H);
-            ctx.setLineDash([]);
-
-            ctx.fillStyle = '#4CAF50';
-            ctx.font      = '11px Arial';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText('← here', x + CELL_W / 2, y + CELL_H / 2);
-        } else {
-            // normal cell
-            ctx.fillStyle   = isEmpty ? '#f9f9f9' : '#fff';
-            ctx.fillRect(x, y, CELL_W, CELL_H);
-            ctx.strokeStyle = isEmpty ? '#ddd' : '#333';
-            ctx.lineWidth   = isEmpty ? 1 : 1.5;
-            ctx.setLineDash([]);
-            ctx.strokeRect(x, y, CELL_W, CELL_H);
-
-            ctx.fillStyle = isEmpty ? '#bbb' : '#111';
-            ctx.font      = isEmpty ? '12px Arial' : 'bold 15px Arial';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(isEmpty ? 'NaN' : arr[i], x + CELL_W / 2, y + CELL_H / 2);
+            setCode(`def setElemen(self, i, value):
+    # i = ${idx}, value = ${val}
+    self.items[i] = value
+    return`);
+            setMsg('Updated index ' + idx + ': ' + (isNaN(old) ? 'None' : old) + ' → ' + val);
+            document.getElementById('updIdx').value = '';
+            document.getElementById('updVal').value = '';
         }
 
-        // index label
-        ctx.fillStyle    = '#888';
-        ctx.font         = '11px Arial';
-        ctx.textAlign    = 'center';
-        ctx.textBaseline = 'top';
-        ctx.fillText('[' + i + ']', x + CELL_W / 2, y + CELL_H + 8);
-    }
-}
+        // ── Delete ────────────────────────────────────────────────────
+        function doDelete() {
+            const idx = parseInt(document.getElementById('delIdx').value);
+            if (isNaN(idx) || idx < 0 || idx >= capacity) { showPopup('Index must be between 0 and ' + (capacity - 1) + '.'); return; }
+            const old = arr[idx];
+            arr[idx] = NaN;
+            ghostIdx = null;
+            draw();
+            setCode(`def delData(self):
+    x = self.items[self.N-1]
+    self.N = self.N - 1
+    return x
 
-function resizeCanvas() {
-    canvas.width = START_X * 2 + capacity * CELL_W;
-}
+# target_idx = ${idx}`);
+            setMsg('Deleted index ' + idx + ' (was: ' + (isNaN(old) ? 'None' : old) + '). Slot is now empty.');
+            document.getElementById('delIdx').value = '';
+        }
 
-function setCode(t) { document.getElementById('codeDisplay').textContent = t; }
-function setMsg(t)  { document.getElementById('msg').textContent = t; }
-</script>
+        // ── Draw ──────────────────────────────────────────────────────
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // draw capacity slots
+            for (let i = 0; i < capacity; i++) {
+                const x = START_X + i * CELL_W;
+                const y = START_Y;
+                const isEmpty = isNaN(arr[i]);
+                const isGhost = (ghostIdx === i);
+
+                if (isGhost) {
+                    // ghost box — dashed outline, no fill
+                    ctx.setLineDash([5, 4]);
+                    ctx.strokeStyle = '#4CAF50';
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(x, y, CELL_W, CELL_H);
+                    ctx.setLineDash([]);
+
+                    ctx.fillStyle = '#4CAF50';
+                    ctx.font = '11px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText('← here', x + CELL_W / 2, y + CELL_H / 2);
+                } else {
+                    // normal cell
+                    ctx.fillStyle = isEmpty ? '#f9f9f9' : '#fff';
+                    ctx.fillRect(x, y, CELL_W, CELL_H);
+                    ctx.strokeStyle = isEmpty ? '#ddd' : '#333';
+                    ctx.lineWidth = isEmpty ? 1 : 1.5;
+                    ctx.setLineDash([]);
+                    ctx.strokeRect(x, y, CELL_W, CELL_H);
+
+                    ctx.fillStyle = isEmpty ? '#bbb' : '#111';
+                    ctx.font = isEmpty ? '12px Arial' : 'bold 15px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(isEmpty ? 'NaN' : arr[i], x + CELL_W / 2, y + CELL_H / 2);
+                }
+
+                // index label
+                ctx.fillStyle = '#888';
+                ctx.font = '11px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'top';
+                ctx.fillText('[' + i + ']', x + CELL_W / 2, y + CELL_H + 8);
+            }
+        }
+
+        function resizeCanvas() {
+            canvas.width = START_X * 2 + capacity * CELL_W;
+        }
+
+        function setCode(t) { document.getElementById('codeDisplay').textContent = t; }
+        function setMsg(t) { document.getElementById('msg').textContent = t; }
+    </script>
 </body>
+
 </html>
