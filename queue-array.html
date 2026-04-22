@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Queue (Array) – DS Visualizer</title>
     <link rel="stylesheet" href="style.css" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
 </head>
 
 <body>
@@ -42,7 +43,7 @@
             <canvas id="c"></canvas>
             <div class="code-panel">
                 <div class="code-label">// Python</div>
-                <pre id="codeDisplay">No operations yet.</pre>
+                <pre><code id="codeDisplay" class="language-python">No operations yet.</code></pre>
             </div>
         </div>
         <div id="msg" class="msg"></div>
@@ -57,7 +58,24 @@
         </div>
     </div>
 
-    <script src="popup.js"></script>
+    <script>
+// popup.js — shared error popup utility
+
+function showPopup(message) {
+    document.getElementById('popupMsg').textContent = message;
+    document.getElementById('popupOverlay').classList.add('show');
+}
+
+function closePopup() {
+    document.getElementById('popupOverlay').classList.remove('show');
+}
+
+// close on overlay click
+document.addEventListener('click', function(e) {
+    if (e.target.id === 'popupOverlay') closePopup();
+});
+
+</script>
     <script>
         // Vertical queue: REAR at top (enqueue), FRONT at bottom (dequeue)
         // Visually: top row = rear (new items added here), bottom row = front (items removed here)
@@ -195,9 +213,15 @@
         }
 
         function fmt() { return '[' + queue.join(', ') + ']'; }
-        function setCode(t) { document.getElementById('codeDisplay').textContent = t; }
+        function setCode(t) { 
+            const el = document.getElementById('codeDisplay');
+            el.textContent = t; 
+            if (window.Prism) Prism.highlightElement(el);
+        }
         function setMsg(t) { document.getElementById('msg').textContent = t; }
     </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
 </body>
 
 </html>

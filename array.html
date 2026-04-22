@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Array – DS Visualizer</title>
     <link rel="stylesheet" href="style.css" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
 </head>
 
 <body>
@@ -48,7 +49,7 @@
             <canvas id="c" height="140"></canvas>
             <div class="code-panel">
                 <div class="code-label">// Python</div>
-                <pre id="codeDisplay">No operations yet.</pre>
+                <pre><code id="codeDisplay" class="language-python">No operations yet.</code></pre>
             </div>
         </div>
         <div id="msg" class="msg"></div>
@@ -63,7 +64,24 @@
         </div>
     </div>
 
-    <script src="popup.js"></script>
+    <script>
+// popup.js — shared error popup utility
+
+function showPopup(message) {
+    document.getElementById('popupMsg').textContent = message;
+    document.getElementById('popupOverlay').classList.add('show');
+}
+
+function closePopup() {
+    document.getElementById('popupOverlay').classList.remove('show');
+}
+
+// close on overlay click
+document.addEventListener('click', function(e) {
+    if (e.target.id === 'popupOverlay') closePopup();
+});
+
+</script>
     <script>
         const CELL_W = 60, CELL_H = 50, START_X = 10, START_Y = 30;
         const canvas = document.getElementById('c');
@@ -193,13 +211,14 @@
         // ── Draw ──────────────────────────────────────────────────────
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const nextEmpty = arr.findIndex(x => isNaN(x));
 
             // draw capacity slots
             for (let i = 0; i < capacity; i++) {
                 const x = START_X + i * CELL_W;
                 const y = START_Y;
                 const isEmpty = isNaN(arr[i]);
-                const isGhost = (ghostIdx === i);
+                const isGhost = (i === nextEmpty);
 
                 if (isGhost) {
                     // ghost box — dashed outline, no fill
@@ -243,9 +262,15 @@
             canvas.width = START_X * 2 + capacity * CELL_W;
         }
 
-        function setCode(t) { document.getElementById('codeDisplay').textContent = t; }
+        function setCode(t) { 
+            const el = document.getElementById('codeDisplay');
+            el.textContent = t; 
+            if (window.Prism) Prism.highlightElement(el);
+        }
         function setMsg(t) { document.getElementById('msg').textContent = t; }
     </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
 </body>
 
 </html>

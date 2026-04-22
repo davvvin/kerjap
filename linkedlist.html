@@ -1,124 +1,144 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Linked List – DS Visualizer</title>
     <link rel="stylesheet" href="style.css" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
 </head>
+
 <body>
 
-<a href="index.html" class="back">← Back</a>
-<h2>Linked List (Singly)</h2>
+    <a href="index.html" class="back">← Back</a>
+    <h2>Linked List (Singly)</h2>
 
-<div id="mainScreen">
-    <div class="controls">
-        <span class="ctrl-group">
-            <label>Insert</label>
-            <input id="insVal" type="number" placeholder="value" />
-            <select id="insPos">
-                <option value="head">at First</option>
-                <option value="tail">at Last</option>
-                <option value="index">at Index</option>
-            </select>
-            <input id="insIdx" type="number" placeholder="index" style="display:none; width:70px" />
-            <button onclick="doInsert()">Insert</button>
-        </span>
-        <span class="ctrl-group">
-            <label>Delete</label>
-            <select id="delPos">
-                <option value="head">First</option>
-                <option value="tail">Last</option>
-                <option value="index">at Index</option>
-            </select>
-            <input id="delIdx" type="number" placeholder="index" style="display:none; width:70px" />
-            <button onclick="doDelete()">Delete</button>
-        </span>
-        <span class="ctrl-group">
-            <button class="btn-reset" onclick="resetList()">Reset</button>
-        </span>
+    <div id="mainScreen">
+        <div class="controls">
+            <span class="ctrl-group">
+                <label>Insert</label>
+                <input id="insVal" type="number" placeholder="value" />
+                <select id="insPos">
+                    <option value="head">at First</option>
+                    <option value="tail">at Last</option>
+                    <option value="index">at Index</option>
+                </select>
+                <input id="insIdx" type="number" placeholder="index" style="display:none; width:70px" />
+                <button onclick="doInsert()">Insert</button>
+            </span>
+            <span class="ctrl-group">
+                <label>Delete</label>
+                <select id="delPos">
+                    <option value="head">First</option>
+                    <option value="tail">Last</option>
+                    <option value="index">at Index</option>
+                </select>
+                <input id="delIdx" type="number" placeholder="index" style="display:none; width:70px" />
+                <button onclick="doDelete()">Delete</button>
+            </span>
+            <span class="ctrl-group">
+                <button class="btn-reset" onclick="resetList()">Reset</button>
+            </span>
+        </div>
+
+        <div class="viz-row">
+            <canvas id="c" height="110"></canvas>
+            <div class="code-panel">
+                <div class="code-label">// Python</div>
+                <pre><code id="codeDisplay" class="language-python">No operations yet.</code></pre>
+            </div>
+        </div>
+        <div id="msg" class="msg"></div>
     </div>
 
-    <div class="viz-row">
-        <canvas id="c" height="110"></canvas>
-        <div class="code-panel">
-            <div class="code-label">// Python</div>
-            <pre id="codeDisplay">No operations yet.</pre>
+    <!-- POPUP -->
+    <div class="popup-overlay" id="popupOverlay">
+        <div class="popup-box">
+            <div class="popup-icon">⚠️</div>
+            <p id="popupMsg"></p>
+            <button onclick="closePopup()">OK</button>
         </div>
     </div>
-    <div id="msg" class="msg"></div>
-</div>
 
-<!-- POPUP -->
-<div class="popup-overlay" id="popupOverlay">
-    <div class="popup-box">
-        <div class="popup-icon">⚠️</div>
-        <p id="popupMsg"></p>
-        <button onclick="closePopup()">OK</button>
-    </div>
-</div>
+    <script>
+        // popup.js — shared error popup utility
 
-<script src="popup.js"></script>
-<script>
-const NODE_W  = 80, NODE_H = 50, PTR_W = 30;
-const TOTAL_W = NODE_W + PTR_W;
-const START_X = 20, NODE_Y = 35;
+        function showPopup(message) {
+            document.getElementById('popupMsg').textContent = message;
+            document.getElementById('popupOverlay').classList.add('show');
+        }
 
-const canvas = document.getElementById('c');
-const ctx    = canvas.getContext('2d');
+        function closePopup() {
+            document.getElementById('popupOverlay').classList.remove('show');
+        }
 
-function Node(val) { this.value = val; this.next = null; }
+        // close on overlay click
+        document.addEventListener('click', function (e) {
+            if (e.target.id === 'popupOverlay') closePopup();
+        });
 
-let head = null;
-let size = 0;
+    </script>
+    <script>
+        const NODE_W = 80, NODE_H = 50, PTR_W = 30;
+        const TOTAL_W = NODE_W + PTR_W;
+        const START_X = 20, NODE_Y = 35;
 
-// show/hide index input based on position select
-document.getElementById('insPos').addEventListener('change', function() {
-    document.getElementById('insIdx').style.display = this.value === 'index' ? 'inline-block' : 'none';
-});
-document.getElementById('delPos').addEventListener('change', function() {
-    document.getElementById('delIdx').style.display = this.value === 'index' ? 'inline-block' : 'none';
-});
+        const canvas = document.getElementById('c');
+        const ctx = canvas.getContext('2d');
 
-function resetList() {
-    head = null;
-    size = 0;
-    draw();
-    setCode('# Reset linked list\nhead = None');
-    setMsg('');
-}
+        function Node(val) { this.value = val; this.next = null; }
 
-// ── Insert ────────────────────────────────────────────────────
-function doInsert() {
-    const val = parseFloat(document.getElementById('insVal').value);
-    const pos = document.getElementById('insPos').value;
-    if (isNaN(val)) { showPopup('Please enter a value.'); return; }
+        let head = null;
+        let size = 0;
 
-    const node = new Node(val);
+        // show/hide index input based on position select
+        document.getElementById('insPos').addEventListener('change', function () {
+            document.getElementById('insIdx').style.display = this.value === 'index' ? 'inline-block' : 'none';
+        });
+        document.getElementById('delPos').addEventListener('change', function () {
+            document.getElementById('delIdx').style.display = this.value === 'index' ? 'inline-block' : 'none';
+        });
 
-    if (pos === 'head') {
-        node.next = head;
-        head = node;
-        size++;
-        draw();
-        setCode(`def InsertFirst(self, Q):
+        function resetList() {
+            head = null;
+            size = 0;
+            draw();
+            setCode('# Reset linked list\nfirst = None');
+            setMsg('');
+        }
+
+        // ── Insert ────────────────────────────────────────────────────
+        function doInsert() {
+            const val = parseFloat(document.getElementById('insVal').value);
+            const pos = document.getElementById('insPos').value;
+            if (isNaN(val)) { showPopup('Please enter a value.'); return; }
+
+            const node = new Node(val);
+
+            if (pos === 'head') {
+                node.next = head;
+                head = node;
+                size++;
+                draw();
+                setCode(`def InsertFirst(self, Q):
     # Q = Node(${val})
     Q.next = self.first
     self.first = Q
     return`);
-        setMsg('Inserted ' + val + ' at first.');
+                setMsg('Inserted ' + val + ' at first.');
 
-    } else if (pos === 'tail') {
-        if (!head) {
-            head = node;
-        } else {
-            let cur = head;
-            while (cur.next) cur = cur.next;
-            cur.next = node;
-        }
-        size++;
-        draw();
-        setCode(`def InsertLast(self, Q):
+            } else if (pos === 'tail') {
+                if (!head) {
+                    head = node;
+                } else {
+                    let cur = head;
+                    while (cur.next) cur = cur.next;
+                    cur.next = node;
+                }
+                size++;
+                draw();
+                setCode(`def InsertLast(self, Q):
     # Q = Node(${val})
     if (self.first == None):
         self.InsertFirst(Q)
@@ -128,70 +148,70 @@ function doInsert() {
             last = last.next
         last.next = Q
     return`);
-        setMsg('Inserted ' + val + ' at last.');
+                setMsg('Inserted ' + val + ' at last.');
 
-    } else {
-        const idx = parseInt(document.getElementById('insIdx').value);
-        if (isNaN(idx) || idx < 0 || idx > size) {
-            showPopup('Index must be between 0 and ' + size + '.'); return;
-        }
-        if (idx === 0) {
-            node.next = head;
-            head = node;
-        } else {
-            let cur = head;
-            for (let i = 0; i < idx - 1; i++) cur = cur.next;
-            node.next = cur.next;
-            cur.next  = node;
-        }
-        size++;
-        draw();
-        setCode(`def InsertAfter(self, prev, Q):
+            } else {
+                const idx = parseInt(document.getElementById('insIdx').value);
+                if (isNaN(idx) || idx < 0 || idx > size) {
+                    showPopup('Index must be between 0 and ' + size + '.'); return;
+                }
+                if (idx === 0) {
+                    node.next = head;
+                    head = node;
+                } else {
+                    let cur = head;
+                    for (let i = 0; i < idx - 1; i++) cur = cur.next;
+                    node.next = cur.next;
+                    cur.next = node;
+                }
+                size++;
+                draw();
+                setCode(`def InsertAfter(self, prev, Q):
     # prev = node[${idx}-1], Q = Node(${val})
     Q.next = prev.next
     prev.next = Q
     return`);
-        setMsg('Inserted ' + val + ' at index ' + idx + '.');
-    }
+                setMsg('Inserted ' + val + ' at index ' + idx + '.');
+            }
 
-    document.getElementById('insVal').value = '';
-    document.getElementById('insIdx').value = '';
-}
+            document.getElementById('insVal').value = '';
+            document.getElementById('insIdx').value = '';
+        }
 
-// ── Delete ────────────────────────────────────────────────────
-function doDelete() {
-    const pos = document.getElementById('delPos').value;
-    if (!head) { showPopup('List is empty!'); return; }
+        // ── Delete ────────────────────────────────────────────────────
+        function doDelete() {
+            const pos = document.getElementById('delPos').value;
+            if (!head) { showPopup('List is empty!'); return; }
 
-    let removed;
+            let removed;
 
-    if (pos === 'head') {
-        removed = head.value;
-        head    = head.next;
-        size--;
-        draw();
-        setCode(`def DeleteFirst(self):
+            if (pos === 'head') {
+                removed = head.value;
+                head = head.next;
+                size--;
+                draw();
+                setCode(`def DeleteFirst(self):
     Q = self.first
     self.first = self.first.next
     Q.next = None
     return Q
 
 # removed_val = ${removed}`);
-        setMsg('Deleted first (was: ' + removed + ').');
+                setMsg('Deleted first (was: ' + removed + ').');
 
-    } else if (pos === 'tail') {
-        if (!head.next) {
-            removed = head.value;
-            head    = null;
-        } else {
-            let cur = head;
-            while (cur.next.next) cur = cur.next;
-            removed   = cur.next.value;
-            cur.next  = null;
-        }
-        size--;
-        draw();
-        setCode(`def DeleteLast(self):
+            } else if (pos === 'tail') {
+                if (!head.next) {
+                    removed = head.value;
+                    head = null;
+                } else {
+                    let cur = head;
+                    while (cur.next.next) cur = cur.next;
+                    removed = cur.next.value;
+                    cur.next = null;
+                }
+                size--;
+                draw();
+                setCode(`def DeleteLast(self):
     if (self.first.next == None):
         last = self.first
         self.first = None
@@ -205,25 +225,25 @@ function doDelete() {
     return last 
 
 # removed_val = ${removed}`);
-        setMsg('Deleted last (was: ' + removed + ').');
+                setMsg('Deleted last (was: ' + removed + ').');
 
-    } else {
-        const idx = parseInt(document.getElementById('delIdx').value);
-        if (isNaN(idx) || idx < 0 || idx >= size) {
-            showPopup('Index must be between 0 and ' + (size-1) + '.'); return;
-        }
-        if (idx === 0) {
-            removed = head.value;
-            head    = head.next;
-        } else {
-            let cur = head;
-            for (let i = 0; i < idx - 1; i++) cur = cur.next;
-            removed  = cur.next.value;
-            cur.next = cur.next.next;
-        }
-        size--;
-        draw();
-        setCode(`def DeleteAfter(self, prev):
+            } else {
+                const idx = parseInt(document.getElementById('delIdx').value);
+                if (isNaN(idx) || idx < 0 || idx >= size) {
+                    showPopup('Index must be between 0 and ' + (size - 1) + '.'); return;
+                }
+                if (idx === 0) {
+                    removed = head.value;
+                    head = head.next;
+                } else {
+                    let cur = head;
+                    for (let i = 0; i < idx - 1; i++) cur = cur.next;
+                    removed = cur.next.value;
+                    cur.next = cur.next.next;
+                }
+                size--;
+                draw();
+                setCode(`def DeleteAfter(self, prev):
     # prev = node[${idx}-1]
     Q = prev.next
     prev.next = prev.next.next
@@ -231,112 +251,119 @@ function doDelete() {
     return Q 
 
 # removed_val = ${removed}`);
-        setMsg('Deleted index ' + idx + ' (was: ' + removed + ').');
-        document.getElementById('delIdx').value = '';
-    }
-}
-
-// ── Draw ──────────────────────────────────────────────────────
-function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    resizeCanvas();
-
-    if (!head) {
-        ctx.fillStyle    = '#aaa';
-        ctx.font         = '13px Arial';
-        ctx.textAlign    = 'left';
-        ctx.textBaseline = 'middle';
-        ctx.fillText('List is empty', START_X, NODE_Y + NODE_H / 2);
-        return;
-    }
-
-    let node = head;
-    let i    = 0;
-
-    while (node !== null) {
-        const x      = START_X + i * (TOTAL_W + 4);
-        const isHead = (i === 0);
-        const isTail = (node.next === null);
-
-        // value box
-        ctx.fillStyle   = isHead ? '#e3f2fd' : '#fff';
-        ctx.fillRect(x, NODE_Y, NODE_W, NODE_H);
-        ctx.strokeStyle = isHead ? '#1976d2' : '#333';
-        ctx.lineWidth   = isHead ? 2 : 1.5;
-        ctx.strokeRect(x, NODE_Y, NODE_W, NODE_H);
-
-        ctx.fillStyle    = '#111';
-        ctx.font         = 'bold 15px Arial';
-        ctx.textAlign    = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(node.value, x + NODE_W / 2, NODE_Y + NODE_H / 2);
-
-        // pointer box
-        const ptrX = x + NODE_W;
-        ctx.fillStyle   = '#f0f0f0';
-        ctx.fillRect(ptrX, NODE_Y, PTR_W, NODE_H);
-        ctx.strokeStyle = '#aaa';
-        ctx.lineWidth   = 1;
-        ctx.strokeRect(ptrX, NODE_Y, PTR_W, NODE_H);
-
-        if (node.next !== null) {
-            const aS   = ptrX + PTR_W;
-            const aE   = aS + 4;
-            const midY = NODE_Y + NODE_H / 2;
-            ctx.strokeStyle = '#555';
-            ctx.lineWidth   = 1.5;
-            ctx.beginPath(); ctx.moveTo(aS, midY); ctx.lineTo(aE, midY); ctx.stroke();
-            ctx.fillStyle = '#555';
-            ctx.beginPath();
-            ctx.moveTo(aE + 6, midY);
-            ctx.lineTo(aE, midY - 4);
-            ctx.lineTo(aE, midY + 4);
-            ctx.fill();
-        } else {
-            ctx.fillStyle    = '#aaa';
-            ctx.font         = '10px Arial';
-            ctx.textAlign    = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText('NULL', ptrX + PTR_W / 2, NODE_Y + NODE_H / 2);
+                setMsg('Deleted index ' + idx + ' (was: ' + removed + ').');
+                document.getElementById('delIdx').value = '';
+            }
         }
 
-        // index label below
-        ctx.fillStyle    = '#888';
-        ctx.font         = '11px Arial';
-        ctx.textAlign    = 'center';
-        ctx.textBaseline = 'top';
-        ctx.fillText('[' + i + ']', x + NODE_W / 2, NODE_Y + NODE_H + 6);
+        // ── Draw ──────────────────────────────────────────────────────
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            resizeCanvas();
 
-        // HEAD / TAIL label above
-        ctx.font         = 'bold 11px Arial';
-        ctx.textBaseline = 'bottom';
-        if (isHead && isTail) {
-            ctx.fillStyle = '#888';
-            ctx.fillText('FIRST & LAST', x + NODE_W / 2, NODE_Y - 4);
-        } else if (isHead) {
-            ctx.fillStyle = '#1976d2';
-            ctx.fillText('FIRST', x + NODE_W / 2, NODE_Y - 4);
-        } else if (isTail) {
-            ctx.fillStyle = '#555';
-            ctx.fillText('LAST', x + NODE_W / 2, NODE_Y - 4);
+            if (!head) {
+                ctx.fillStyle = '#aaa';
+                ctx.font = '13px Arial';
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('List is empty', START_X, NODE_Y + NODE_H / 2);
+                return;
+            }
+
+            let node = head;
+            let i = 0;
+
+            while (node !== null) {
+                const x = START_X + i * (TOTAL_W + 4);
+                const isHead = (i === 0);
+                const isTail = (node.next === null);
+
+                // value box
+                ctx.fillStyle = isHead ? '#e3f2fd' : '#fff';
+                ctx.fillRect(x, NODE_Y, NODE_W, NODE_H);
+                ctx.strokeStyle = isHead ? '#1976d2' : '#333';
+                ctx.lineWidth = isHead ? 2 : 1.5;
+                ctx.strokeRect(x, NODE_Y, NODE_W, NODE_H);
+
+                ctx.fillStyle = '#111';
+                ctx.font = 'bold 15px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(node.value, x + NODE_W / 2, NODE_Y + NODE_H / 2);
+
+                // pointer box
+                const ptrX = x + NODE_W;
+                ctx.fillStyle = '#f0f0f0';
+                ctx.fillRect(ptrX, NODE_Y, PTR_W, NODE_H);
+                ctx.strokeStyle = '#aaa';
+                ctx.lineWidth = 1;
+                ctx.strokeRect(ptrX, NODE_Y, PTR_W, NODE_H);
+
+                if (node.next !== null) {
+                    const aS = ptrX + PTR_W;
+                    const aE = aS + 4;
+                    const midY = NODE_Y + NODE_H / 2;
+                    ctx.strokeStyle = '#555';
+                    ctx.lineWidth = 3;
+                    ctx.beginPath(); ctx.moveTo(aS, midY); ctx.lineTo(aE, midY); ctx.stroke();
+                    ctx.fillStyle = '#555';
+                    ctx.beginPath();
+                    ctx.moveTo(aE + 6, midY);
+                    ctx.lineTo(aE, midY - 4);
+                    ctx.lineTo(aE, midY + 4);
+                    ctx.fill();
+                } else {
+                    ctx.fillStyle = '#aaa';
+                    ctx.font = '10px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText('NULL', ptrX + PTR_W / 2, NODE_Y + NODE_H / 2);
+                }
+
+                // index label below
+                ctx.fillStyle = '#888';
+                ctx.font = '11px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'top';
+                ctx.fillText('[' + i + ']', x + NODE_W / 2, NODE_Y + NODE_H + 6);
+
+                // HEAD / TAIL label above
+                ctx.font = 'bold 11px Arial';
+                ctx.textBaseline = 'bottom';
+                if (isHead && isTail) {
+                    ctx.fillStyle = '#888';
+                    ctx.fillText('FIRST & LAST', x + NODE_W / 2, NODE_Y - 4);
+                } else if (isHead) {
+                    ctx.fillStyle = '#1976d2';
+                    ctx.fillText('FIRST', x + NODE_W / 2, NODE_Y - 4);
+                } else if (isTail) {
+                    ctx.fillStyle = '#555';
+                    ctx.fillText('LAST', x + NODE_W / 2, NODE_Y - 4);
+                }
+
+                node = node.next;
+                i++;
+            }
         }
 
-        node = node.next;
-        i++;
-    }
-}
+        function resizeCanvas() {
+            const nodes = size === 0 ? 1 : size;
+            canvas.width = START_X * 2 + nodes * (TOTAL_W + 4) + 20;
+        }
 
-function resizeCanvas() {
-    const nodes  = size === 0 ? 1 : size;
-    canvas.width = START_X * 2 + nodes * (TOTAL_W + 4) + 20;
-}
+        function setCode(t) { 
+            const el = document.getElementById('codeDisplay');
+            el.textContent = t; 
+            if (window.Prism) Prism.highlightElement(el);
+        }
+        function setMsg(t) { document.getElementById('msg').textContent = t; }
 
-function setCode(t) { document.getElementById('codeDisplay').textContent = t; }
-function setMsg(t)  { document.getElementById('msg').textContent = t; }
-
-// initial draw
-draw();
-setCode('# Singly linked list\nclass Node:\n    def __init__(self, val):\n        self.value = val\n        self.next  = None\n\nhead = None');
-</script>
+        // initial draw
+        draw();
+        setCode('# Singly linked list\nclass Node:\n    def __init__(self, val):\n        self.info = val\n        self.next = None\n\nfirst = None');
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
 </body>
+
 </html>
