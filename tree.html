@@ -22,6 +22,11 @@
     <a href="index.html" class="back">← Back</a>
     <h2>Binary Search Tree</h2>
 
+    <!-- GANTI TEKS ANALOGI DI BAWAH INI -->
+    <div class="analogy-panel">
+        <strong>Analogi Dunia Nyata:</strong> Binary Search Tree (BST) beroperasi seperti kamus bahasa. Jika Anda mencari kata "M", dan Anda membuka halaman "S", Anda tahu bahwa "M" pasti berada di sebelah kiri. Struktur ini mempercepat pencarian secara eksponensial!
+    </div>
+
     <div id="mainScreen">
         <div class="controls">
             <span class="ctrl-group">
@@ -58,6 +63,10 @@
             <div class="code-panel" style="width:100%; max-width:800px;">
                 <div class="code-label">// Python - BST</div>
                 <pre><code id="codeDisplay" class="language-python">No operations yet.</code></pre>
+                <div class="complexity-container" id="complexityBadges" style="display:none;">
+                    <div class="badge badge-time" id="badgeTime">Waktu: O(1)</div>
+                    <div class="badge badge-space" id="badgeSpace">Ruang: O(1)</div>
+                </div>
             </div>
         </div>
         <div id="msg" class="msg"></div>
@@ -180,6 +189,7 @@
     elif key > root.info:
         root.right = self.insert(root.right, key)
     return root`);
+            setComplexity('O(1)', 'O(1)');
             setMsg('Inserted ' + val + '.');
             document.getElementById('insVal').value = '';
         }
@@ -227,6 +237,7 @@
         root.info = temp.info
         root.right = self.delete(root.right, temp.info)
     return root`);
+            setComplexity('O(1)', 'O(1)');
             setMsg('Deleted ' + val + '.');
             document.getElementById('delVal').value = '';
         }
@@ -311,13 +322,13 @@
 
             ctx.beginPath();
             ctx.arc(node.x, node.y, RADIUS, 0, 2 * Math.PI);
-            ctx.fillStyle = (node === activeNode) ? '#4CAF50' : '#fffbe6';
+            ctx.fillStyle = (node === activeNode) ? '#007acc' : '#252526';
             ctx.fill();
-            ctx.strokeStyle = (node === activeNode) ? '#2E7D32' : '#f0a500';
+            ctx.strokeStyle = (node === activeNode) ? '#569cd6' : '#555555';
             ctx.lineWidth = 2;
             ctx.stroke();
 
-            ctx.fillStyle = (node === activeNode) ? '#fff' : '#111';
+            ctx.fillStyle = (node === activeNode) ? '#ffffff' : '#d4d4d4';
             ctx.font = 'bold 15px Arial';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
@@ -330,7 +341,7 @@
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             if (!root) {
-                ctx.fillStyle = '#aaa';
+                ctx.fillStyle = '#666666';
                 ctx.font = '15px Arial';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
@@ -346,6 +357,11 @@
             const el = document.getElementById('codeDisplay');
             el.textContent = t;
             if (window.Prism) Prism.highlightElement(el);
+        }
+        function setComplexity(time, space) {
+            document.getElementById('complexityBadges').style.display = 'flex';
+            document.getElementById('badgeTime').textContent = 'Waktu: ' + time;
+            document.getElementById('badgeSpace').textContent = 'Ruang: ' + space;
         }
         function setMsg(t) { document.getElementById('msg').textContent = t; }
 

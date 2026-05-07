@@ -14,6 +14,11 @@
     <a href="index.html" class="back">← Back</a>
     <h2>Queue – Array Implementation</h2>
 
+    <!-- GANTI TEKS ANALOGI DI BAWAH INI -->
+    <div class="analogy-panel">
+        <strong>Analogi Dunia Nyata:</strong> Queue (Antrean) statis ini persis seperti antrean loket stasiun kereta. Orang pertama yang masuk (Enqueue) akan menjadi orang pertama yang dilayani (Dequeue) — First In, First Out (FIFO). Jika ruang tunggu penuh, orang baru tidak bisa masuk.
+    </div>
+
     <div id="initScreen">
         <label>Max size: <input id="sizeInput" type="number" min="1" max="20" placeholder="e.g. 6" /></label>
         <button onclick="initQueue()">Create Queue</button>
@@ -44,6 +49,10 @@
             <div class="code-panel">
                 <div class="code-label">// Python</div>
                 <pre><code id="codeDisplay" class="language-python">No operations yet.</code></pre>
+                <div class="complexity-container" id="complexityBadges" style="display:none;">
+                    <div class="badge badge-time" id="badgeTime">Waktu: O(1)</div>
+                    <div class="badge badge-space" id="badgeSpace">Ruang: O(1)</div>
+                </div>
             </div>
         </div>
         <div id="msg" class="msg"></div>
@@ -125,6 +134,7 @@ document.addEventListener('click', function(e) {
     self.items[self.tail] = X
 
 # State (Front→Rear): ${fmt()}`);
+            setComplexity('O(1)', 'O(1)');
             setMsg('Enqueued ' + val + '. Size: ' + queue.length + '/' + maxSize);
             document.getElementById('enqVal').value = '';
         }
@@ -147,6 +157,7 @@ document.addEventListener('click', function(e) {
 
 # removed_val = ${val}
 # State (Front→Rear): ${fmt()}`);
+            setComplexity('O(1)', 'O(1)');
             setMsg('Dequeued ' + val + '. Size: ' + queue.length + '/' + maxSize);
         }
 
@@ -157,6 +168,7 @@ document.addEventListener('click', function(e) {
     return (self.head == 0 and self.tail == 0)
 
 # status = ${empty}`);
+            setComplexity('O(1)', 'O(1)');
             setMsg('isEmpty → ' + empty);
         }
 
@@ -172,13 +184,13 @@ document.addEventListener('click', function(e) {
                 const isFront = hasVal && slot === 0;
                 const isRear = hasVal && slot === queue.length - 1;
 
-                ctx.fillStyle = isFront ? '#e8f5e9' : isRear ? '#fffbe6' : hasVal ? '#fff' : '#f9f9f9';
+                ctx.fillStyle = isFront ? '#e8f5e9' : isRear ? '#003b5c' : hasVal ? '#3c3c3c' : '#2d2d30';
                 ctx.fillRect(x, y, CELL_W, CELL_H);
-                ctx.strokeStyle = isFront ? '#4CAF50' : isRear ? '#f0a500' : hasVal ? '#333' : '#ddd';
+                ctx.strokeStyle = isFront ? '#569cd6' : isRear ? '#c586c0' : hasVal ? '#555555' : '#3c3c3c';
                 ctx.lineWidth = (isFront || isRear) ? 2 : 1;
                 ctx.strokeRect(x, y, CELL_W, CELL_H);
 
-                ctx.fillStyle = hasVal ? '#111' : '#bbb';
+                ctx.fillStyle = hasVal ? '#d4d4d4' : '#666666';
                 ctx.font = hasVal ? 'bold 15px Arial' : '12px Arial';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
@@ -192,10 +204,10 @@ document.addEventListener('click', function(e) {
                     ctx.fillStyle = '#888';
                     ctx.fillText('FRONT & REAR', x + CELL_W / 2, y - 4);
                 } else if (isFront) {
-                    ctx.fillStyle = '#4CAF50';
+                    ctx.fillStyle = '#569cd6';
                     ctx.fillText('FRONT', x + CELL_W / 2, y - 4);
                 } else if (isRear) {
-                    ctx.fillStyle = '#f0a500';
+                    ctx.fillStyle = '#c586c0';
                     ctx.fillText('REAR', x + CELL_W / 2, y - 4);
                 }
 
@@ -217,6 +229,11 @@ document.addEventListener('click', function(e) {
             const el = document.getElementById('codeDisplay');
             el.textContent = t; 
             if (window.Prism) Prism.highlightElement(el);
+        }
+        function setComplexity(time, space) {
+            document.getElementById('complexityBadges').style.display = 'flex';
+            document.getElementById('badgeTime').textContent = 'Waktu: ' + time;
+            document.getElementById('badgeSpace').textContent = 'Ruang: ' + space;
         }
         function setMsg(t) { document.getElementById('msg').textContent = t; }
     </script>

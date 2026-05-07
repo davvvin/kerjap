@@ -14,6 +14,11 @@
     <a href="index.html" class="back">← Back</a>
     <h2>Stack – Array Implementation</h2>
 
+    <!-- GANTI TEKS ANALOGI DI BAWAH INI -->
+    <div class="analogy-panel">
+        <strong>Analogi Dunia Nyata:</strong> Stack (Tumpukan) bekerja seperti fitur "Undo" pada aplikasi komputer, atau tumpukan piring di prasmanan. Piring terakhir yang Anda taruh (Push) adalah piring pertama yang harus Anda ambil (Pop) — prinsip LIFO (Last In, First Out).
+    </div>
+
     <div id="initScreen">
         <label>Max size: <input id="sizeInput" type="number" min="1" max="20" placeholder="e.g. 6" /></label>
         <button onclick="initStack()">Create Stack</button>
@@ -44,6 +49,10 @@
             <div class="code-panel">
                 <div class="code-label">// Python</div>
                 <pre><code id="codeDisplay" class="language-python">No operations yet.</code></pre>
+                <div class="complexity-container" id="complexityBadges" style="display:none;">
+                    <div class="badge badge-time" id="badgeTime">Waktu: O(1)</div>
+                    <div class="badge badge-space" id="badgeSpace">Ruang: O(1)</div>
+                </div>
             </div>
         </div>
         <div id="msg" class="msg"></div>
@@ -106,7 +115,11 @@ document.addEventListener('click', function(e) {
         function doPush() {
             const val = parseFloat(document.getElementById('pushVal').value);
             if (isNaN(val)) { showPopup('Please enter a value to push.'); return; }
-            if (stack.length >= maxSize) { showPopup('Stack overflow! Max size is ' + maxSize + '.'); return; }
+            if (stack.length >= maxSize) { 
+                // GANTI TEKS ERROR DI BAWAH INI
+                showPopup('⚠️ Stack Overflow! Kapasitas penuh. Di eksekusi program sesungguhnya, call stack yang kepenuhan akan menyebabkan program crash!'); 
+                return; 
+            }
             stack.push(val);
             draw();
             setCode(`def push(self, X):
@@ -117,12 +130,17 @@ document.addEventListener('click', function(e) {
 
 # State: ${fmt()}
 # size() = ${stack.length}`);
+            setComplexity('O(1)', 'O(1)');
             setMsg('Pushed ' + val + '. Size: ' + stack.length + '/' + maxSize);
             document.getElementById('pushVal').value = '';
         }
 
         function doPop() {
-            if (stack.length === 0) { showPopup('Stack underflow! Stack is empty.'); return; }
+            if (stack.length === 0) { 
+                // GANTI TEKS ERROR DI BAWAH INI
+                showPopup('⚠️ Stack Underflow! Anda tidak bisa Pop dari Stack kosong. Di struktur Python list, ini akan menghasilkan IndexError: pop from empty list!'); 
+                return; 
+            }
             const val = stack.pop();
             draw();
             setCode(`def pop(self):
@@ -133,6 +151,7 @@ document.addEventListener('click', function(e) {
 # removed_val = ${val}
 # State: ${fmt()}
 # size() = ${stack.length}`);
+            setComplexity('O(1)', 'O(1)');
             setMsg('Popped ' + val + '. Size: ' + stack.length + '/' + maxSize);
         }
 
@@ -143,6 +162,7 @@ document.addEventListener('click', function(e) {
     return self.top == 0
 
 # status = ${empty}`);
+            setComplexity('O(1)', 'O(1)');
             setMsg('isEmpty → ' + empty);
         }
 
@@ -157,20 +177,20 @@ document.addEventListener('click', function(e) {
                 const hasVal = val !== undefined;
                 const isTop = hasVal && slot === stack.length - 1;
 
-                ctx.fillStyle = isTop ? '#fffbe6' : hasVal ? '#fff' : '#f9f9f9';
+                ctx.fillStyle = isTop ? '#003b5c' : hasVal ? '#3c3c3c' : '#2d2d30';
                 ctx.fillRect(CELL_X, y, CELL_W, CELL_H);
-                ctx.strokeStyle = isTop ? '#f0a500' : hasVal ? '#333' : '#ddd';
+                ctx.strokeStyle = isTop ? '#c586c0' : hasVal ? '#555555' : '#3c3c3c';
                 ctx.lineWidth = isTop ? 2 : 1;
                 ctx.strokeRect(CELL_X, y, CELL_W, CELL_H);
 
-                ctx.fillStyle = hasVal ? '#111' : '#bbb';
+                ctx.fillStyle = hasVal ? '#d4d4d4' : '#666666';
                 ctx.font = hasVal ? 'bold 15px Arial' : '12px Arial';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
                 ctx.fillText(hasVal ? val : 'empty', CELL_X + CELL_W / 2, y + CELL_H / 2);
 
                 if (isTop) {
-                    ctx.fillStyle = '#f0a500';
+                    ctx.fillStyle = '#c586c0';
                     ctx.font = 'bold 11px Arial';
                     ctx.textAlign = 'left';
                     ctx.fillText('← TOP', CELL_X + CELL_W + 8, y + CELL_H / 2);
@@ -196,10 +216,14 @@ document.addEventListener('click', function(e) {
             el.textContent = t; 
             if (window.Prism) Prism.highlightElement(el);
         }
+        function setComplexity(time, space) {
+            document.getElementById('complexityBadges').style.display = 'flex';
+            document.getElementById('badgeTime').textContent = 'Waktu: ' + time;
+            document.getElementById('badgeSpace').textContent = 'Ruang: ' + space;
+        }
         function setMsg(t) { document.getElementById('msg').textContent = t; }
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
 </body>
-
 </html>

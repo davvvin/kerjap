@@ -1,9 +1,10 @@
-/* style.css — shared across all pages */
+/* style.css — VS Code Dark Theme */
 
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     padding: 20px;
-    background: #f5f5f5;
+    background: #1e1e1e;
+    color: #d4d4d4;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -13,16 +14,21 @@ body {
 h2 {
     margin-bottom: 16px;
     font-size: 20px;
+    color: #cccccc;
+    font-weight: 500;
 }
 
 a.back {
     display: inline-block;
     margin-bottom: 16px;
     font-size: 24px;
-    color: #4CAF50;
+    color: #007acc;
     text-decoration: none;
+    transition: color 0.2s;
 }
-a.back:hover { text-decoration: underline; }
+a.back:hover { 
+    color: #3794ff;
+}
 
 /* ── Init screen ─────────────────────────────────────────── */
 #initScreen {
@@ -35,9 +41,15 @@ a.back:hover { text-decoration: underline; }
 #initScreen input {
     padding: 6px 10px;
     width: 80px;
-    border: 1px solid #ccc;
+    background: #3c3c3c;
+    color: #d4d4d4;
+    border: 1px solid #3c3c3c;
     border-radius: 4px;
     font-size: 14px;
+}
+#initScreen input:focus {
+    border-color: #007acc;
+    outline: none;
 }
 
 /* ── Controls ────────────────────────────────────────────── */
@@ -48,98 +60,121 @@ a.back:hover { text-decoration: underline; }
     justify-content: center;
     gap: 16px;
     padding: 18px 24px;
-    background: #fff;
-    border: 1px solid #ddd;
+    background: #252526;
+    border: 1px solid #3c3c3c;
     border-radius: 6px;
     margin-bottom: 20px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
 }
 
 .ctrl-group {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     font-size: 13px;
 }
 
 .ctrl-group label {
-    font-weight: bold;
-    color: #333;
+    font-weight: 500;
+    color: #cccccc;
 }
 
-.ctrl-group input {
+.ctrl-group input, .ctrl-group select {
     padding: 8px 12px;
     width: 110px;
-    border: 1px solid #ccc;
+    background: #3c3c3c;
+    color: #d4d4d4;
+    border: 1px solid #3c3c3c;
     border-radius: 4px;
-    font-size: 15px;
+    font-size: 14px;
+}
+.ctrl-group input:focus, .ctrl-group select:focus {
+    border-color: #007acc;
+    outline: none;
 }
 
 /* ── Buttons ─────────────────────────────────────────────── */
 button {
-    padding: 10px 18px;
-    font-size: 15px;
-    font-weight: bold;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 500;
     cursor: pointer;
-    border: 1px solid #aaa;
-    border-radius: 4px;
-    background: #fff;
+    border: 1px solid transparent;
+    border-radius: 2px;
+    background: #0e639c;
+    color: #ffffff;
     transition: background-color 0.2s;
 }
-button:hover { background: #f0f0f0; }
+button:hover { background: #1177bb; }
 
-.btn-reset { color: #c00; border-color: #c00; }
-.btn-reset:hover { background: #fff0f0; }
+.btn-reset { background: #ab3737; color: white; }
+.btn-reset:hover { background: #d13f3f; }
 
 /* ── Viz row (canvas + code) ─────────────────────────────── */
 .viz-row {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     gap: 32px;
     flex-wrap: wrap;
+    width: 100%;
+    max-width: 1200px;
 }
 
 canvas {
-    border: 1px solid #ddd;
-    background: #fff;
+    border: 1px solid #3c3c3c;
+    background: #1e1e1e;
     border-radius: 4px;
     display: block;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
 }
 
 /* ── Code panel ──────────────────────────────────────────── */
 .code-panel {
     background: #1e1e1e;
     border-radius: 6px;
-    min-width: 300px;
-    max-width: 480px;
+    min-width: 320px;
+    max-width: 500px;
     overflow: hidden;
+    border: 1px solid #3c3c3c;
+    text-align: left;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
 }
 
 .code-label {
-    padding: 6px 14px;
-    background: #2d2d2d;
-    color: #888;
-    font-size: 11px;
-    font-family: monospace;
-    border-bottom: 1px solid #3a3a3a;
+    padding: 8px 14px;
+    background: #252526;
+    color: #9cdcfe;
+    font-size: 12px;
+    font-family: 'Consolas', monospace;
+    border-bottom: 1px solid #3c3c3c;
+}
+
+pre {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
 }
 
 #codeDisplay {
+    display: block;
     margin: 0;
     padding: 14px 16px;
     color: #d4d4d4;
-    font-family: 'Courier New', monospace;
+    font-family: 'Consolas', monospace;
     font-size: 13px;
-    line-height: 1.7;
+    line-height: 1.6;
     white-space: pre;
+    background: #1e1e1e !important;
 }
 
 /* ── Status message ──────────────────────────────────────── */
 .msg {
-    margin-top: 12px;
-    font-size: 13px;
-    color: #444;
-    min-height: 18px;
+    margin-top: 16px;
+    font-size: 14px;
+    color: #4ec9b0; /* VS Code greenish accent */
+    min-height: 20px;
+    font-family: 'Consolas', monospace;
 }
 
 /* ── Popup overlay ───────────────────────────────────────── */
@@ -147,43 +182,83 @@ canvas {
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.4);
+    background: rgba(0,0,0,0.6);
     z-index: 100;
     align-items: center;
     justify-content: center;
+    backdrop-filter: blur(2px);
 }
 
 .popup-overlay.show { display: flex; }
 
 .popup-box {
-    background: #fff;
-    border-radius: 8px;
+    background: #252526;
+    border: 1px solid #454545;
+    border-radius: 6px;
     padding: 28px 32px;
-    max-width: 360px;
+    max-width: 400px;
     width: 90%;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
     text-align: center;
 }
 
 .popup-box .popup-icon {
-    font-size: 28px;
-    margin-bottom: 10px;
+    font-size: 32px;
+    margin-bottom: 12px;
 }
 
 .popup-box p {
     font-size: 14px;
-    color: #333;
-    margin-bottom: 20px;
-    line-height: 1.5;
+    color: #d4d4d4;
+    margin-bottom: 24px;
+    line-height: 1.6;
 }
 
 .popup-box button {
-    padding: 8px 24px;
-    background: #4CAF50;
+    padding: 8px 32px;
+    background: #0e639c;
     color: #fff;
     border: none;
-    border-radius: 4px;
+    border-radius: 2px;
     font-size: 14px;
     cursor: pointer;
 }
-.popup-box button:hover { background: #2e8b57; }
+.popup-box button:hover { background: #1177bb; }
+
+/* ── Education Features ──────────────────────────────────── */
+.analogy-panel {
+    background: rgba(0, 122, 204, 0.15);
+    border-left: 4px solid #007acc;
+    padding: 16px 20px;
+    margin-bottom: 24px;
+    border-radius: 0 4px 4px 0;
+    color: #cccccc;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: left;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+}
+.analogy-panel strong { color: #569cd6; font-weight: 600;}
+
+.complexity-container {
+    display: flex;
+    gap: 12px;
+    padding: 10px 16px 14px 16px;
+    background: #1e1e1e;
+    border-top: 1px dashed #3c3c3c;
+    justify-content: flex-start;
+}
+.badge {
+    background: #2d2d30;
+    border: 1px solid #3c3c3c;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    font-family: 'Consolas', monospace;
+}
+.badge-time { color: #4ec9b0; }
+.badge-space { color: #ce9178; }

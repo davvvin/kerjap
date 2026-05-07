@@ -12,6 +12,11 @@
 <a href="index.html" class="back">← Back</a>
 <h2>Stack – Linked List Implementation</h2>
 
+    <!-- GANTI TEKS ANALOGI DI BAWAH INI -->
+    <div class="analogy-panel">
+        <strong>Analogi Dunia Nyata:</strong> Stack dengan Linked List mirip dengan rantai kertas yang Anda sambungkan satu per satu dari atas. Anda bisa terus menyambung tanpa batas memori kaku, namun Anda tetap harus melepas rantai dari yang paling ujung atas (LIFO).
+    </div>
+
 <div id="initScreen">
     <label>Max size: <input id="sizeInput" type="number" min="1" max="20" placeholder="e.g. 6" /></label>
     <button onclick="initStack()">Create Stack</button>
@@ -42,6 +47,10 @@
         <div class="code-panel">
             <div class="code-label">// Python</div>
             <pre><code id="codeDisplay" class="language-python">No operations yet.</code></pre>
+                <div class="complexity-container" id="complexityBadges" style="display:none;">
+                    <div class="badge badge-time" id="badgeTime">Waktu: O(1)</div>
+                    <div class="badge badge-space" id="badgeSpace">Ruang: O(1)</div>
+                </div>
         </div>
     </div>
     <div id="msg" class="msg"></div>
@@ -117,7 +126,8 @@ function resetStack() {
 function doPush() {
     const val = parseFloat(document.getElementById('pushVal').value);
     if (isNaN(val)) { showPopup('Please enter a value to push.'); return; }
-    if (size >= maxSize) { showPopup('Stack overflow! Max size is ' + maxSize + '.'); return; }
+    if (size >= maxSize) { // GANTI TEKS ERROR DI BAWAH INI
+        showPopup('⚠️ Stack Overflow! Meski ini Linked List, kita membatasi ukuran maksimal untuk visualisasi. Secara teori, Linked List hanya overflow jika RAM komputer Anda habis (MemoryError)!'); return; }
 
     const node = new Node(val);
     node.next  = head;
@@ -130,12 +140,14 @@ function doPush() {
     Q.next = self.top
     self.top = Q
     return`);
-    setMsg('Pushed ' + val + '. Size: ' + size + '/' + maxSize);
+    setComplexity('O(1)', 'O(1)');
+            setMsg('Pushed ' + val + '. Size: ' + size + '/' + maxSize);
     document.getElementById('pushVal').value = '';
 }
 
 function doPop() {
-    if (!head) { showPopup('Stack underflow! Stack is empty.'); return; }
+    if (!head) { // GANTI TEKS ERROR DI BAWAH INI
+        showPopup('⚠️ Stack Underflow! Pointer head adalah None. Jika Anda memaksa mengeksekusi self.top.next di Python, program akan terhenti dengan AttributeError: NoneType has no attribute next!'); return; }
     const val = head.value;
     head = head.next;
     size--;
@@ -147,7 +159,8 @@ function doPop() {
     return Q.info
 
 # removed_val = ${val}`);
-    setMsg('Popped ' + val + '. Size: ' + size + '/' + maxSize);
+    setComplexity('O(1)', 'O(1)');
+            setMsg('Popped ' + val + '. Size: ' + size + '/' + maxSize);
 }
 
 function doIsEmpty() {
@@ -157,7 +170,8 @@ function doIsEmpty() {
     return (self.top == None)
 
 # status = ${empty}`);
-    setMsg('isEmpty → ' + empty);
+    setComplexity('O(1)', 'O(1)');
+            setMsg('isEmpty → ' + empty);
 }
 
 // ── Draw ──────────────────────────────────────────────────────
@@ -165,7 +179,7 @@ function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     if (!head) {
-        ctx.fillStyle    = '#aaa';
+        ctx.fillStyle    = '#666666';
         ctx.font         = '13px Arial';
         ctx.textAlign    = 'left';
         ctx.textBaseline = 'middle';
@@ -181,13 +195,13 @@ function draw() {
         const isTop = (i === 0);
 
         // value box
-        ctx.fillStyle   = isTop ? '#fffbe6' : '#fff';
+        ctx.fillStyle   = isTop ? '#003b5c' : '#3c3c3c';
         ctx.fillRect(x, NODE_Y, NODE_W, NODE_H);
-        ctx.strokeStyle = isTop ? '#f0a500' : '#333';
+        ctx.strokeStyle = isTop ? '#c586c0' : '#555555';
         ctx.lineWidth   = isTop ? 2 : 1.5;
         ctx.strokeRect(x, NODE_Y, NODE_W, NODE_H);
 
-        ctx.fillStyle    = '#111';
+        ctx.fillStyle    = '#d4d4d4';
         ctx.font         = 'bold 15px Arial';
         ctx.textAlign    = 'center';
         ctx.textBaseline = 'middle';
@@ -195,9 +209,9 @@ function draw() {
 
         // pointer box
         const ptrX = x + NODE_W;
-        ctx.fillStyle   = '#f0f0f0';
+        ctx.fillStyle   = '#2d2d30';
         ctx.fillRect(ptrX, NODE_Y, PTR_W, NODE_H);
-        ctx.strokeStyle = '#aaa';
+        ctx.strokeStyle = '#666666';
         ctx.lineWidth   = 1;
         ctx.strokeRect(ptrX, NODE_Y, PTR_W, NODE_H);
 
@@ -221,7 +235,7 @@ function draw() {
             ctx.fill();
         } else {
             // NULL label
-            ctx.fillStyle    = '#aaa';
+            ctx.fillStyle    = '#666666';
             ctx.font         = '10px Arial';
             ctx.textAlign    = 'center';
             ctx.textBaseline = 'middle';
@@ -230,7 +244,7 @@ function draw() {
 
         // TOP label
         if (isTop) {
-            ctx.fillStyle    = '#f0a500';
+            ctx.fillStyle    = '#c586c0';
             ctx.font         = 'bold 11px Arial';
             ctx.textAlign    = 'center';
             ctx.textBaseline = 'bottom';
@@ -251,7 +265,12 @@ function setCode(t) {
             el.textContent = t; 
             if (window.Prism) Prism.highlightElement(el);
         }
-function setMsg(t)  { document.getElementById('msg').textContent = t; }
+function setComplexity(time, space) {
+            document.getElementById('complexityBadges').style.display = 'flex';
+            document.getElementById('badgeTime').textContent = 'Waktu: ' + time;
+            document.getElementById('badgeSpace').textContent = 'Ruang: ' + space;
+        }
+        function setMsg(t)  { document.getElementById('msg').textContent = t; }
 </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>

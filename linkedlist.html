@@ -14,6 +14,11 @@
     <a href="index.html" class="back">← Back</a>
     <h2>Linked List (Singly)</h2>
 
+    <!-- GANTI TEKS ANALOGI DI BAWAH INI -->
+    <div class="analogy-panel">
+        <strong>Analogi Dunia Nyata:</strong> Singly Linked List mirip dengan permainan berburu harta karun. Setiap petunjuk (Node) mengarahkan Anda ke petunjuk berikutnya (Next Pointer). Anda tidak bisa melompat langsung ke akhir, Anda harus membaca petunjuk secara berurutan!
+    </div>
+
     <div id="mainScreen">
         <div class="controls">
             <span class="ctrl-group">
@@ -47,6 +52,10 @@
             <div class="code-panel">
                 <div class="code-label">// Python</div>
                 <pre><code id="codeDisplay" class="language-python">No operations yet.</code></pre>
+                <div class="complexity-container" id="complexityBadges" style="display:none;">
+                    <div class="badge badge-time" id="badgeTime">Waktu: O(1)</div>
+                    <div class="badge badge-space" id="badgeSpace">Ruang: O(1)</div>
+                </div>
             </div>
         </div>
         <div id="msg" class="msg"></div>
@@ -126,7 +135,8 @@
     Q.next = self.first
     self.first = Q
     return`);
-                setMsg('Inserted ' + val + ' at first.');
+                setComplexity('O(1)', 'O(1)');
+            setMsg('Inserted ' + val + ' at first.');
 
             } else if (pos === 'tail') {
                 if (!head) {
@@ -148,7 +158,8 @@
             last = last.next
         last.next = Q
     return`);
-                setMsg('Inserted ' + val + ' at last.');
+                setComplexity('O(1)', 'O(1)');
+            setMsg('Inserted ' + val + ' at last.');
 
             } else {
                 const idx = parseInt(document.getElementById('insIdx').value);
@@ -171,7 +182,8 @@
     Q.next = prev.next
     prev.next = Q
     return`);
-                setMsg('Inserted ' + val + ' at index ' + idx + '.');
+                setComplexity('O(1)', 'O(1)');
+            setMsg('Inserted ' + val + ' at index ' + idx + '.');
             }
 
             document.getElementById('insVal').value = '';
@@ -197,7 +209,8 @@
     return Q
 
 # removed_val = ${removed}`);
-                setMsg('Deleted first (was: ' + removed + ').');
+                setComplexity('O(1)', 'O(1)');
+            setMsg('Deleted first (was: ' + removed + ').');
 
             } else if (pos === 'tail') {
                 if (!head.next) {
@@ -225,7 +238,8 @@
     return last 
 
 # removed_val = ${removed}`);
-                setMsg('Deleted last (was: ' + removed + ').');
+                setComplexity('O(1)', 'O(1)');
+            setMsg('Deleted last (was: ' + removed + ').');
 
             } else {
                 const idx = parseInt(document.getElementById('delIdx').value);
@@ -251,7 +265,8 @@
     return Q 
 
 # removed_val = ${removed}`);
-                setMsg('Deleted index ' + idx + ' (was: ' + removed + ').');
+                setComplexity('O(1)', 'O(1)');
+            setMsg('Deleted index ' + idx + ' (was: ' + removed + ').');
                 document.getElementById('delIdx').value = '';
             }
         }
@@ -262,7 +277,7 @@
             resizeCanvas();
 
             if (!head) {
-                ctx.fillStyle = '#aaa';
+                ctx.fillStyle = '#666666';
                 ctx.font = '13px Arial';
                 ctx.textAlign = 'left';
                 ctx.textBaseline = 'middle';
@@ -279,13 +294,13 @@
                 const isTail = (node.next === null);
 
                 // value box
-                ctx.fillStyle = isHead ? '#e3f2fd' : '#fff';
+                ctx.fillStyle = isHead ? '#e3f2fd' : '#3c3c3c';
                 ctx.fillRect(x, NODE_Y, NODE_W, NODE_H);
-                ctx.strokeStyle = isHead ? '#1976d2' : '#333';
+                ctx.strokeStyle = isHead ? '#1976d2' : '#555555';
                 ctx.lineWidth = isHead ? 2 : 1.5;
                 ctx.strokeRect(x, NODE_Y, NODE_W, NODE_H);
 
-                ctx.fillStyle = '#111';
+                ctx.fillStyle = '#d4d4d4';
                 ctx.font = 'bold 15px Arial';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
@@ -293,9 +308,9 @@
 
                 // pointer box
                 const ptrX = x + NODE_W;
-                ctx.fillStyle = '#f0f0f0';
+                ctx.fillStyle = '#2d2d30';
                 ctx.fillRect(ptrX, NODE_Y, PTR_W, NODE_H);
-                ctx.strokeStyle = '#aaa';
+                ctx.strokeStyle = '#666666';
                 ctx.lineWidth = 1;
                 ctx.strokeRect(ptrX, NODE_Y, PTR_W, NODE_H);
 
@@ -313,7 +328,7 @@
                     ctx.lineTo(aE, midY + 4);
                     ctx.fill();
                 } else {
-                    ctx.fillStyle = '#aaa';
+                    ctx.fillStyle = '#666666';
                     ctx.font = '10px Arial';
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
@@ -355,6 +370,11 @@
             const el = document.getElementById('codeDisplay');
             el.textContent = t; 
             if (window.Prism) Prism.highlightElement(el);
+        }
+        function setComplexity(time, space) {
+            document.getElementById('complexityBadges').style.display = 'flex';
+            document.getElementById('badgeTime').textContent = 'Waktu: ' + time;
+            document.getElementById('badgeSpace').textContent = 'Ruang: ' + space;
         }
         function setMsg(t) { document.getElementById('msg').textContent = t; }
 

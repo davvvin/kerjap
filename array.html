@@ -14,6 +14,11 @@
     <a href="index.html" class="back">← Back</a>
     <h2>Array (Fixed-Size)</h2>
 
+    <!-- GANTI TEKS ANALOGI DI BAWAH INI -->
+    <div class="analogy-panel">
+        <strong>Analogi Dunia Nyata:</strong> Array statis ibarat rak loker di sekolah yang jumlahnya sudah tetap sejak awal. Anda bisa langsung menaruh buku di loker nomor 3 dengan sangat cepat, tapi jika semua loker penuh, Anda tidak bisa memaksakan menambah barang!
+    </div>
+
     <!-- INIT -->
     <div id="initScreen">
         <label>Array size: <input id="sizeInput" type="number" min="1" max="20" placeholder="e.g. 6" /></label>
@@ -50,6 +55,10 @@
             <div class="code-panel">
                 <div class="code-label">// Python</div>
                 <pre><code id="codeDisplay" class="language-python">No operations yet.</code></pre>
+                <div class="complexity-container" id="complexityBadges" style="display:none;">
+                    <div class="badge badge-time" id="badgeTime">Waktu: O(1)</div>
+                    <div class="badge badge-space" id="badgeSpace">Ruang: O(1)</div>
+                </div>
             </div>
         </div>
         <div id="msg" class="msg"></div>
@@ -65,23 +74,23 @@
     </div>
 
     <script>
-// popup.js — shared error popup utility
+        // popup.js — shared error popup utility
 
-function showPopup(message) {
-    document.getElementById('popupMsg').textContent = message;
-    document.getElementById('popupOverlay').classList.add('show');
-}
+        function showPopup(message) {
+            document.getElementById('popupMsg').textContent = message;
+            document.getElementById('popupOverlay').classList.add('show');
+        }
 
-function closePopup() {
-    document.getElementById('popupOverlay').classList.remove('show');
-}
+        function closePopup() {
+            document.getElementById('popupOverlay').classList.remove('show');
+        }
 
-// close on overlay click
-document.addEventListener('click', function(e) {
-    if (e.target.id === 'popupOverlay') closePopup();
-});
+        // close on overlay click
+        document.addEventListener('click', function (e) {
+            if (e.target.id === 'popupOverlay') closePopup();
+        });
 
-</script>
+    </script>
     <script>
         const CELL_W = 60, CELL_H = 50, START_X = 10, START_Y = 30;
         const canvas = document.getElementById('c');
@@ -123,11 +132,11 @@ document.addEventListener('click', function(e) {
             if (idxRaw === '') {
                 const nextEmpty = arr.findIndex(x => isNaN(x));
                 if (nextEmpty === -1) {
-                    showPopup('Array is full. Delete a slot first.');
+                    // GANTI TEKS ERROR DI BAWAH INI
+                    showPopup('⚠️ Array Overflow! Kapasitas penuh. Di struktur statis Python, mencoba memasukkan data ke indeks yang tidak ada akan menyebabkan IndexError: assignment index out of range!');
                     return;
                 }
 
-                // fill immediately
                 arr[nextEmpty] = v;
                 ghostIdx = null;
                 draw();
@@ -136,6 +145,7 @@ document.addEventListener('click', function(e) {
     self.items[self.N] = newData
     self.N = self.N + 1
     return`);
+                setComplexity('O(N) (Pencarian kosong)', 'O(1)');
                 setMsg('Inserted ' + v + ' at index ' + nextEmpty + '.');
             } else {
                 const idx = parseInt(idxRaw);
@@ -145,7 +155,6 @@ document.addEventListener('click', function(e) {
                 }
                 ghostIdx = null;
                 if (isNaN(arr[idx])) {
-                    // empty slot — fill
                     arr[idx] = v;
                     draw();
                     setCode(`def addData(self, newData):
@@ -153,9 +162,9 @@ document.addEventListener('click', function(e) {
     self.items[self.N] = newData
     self.N = self.N + 1
     return`);
+                    setComplexity('O(1)', 'O(1)');
                     setMsg('Inserted ' + v + ' at index ' + idx + '.');
                 } else {
-                    // occupied — overwrite (no shifting in fixed-size)
                     const old = arr[idx];
                     arr[idx] = v;
                     draw();
@@ -163,6 +172,7 @@ document.addEventListener('click', function(e) {
     # i = ${idx}, value = ${v}
     self.items[i] = value
     return`);
+                    setComplexity('O(1)', 'O(1)');
                     setMsg('Overwrote index ' + idx + ': ' + old + ' → ' + v + '.');
                 }
             }
@@ -185,6 +195,7 @@ document.addEventListener('click', function(e) {
     # i = ${idx}, value = ${val}
     self.items[i] = value
     return`);
+            setComplexity('O(1)', 'O(1)');
             setMsg('Updated index ' + idx + ': ' + (isNaN(old) ? 'None' : old) + ' → ' + val);
             document.getElementById('updIdx').value = '';
             document.getElementById('updVal').value = '';
@@ -204,6 +215,7 @@ document.addEventListener('click', function(e) {
     return x
 
 # target_idx = ${idx}`);
+            setComplexity('O(1)', 'O(1)');
             setMsg('Deleted index ' + idx + ' (was: ' + (isNaN(old) ? 'None' : old) + '). Slot is now empty.');
             document.getElementById('delIdx').value = '';
         }
@@ -223,26 +235,26 @@ document.addEventListener('click', function(e) {
                 if (isGhost) {
                     // ghost box — dashed outline, no fill
                     ctx.setLineDash([5, 4]);
-                    ctx.strokeStyle = '#4CAF50';
+                    ctx.strokeStyle = '#569cd6';
                     ctx.lineWidth = 2;
                     ctx.strokeRect(x, y, CELL_W, CELL_H);
                     ctx.setLineDash([]);
 
-                    ctx.fillStyle = '#4CAF50';
+                    ctx.fillStyle = '#569cd6';
                     ctx.font = '11px Arial';
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
                     ctx.fillText('← here', x + CELL_W / 2, y + CELL_H / 2);
                 } else {
                     // normal cell
-                    ctx.fillStyle = isEmpty ? '#f9f9f9' : '#fff';
+                    ctx.fillStyle = isEmpty ? '#2d2d30' : '#3c3c3c';
                     ctx.fillRect(x, y, CELL_W, CELL_H);
-                    ctx.strokeStyle = isEmpty ? '#ddd' : '#333';
+                    ctx.strokeStyle = isEmpty ? '#3c3c3c' : '#555555';
                     ctx.lineWidth = isEmpty ? 1 : 1.5;
                     ctx.setLineDash([]);
                     ctx.strokeRect(x, y, CELL_W, CELL_H);
 
-                    ctx.fillStyle = isEmpty ? '#bbb' : '#111';
+                    ctx.fillStyle = isEmpty ? '#666666' : '#d4d4d4';
                     ctx.font = isEmpty ? '12px Arial' : 'bold 15px Arial';
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
@@ -262,10 +274,15 @@ document.addEventListener('click', function(e) {
             canvas.width = START_X * 2 + capacity * CELL_W;
         }
 
-        function setCode(t) { 
+        function setCode(t) {
             const el = document.getElementById('codeDisplay');
-            el.textContent = t; 
+            el.textContent = t;
             if (window.Prism) Prism.highlightElement(el);
+        }
+        function setComplexity(time, space) {
+            document.getElementById('complexityBadges').style.display = 'flex';
+            document.getElementById('badgeTime').textContent = 'Waktu: ' + time;
+            document.getElementById('badgeSpace').textContent = 'Ruang: ' + space;
         }
         function setMsg(t) { document.getElementById('msg').textContent = t; }
     </script>

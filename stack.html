@@ -172,16 +172,16 @@
         const y = 10 + visualRow * CELL_H;
 
         // cell bg
-        ctx.fillStyle = isTop ? '#fffbe6' : isEmpty ? '#f9f9f9' : '#fff';
+        ctx.fillStyle = isTop ? '#003b5c' : isEmpty ? '#2d2d30' : '#3c3c3c';
         ctx.fillRect(CELL_X, y, CELL_W, CELL_H);
 
         // cell border
-        ctx.strokeStyle = isTop ? '#f0a500' : isEmpty ? '#ddd' : '#333';
+        ctx.strokeStyle = isTop ? '#c586c0' : isEmpty ? '#3c3c3c' : '#555555';
         ctx.lineWidth = isTop ? 2 : 1;
         ctx.strokeRect(CELL_X, y, CELL_W, CELL_H);
 
         // value
-        ctx.fillStyle = isEmpty ? '#bbb' : '#111';
+        ctx.fillStyle = isEmpty ? '#666666' : '#d4d4d4';
         ctx.font = isEmpty ? '12px Arial' : 'bold 15px Arial';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
@@ -189,7 +189,7 @@
 
         // TOP label
         if (isTop) {
-          ctx.fillStyle = '#f0a500';
+          ctx.fillStyle = '#c586c0';
           ctx.font = 'bold 11px Arial';
           ctx.textAlign = 'left';
           ctx.fillText('← TOP', CELL_X + CELL_W + 8, y + CELL_H / 2);
