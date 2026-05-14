@@ -4,14 +4,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="img/logo-removebg-preview.png">
     <title>Queue (Array) – DS Visualizer</title>
     <link rel="stylesheet" href="style.css" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-highlight/prism-line-highlight.min.css" rel="stylesheet" />
 </head>
 
 <body>
 
-    <a href="index.html" class="back">← Back</a>
+    <script src="components.js"></script>
+    <nav-bar></nav-bar>
     <h2>Queue – Array Implementation</h2>
 
     <!-- GANTI TEKS ANALOGI DI BAWAH INI -->
@@ -48,7 +51,8 @@
             <canvas id="c"></canvas>
             <div class="code-panel">
                 <div class="code-label">// Python</div>
-                <pre><code id="codeDisplay" class="language-python">No operations yet.</code></pre>
+                <pre id="codePre"><code id="codeDisplay" class="language-python">No operations yet.</code></pre>
+                <engine-controls id="animControls"></engine-controls>
                 <div class="complexity-container" id="complexityBadges" style="display:none;">
                     <div class="badge badge-time" id="badgeTime">Waktu: O(1)</div>
                     <div class="badge badge-space" id="badgeSpace">Ruang: O(1)</div>
@@ -85,6 +89,7 @@ document.addEventListener('click', function(e) {
 });
 
 </script>
+    <script src="engine.js"></script>
     <script>
         // Vertical queue: REAR at top (enqueue), FRONT at bottom (dequeue)
         // Visually: top row = rear (new items added here), bottom row = front (items removed here)
@@ -93,8 +98,13 @@ document.addEventListener('click', function(e) {
         const canvas = document.getElementById('c');
         const ctx = canvas.getContext('2d');
 
-        let queue = [];  // queue[0] = front, queue[last] = rear
+        let queue = [];
         let maxSize = 0;
+
+        const animEngine = new AnimEngine((step) => {
+            queue = step.queueState ? [...step.queueState] : [];
+            draw();
+        });
 
         function initQueue() {
             const size = parseInt(document.getElementById('sizeInput').value);
@@ -110,66 +120,66 @@ document.addEventListener('click', function(e) {
 
         function resetQueue() {
             queue = [];
-            draw();
-            setCode('# Reset ADT Queue\n# head = 0, tail = 0');
-            setMsg('');
+            animEngine.loadSteps([
+                { queueState: [], code: '# Reset ADT Queue\n# head = 0, tail = 0', line: "1-2", msg: "Queue has been reset." }
+            ]);
         }
 
         function doEnqueue() {
             const val = parseFloat(document.getElementById('enqVal').value);
             if (isNaN(val)) { showPopup('Please enter a value to enqueue.'); return; }
             if (queue.length >= maxSize) { showPopup('Queue is full! Max size is ' + maxSize + '.'); return; }
+            
+            let steps = [];
+            const baseCode = `def insert(self, X):\n    # X = ${val}\n    if (self.isEmpty()):\n        self.head = 1\n        self.tail = 1\n    else:\n        if (self.tail == self.MaxEl):\n            self.tail = 1\n        else:\n            self.tail = self.tail + 1\n    self.items[self.tail] = X`;
+            
+            steps.push({ queueState: [...queue], code: baseCode, line: "1-2", msg: "Memulai insert(" + val + ")" });
+            
+            if (queue.length === 0) {
+                steps.push({ queueState: [...queue], code: baseCode, line: "3-5", msg: "Queue kosong, set head dan tail ke 1" });
+            } else {
+                steps.push({ queueState: [...queue], code: baseCode, line: "7-10", msg: "Menyesuaikan posisi tail" });
+            }
+            
             queue.push(val);  // add to rear
-            draw();
-            setCode(`def insert(self, X):
-    # X = ${val}
-    if (self.isEmpty()):
-        self.head = 1
-        self.tail = 1
-    else:
-        if (self.tail == self.MaxEl):
-            self.tail = 1
-        else:
-            self.tail = self.tail + 1
-    self.items[self.tail] = X
-
-# State (Front→Rear): ${fmt()}`);
+            steps.push({ queueState: [...queue], code: baseCode, line: "11", msg: "Memasukkan elemen ke posisi tail (" + val + ")" });
+            
             setComplexity('O(1)', 'O(1)');
-            setMsg('Enqueued ' + val + '. Size: ' + queue.length + '/' + maxSize);
+            animEngine.loadSteps(steps);
             document.getElementById('enqVal').value = '';
         }
 
         function doDequeue() {
             if (queue.length === 0) { showPopup('Queue is empty! Cannot dequeue.'); return; }
-            const val = queue.shift();  // remove from front
-            draw();
-            setCode(`def delete(self):
-    X = self.items[self.head]
-    if (self.head == self.tail):
-        self.head = 0
-        self.tail = 0
-    else:
-        if (self.head == self.MaxEl):
-            self.head = 1
-        else:
-            self.head = self.head + 1
-    return X
-
-# removed_val = ${val}
-# State (Front→Rear): ${fmt()}`);
+            
+            let steps = [];
+            const val = queue[0];
+            const baseCode = `def delete(self):\n    X = self.items[self.head]\n    if (self.head == self.tail):\n        self.head = 0\n        self.tail = 0\n    else:\n        if (self.head == self.MaxEl):\n            self.head = 1\n        else:\n            self.head = self.head + 1\n    return X\n\n# removed_val = ${val}`;
+            
+            steps.push({ queueState: [...queue], code: baseCode, line: "2", msg: "Menyimpan nilai pada head X = " + val });
+            
+            if (queue.length === 1) {
+                steps.push({ queueState: [...queue], code: baseCode, line: "3-5", msg: "Hanya 1 elemen, set head dan tail kembali ke 0" });
+            } else {
+                steps.push({ queueState: [...queue], code: baseCode, line: "7-10", msg: "Menyesuaikan posisi head ke elemen berikutnya" });
+            }
+            
+            queue.shift();  // remove from front
+            steps.push({ queueState: [...queue], code: baseCode, line: "11", msg: "Selesai mendequeue!" });
+            
             setComplexity('O(1)', 'O(1)');
-            setMsg('Dequeued ' + val + '. Size: ' + queue.length + '/' + maxSize);
+            animEngine.loadSteps(steps);
         }
 
         function doIsEmpty() {
             const empty = queue.length === 0;
-            draw();
-            setCode(`def isEmpty(self):
-    return (self.head == 0 and self.tail == 0)
-
-# status = ${empty}`);
+            let steps = [];
+            const baseCode = `def isEmpty(self):\n    return (self.head == 0 and self.tail == 0)\n\n# status = ${empty}`;
+            
+            steps.push({ queueState: [...queue], code: baseCode, line: "2", msg: "Mengecek apakah head dan tail 0 (" + empty + ")" });
+            
             setComplexity('O(1)', 'O(1)');
-            setMsg('isEmpty → ' + empty);
+            animEngine.loadSteps(steps);
         }
 
         // Horizontal layout: FRONT on left, REAR on right
@@ -184,13 +194,13 @@ document.addEventListener('click', function(e) {
                 const isFront = hasVal && slot === 0;
                 const isRear = hasVal && slot === queue.length - 1;
 
-                ctx.fillStyle = isFront ? '#e8f5e9' : isRear ? '#003b5c' : hasVal ? '#3c3c3c' : '#2d2d30';
+                ctx.fillStyle = isFront ? '#e8f5e9' : isRear ? getComputedStyle(document.documentElement).getPropertyValue('--canvas-head') : hasVal ? getComputedStyle(document.documentElement).getPropertyValue('--canvas-filled') : getComputedStyle(document.documentElement).getPropertyValue('--canvas-empty');
                 ctx.fillRect(x, y, CELL_W, CELL_H);
-                ctx.strokeStyle = isFront ? '#569cd6' : isRear ? '#c586c0' : hasVal ? '#555555' : '#3c3c3c';
+                ctx.strokeStyle = isFront ? getComputedStyle(document.documentElement).getPropertyValue('--canvas-highlight') : isRear ? getComputedStyle(document.documentElement).getPropertyValue('--canvas-accent') : hasVal ? getComputedStyle(document.documentElement).getPropertyValue('--canvas-border') : getComputedStyle(document.documentElement).getPropertyValue('--canvas-filled');
                 ctx.lineWidth = (isFront || isRear) ? 2 : 1;
                 ctx.strokeRect(x, y, CELL_W, CELL_H);
 
-                ctx.fillStyle = hasVal ? '#d4d4d4' : '#666666';
+                ctx.fillStyle = hasVal ? getComputedStyle(document.documentElement).getPropertyValue('--canvas-text') : getComputedStyle(document.documentElement).getPropertyValue('--canvas-text-empty');
                 ctx.font = hasVal ? 'bold 15px Arial' : '12px Arial';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
@@ -201,17 +211,17 @@ document.addEventListener('click', function(e) {
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'bottom';
                 if (isFront && queue.length === 1) {
-                    ctx.fillStyle = '#888';
+                    ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--text-muted');
                     ctx.fillText('FRONT & REAR', x + CELL_W / 2, y - 4);
                 } else if (isFront) {
-                    ctx.fillStyle = '#569cd6';
+                    ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--canvas-highlight');
                     ctx.fillText('FRONT', x + CELL_W / 2, y - 4);
                 } else if (isRear) {
-                    ctx.fillStyle = '#c586c0';
+                    ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--canvas-accent');
                     ctx.fillText('REAR', x + CELL_W / 2, y - 4);
                 }
 
-                ctx.fillStyle = '#888';
+                ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--text-muted');
                 ctx.font = '11px Arial';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'top';
@@ -239,6 +249,7 @@ document.addEventListener('click', function(e) {
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-highlight/prism-line-highlight.min.js"></script>
 </body>
 
 </html>

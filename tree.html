@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="img/logo-removebg-preview.png">
     <title>Binary Search Tree – DS Visualizer</title>
     <link rel="stylesheet" href="style.css" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
@@ -19,12 +20,15 @@
 
 <body>
 
-    <a href="index.html" class="back">← Back</a>
+    <script src="components.js"></script>
+    <nav-bar></nav-bar>
     <h2>Binary Search Tree</h2>
 
     <!-- GANTI TEKS ANALOGI DI BAWAH INI -->
     <div class="analogy-panel">
-        <strong>Analogi Dunia Nyata:</strong> Binary Search Tree (BST) beroperasi seperti kamus bahasa. Jika Anda mencari kata "M", dan Anda membuka halaman "S", Anda tahu bahwa "M" pasti berada di sebelah kiri. Struktur ini mempercepat pencarian secara eksponensial!
+        <strong>Analogi Dunia Nyata:</strong> Binary Search Tree (BST) beroperasi seperti kamus bahasa. Jika Anda
+        mencari kata "M", dan Anda membuka halaman "S", Anda tahu bahwa "M" pasti berada di sebelah kiri. Struktur ini
+        mempercepat pencarian secara eksponensial!
     </div>
 
     <div id="mainScreen">
@@ -322,13 +326,13 @@
 
             ctx.beginPath();
             ctx.arc(node.x, node.y, RADIUS, 0, 2 * Math.PI);
-            ctx.fillStyle = (node === activeNode) ? '#007acc' : '#252526';
+            ctx.fillStyle = (node === activeNode) ? getComputedStyle(document.documentElement).getPropertyValue('--accent') : getComputedStyle(document.documentElement).getPropertyValue('--panel-bg');
             ctx.fill();
-            ctx.strokeStyle = (node === activeNode) ? '#569cd6' : '#555555';
+            ctx.strokeStyle = (node === activeNode) ? getComputedStyle(document.documentElement).getPropertyValue('--canvas-highlight') : getComputedStyle(document.documentElement).getPropertyValue('--canvas-border');
             ctx.lineWidth = 2;
             ctx.stroke();
 
-            ctx.fillStyle = (node === activeNode) ? '#ffffff' : '#d4d4d4';
+            ctx.fillStyle = (node === activeNode) ? getComputedStyle(document.documentElement).getPropertyValue('--accent-text') : getComputedStyle(document.documentElement).getPropertyValue('--canvas-text');
             ctx.font = 'bold 15px Arial';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
@@ -341,7 +345,7 @@
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             if (!root) {
-                ctx.fillStyle = '#666666';
+                ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--canvas-text-empty');
                 ctx.font = '15px Arial';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
@@ -367,6 +371,10 @@
 
         draw();
         setCode('# Class Definitions for BST\\nclass Node:\\n    def __init__(self, key):\\n        self.info = key\\n        self.left = None\\n        self.right = None\\n\\nroot = None');
+    
+        window.addEventListener('themeChanged', () => {
+            if (typeof draw === 'function') draw();
+        });
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>

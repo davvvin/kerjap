@@ -4,19 +4,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="img/logo-removebg-preview.png">
     <title>Array – DS Visualizer</title>
     <link rel="stylesheet" href="style.css" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-highlight/prism-line-highlight.min.css"
+        rel="stylesheet" />
 </head>
 
 <body>
 
-    <a href="index.html" class="back">← Back</a>
+    <script src="components.js"></script>
+    <nav-bar></nav-bar>
     <h2>Array (Fixed-Size)</h2>
 
     <!-- GANTI TEKS ANALOGI DI BAWAH INI -->
     <div class="analogy-panel">
-        <strong>Analogi Dunia Nyata:</strong> Array statis ibarat rak loker di sekolah yang jumlahnya sudah tetap sejak awal. Anda bisa langsung menaruh buku di loker nomor 3 dengan sangat cepat, tapi jika semua loker penuh, Anda tidak bisa memaksakan menambah barang!
+        <strong>Analogi Dunia Nyata:</strong> Array statis ibarat rak loker di sekolah yang jumlahnya sudah tetap sejak
+        awal. Anda bisa langsung menaruh buku di loker nomor 3 dengan sangat cepat, tapi jika semua loker penuh, Anda
+        tidak bisa memaksakan menambah barang!
     </div>
 
     <!-- INIT -->
@@ -54,7 +60,10 @@
             <canvas id="c" height="140"></canvas>
             <div class="code-panel">
                 <div class="code-label">// Python</div>
-                <pre><code id="codeDisplay" class="language-python">No operations yet.</code></pre>
+                <pre id="codePre"><code id="codeDisplay" class="language-python">No operations yet.</code></pre>
+
+                <engine-controls id="animControls"></engine-controls>
+
                 <div class="complexity-container" id="complexityBadges" style="display:none;">
                     <div class="badge badge-time" id="badgeTime">Waktu: O(1)</div>
                     <div class="badge badge-space" id="badgeSpace">Ruang: O(1)</div>
@@ -91,6 +100,7 @@
         });
 
     </script>
+    <script src="engine.js"></script>
     <script>
         const CELL_W = 60, CELL_H = 50, START_X = 10, START_Y = 30;
         const canvas = document.getElementById('c');
@@ -99,6 +109,16 @@
         let arr = [];   // NaN = empty
         let capacity = 0;
         let ghostIdx = null; // index of ghost box to show
+        let modifiedIdx = null; // yellow highlight for recently changed values
+
+        // ── Step-by-Step Engine ───────────────────────────────────────────────
+        const animEngine = new AnimEngine((step) => {
+            arr = [...step.arrState];
+            capacity = step.capState;
+            ghostIdx = step.ghostIdx !== undefined ? step.ghostIdx : null;
+            modifiedIdx = step.modifiedIdx !== undefined ? step.modifiedIdx : null;
+            draw();
+        });
 
         function initArray() {
             const size = parseInt(document.getElementById('sizeInput').value);
@@ -106,19 +126,32 @@
             capacity = size;
             arr = Array(size).fill(NaN);
             ghostIdx = null;
+            modifiedIdx = null;
             document.getElementById('initScreen').style.display = 'none';
             document.getElementById('mainScreen').style.display = 'block';
             resizeCanvas();
-            draw();
-            setCode('# Create fixed-size array\narr = [None] * ' + size);
+
+            animEngine.loadSteps([
+                {
+                    arrState: [...arr], capState: capacity, line: "1-2",
+                    code: '# Create fixed-size array\narr = [None] * ' + size,
+                    msg: 'Array of size ' + size + ' initialized.'
+                }
+            ]);
         }
 
         function resetArray() {
+            capacity = arr.length;
             arr = Array(capacity).fill(NaN);
             ghostIdx = null;
-            draw();
-            setCode('# Reset array\narr = [None] * ' + capacity);
-            setMsg('');
+            modifiedIdx = null;
+            animEngine.loadSteps([
+                {
+                    arrState: [...arr], capState: capacity, line: "1-2",
+                    code: '# Reset array\narr = [None] * ' + capacity,
+                    msg: 'Array has been reset.'
+                }
+            ]);
         }
 
         // ── Insert ────────────────────────────────────────────────────
@@ -129,52 +162,52 @@
             if (val === '') { showPopup('Please enter a value.'); return; }
             const v = parseFloat(val);
 
+            let steps = [];
+            const baseCode = `def addData(self, newData):\n    # newData = ${v}\n    self.items[self.N] = newData\n    self.N = self.N + 1\n    return`;
+
             if (idxRaw === '') {
                 const nextEmpty = arr.findIndex(x => isNaN(x));
                 if (nextEmpty === -1) {
-                    // GANTI TEKS ERROR DI BAWAH INI
                     showPopup('⚠️ Array Overflow! Kapasitas penuh. Di struktur statis Python, mencoba memasukkan data ke indeks yang tidak ada akan menyebabkan IndexError: assignment index out of range!');
                     return;
                 }
 
+                steps.push({ arrState: [...arr], capState: capacity, ghostIdx: nextEmpty, code: baseCode, line: "1", msg: "Memanggil fungsi addData..." });
+                steps.push({ arrState: [...arr], capState: capacity, ghostIdx: nextEmpty, code: baseCode, line: "2", msg: "Menyiapkan newData = " + v });
+
                 arr[nextEmpty] = v;
-                ghostIdx = null;
-                draw();
-                setCode(`def addData(self, newData):
-    # newData = ${v}
-    self.items[self.N] = newData
-    self.N = self.N + 1
-    return`);
+                steps.push({ arrState: [...arr], capState: capacity, ghostIdx: null, modifiedIdx: nextEmpty, code: baseCode, line: "3", msg: "Memasukkan nilai ke dalam array." });
+                steps.push({ arrState: [...arr], capState: capacity, ghostIdx: null, modifiedIdx: nextEmpty, code: baseCode, line: "4", msg: "Menambah ukuran N (virtual size)." });
+                steps.push({ arrState: [...arr], capState: capacity, ghostIdx: null, modifiedIdx: nextEmpty, code: baseCode, line: "5", msg: "Selesai!" });
+
                 setComplexity('O(N) (Pencarian kosong)', 'O(1)');
-                setMsg('Inserted ' + v + ' at index ' + nextEmpty + '.');
+                animEngine.loadSteps(steps);
             } else {
                 const idx = parseInt(idxRaw);
                 if (isNaN(idx) || idx < 0 || idx >= capacity) {
                     showPopup('Index must be between 0 and ' + (capacity - 1) + '.');
                     return;
                 }
-                ghostIdx = null;
+
+                const updCode = `def setElemen(self, i, value):\n    # i = ${idx}, value = ${v}\n    self.items[i] = value\n    return`;
+
                 if (isNaN(arr[idx])) {
+                    steps.push({ arrState: [...arr], capState: capacity, ghostIdx: idx, code: updCode, line: "1", msg: "Memanggil fungsi setElemen..." });
+                    steps.push({ arrState: [...arr], capState: capacity, ghostIdx: idx, code: updCode, line: "2", msg: "Menyiapkan parameter..." });
                     arr[idx] = v;
-                    draw();
-                    setCode(`def addData(self, newData):
-    # newData = ${v}
-    self.items[self.N] = newData
-    self.N = self.N + 1
-    return`);
-                    setComplexity('O(1)', 'O(1)');
-                    setMsg('Inserted ' + v + ' at index ' + idx + '.');
+                    steps.push({ arrState: [...arr], capState: capacity, modifiedIdx: idx, code: updCode, line: "3", msg: "Memasukkan nilai ke indeks " + idx });
+                    steps.push({ arrState: [...arr], capState: capacity, modifiedIdx: idx, code: updCode, line: "4", msg: "Selesai!" });
                 } else {
+                    steps.push({ arrState: [...arr], capState: capacity, modifiedIdx: idx, code: updCode, line: "1", msg: "Memanggil fungsi setElemen (Overwrite)..." });
+                    steps.push({ arrState: [...arr], capState: capacity, modifiedIdx: idx, code: updCode, line: "2", msg: "Menyiapkan parameter..." });
                     const old = arr[idx];
                     arr[idx] = v;
-                    draw();
-                    setCode(`def setElemen(self, i, value):
-    # i = ${idx}, value = ${v}
-    self.items[i] = value
-    return`);
-                    setComplexity('O(1)', 'O(1)');
-                    setMsg('Overwrote index ' + idx + ': ' + old + ' → ' + v + '.');
+                    steps.push({ arrState: [...arr], capState: capacity, modifiedIdx: idx, code: updCode, line: "3", msg: "Menimpa nilai lama (" + old + ") dengan " + v });
+                    steps.push({ arrState: [...arr], capState: capacity, modifiedIdx: idx, code: updCode, line: "4", msg: "Selesai!" });
                 }
+
+                setComplexity('O(1)', 'O(1)');
+                animEngine.loadSteps(steps);
             }
 
             document.getElementById('insVal').value = '';
@@ -187,16 +220,20 @@
             const val = parseFloat(document.getElementById('updVal').value);
             if (isNaN(idx) || idx < 0 || idx >= capacity) { showPopup('Index must be between 0 and ' + (capacity - 1) + '.'); return; }
             if (isNaN(val)) { showPopup('Please enter a new value.'); return; }
+
             const old = arr[idx];
+            const updCode = `def setElemen(self, i, value):\n    # i = ${idx}, value = ${val}\n    self.items[i] = value\n    return`;
+
+            let steps = [];
+            steps.push({ arrState: [...arr], capState: capacity, modifiedIdx: idx, code: updCode, line: "1", msg: "Memanggil fungsi setElemen..." });
+            steps.push({ arrState: [...arr], capState: capacity, modifiedIdx: idx, code: updCode, line: "2", msg: "Menerima parameter index & value." });
             arr[idx] = val;
-            ghostIdx = null;
-            draw();
-            setCode(`def setElemen(self, i, value):
-    # i = ${idx}, value = ${val}
-    self.items[i] = value
-    return`);
+            steps.push({ arrState: [...arr], capState: capacity, modifiedIdx: idx, code: updCode, line: "3", msg: "Mengubah isi array di index " + idx + "." });
+            steps.push({ arrState: [...arr], capState: capacity, modifiedIdx: idx, code: updCode, line: "4", msg: "Selesai!" });
+
             setComplexity('O(1)', 'O(1)');
-            setMsg('Updated index ' + idx + ': ' + (isNaN(old) ? 'None' : old) + ' → ' + val);
+            animEngine.loadSteps(steps);
+
             document.getElementById('updIdx').value = '';
             document.getElementById('updVal').value = '';
         }
@@ -205,18 +242,21 @@
         function doDelete() {
             const idx = parseInt(document.getElementById('delIdx').value);
             if (isNaN(idx) || idx < 0 || idx >= capacity) { showPopup('Index must be between 0 and ' + (capacity - 1) + '.'); return; }
-            const old = arr[idx];
-            arr[idx] = NaN;
-            ghostIdx = null;
-            draw();
-            setCode(`def delData(self):
-    x = self.items[self.N-1]
-    self.N = self.N - 1
-    return x
 
-# target_idx = ${idx}`);
+            const old = arr[idx];
+            const delCode = `def delData(self):\n    x = self.items[${idx}]\n    self.items[${idx}] = None\n    return x`;
+
+            let steps = [];
+            steps.push({ arrState: [...arr], capState: capacity, modifiedIdx: idx, code: delCode, line: "1-2", msg: "Memanggil fungsi hapus..." });
+            steps.push({ arrState: [...arr], capState: capacity, modifiedIdx: idx, code: delCode, line: "3", msg: "Menyimpan nilai lama x = " + old });
+
+            arr[idx] = NaN;
+            steps.push({ arrState: [...arr], capState: capacity, modifiedIdx: idx, code: delCode, line: "4", msg: "Menghapus nilai dari array." });
+            steps.push({ arrState: [...arr], capState: capacity, ghostIdx: idx, code: delCode, line: "5", msg: "Selesai mengembalikan x!" });
+
             setComplexity('O(1)', 'O(1)');
-            setMsg('Deleted index ' + idx + ' (was: ' + (isNaN(old) ? 'None' : old) + '). Slot is now empty.');
+            animEngine.loadSteps(steps);
+
             document.getElementById('delIdx').value = '';
         }
 
@@ -225,44 +265,47 @@
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             const nextEmpty = arr.findIndex(x => isNaN(x));
 
-            // draw capacity slots
             for (let i = 0; i < capacity; i++) {
                 const x = START_X + i * CELL_W;
                 const y = START_Y;
                 const isEmpty = isNaN(arr[i]);
-                const isGhost = (i === nextEmpty);
+                const isGhost = (i === ghostIdx);
+                const isModified = (i === modifiedIdx);
 
                 if (isGhost) {
-                    // ghost box — dashed outline, no fill
                     ctx.setLineDash([5, 4]);
-                    ctx.strokeStyle = '#569cd6';
+                    ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--canvas-highlight');
                     ctx.lineWidth = 2;
                     ctx.strokeRect(x, y, CELL_W, CELL_H);
                     ctx.setLineDash([]);
 
-                    ctx.fillStyle = '#569cd6';
+                    ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--canvas-highlight');
                     ctx.font = '11px Arial';
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
                     ctx.fillText('← here', x + CELL_W / 2, y + CELL_H / 2);
                 } else {
-                    // normal cell
-                    ctx.fillStyle = isEmpty ? '#2d2d30' : '#3c3c3c';
+                    if (isModified && !isEmpty) {
+                        ctx.fillStyle = "#cca700"; // yellow/gold for modified
+                    } else {
+                        ctx.fillStyle = isEmpty ? getComputedStyle(document.documentElement).getPropertyValue('--canvas-empty') : getComputedStyle(document.documentElement).getPropertyValue('--canvas-filled');
+                    }
+
                     ctx.fillRect(x, y, CELL_W, CELL_H);
-                    ctx.strokeStyle = isEmpty ? '#3c3c3c' : '#555555';
+
+                    ctx.strokeStyle = isEmpty ? getComputedStyle(document.documentElement).getPropertyValue('--canvas-filled') : getComputedStyle(document.documentElement).getPropertyValue('--canvas-border');
                     ctx.lineWidth = isEmpty ? 1 : 1.5;
                     ctx.setLineDash([]);
                     ctx.strokeRect(x, y, CELL_W, CELL_H);
 
-                    ctx.fillStyle = isEmpty ? '#666666' : '#d4d4d4';
+                    ctx.fillStyle = isEmpty ? getComputedStyle(document.documentElement).getPropertyValue('--canvas-text-empty') : getComputedStyle(document.documentElement).getPropertyValue('--canvas-text');
                     ctx.font = isEmpty ? '12px Arial' : 'bold 15px Arial';
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
                     ctx.fillText(isEmpty ? 'NaN' : arr[i], x + CELL_W / 2, y + CELL_H / 2);
                 }
 
-                // index label
-                ctx.fillStyle = '#888';
+                ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--text-muted');
                 ctx.font = '11px Arial';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'top';
@@ -288,6 +331,8 @@
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-highlight/prism-line-highlight.min.js"></script>
 </body>
 
 </html>

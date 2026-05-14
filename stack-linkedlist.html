@@ -3,13 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="img/logo-removebg-preview.png">
     <title>Stack (Linked List) – DS Visualizer</title>
     <link rel="stylesheet" href="style.css" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
-</head>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-highlight/prism-line-highlight.min.css" rel="stylesheet" />
 <body>
 
-<a href="index.html" class="back">← Back</a>
+<script src="components.js"></script>
+    <nav-bar></nav-bar>
 <h2>Stack – Linked List Implementation</h2>
 
     <!-- GANTI TEKS ANALOGI DI BAWAH INI -->
@@ -46,11 +48,12 @@
         <canvas id="c" height="110"></canvas>
         <div class="code-panel">
             <div class="code-label">// Python</div>
-            <pre><code id="codeDisplay" class="language-python">No operations yet.</code></pre>
-                <div class="complexity-container" id="complexityBadges" style="display:none;">
-                    <div class="badge badge-time" id="badgeTime">Waktu: O(1)</div>
-                    <div class="badge badge-space" id="badgeSpace">Ruang: O(1)</div>
-                </div>
+            <pre id="codePre"><code id="codeDisplay" class="language-python">No operations yet.</code></pre>
+            <engine-controls id="animControls"></engine-controls>
+            <div class="complexity-container" id="complexityBadges" style="display:none;">
+                <div class="badge badge-time" id="badgeTime">Waktu: O(1)</div>
+                <div class="badge badge-space" id="badgeSpace">Ruang: O(1)</div>
+            </div>
         </div>
     </div>
     <div id="msg" class="msg"></div>
@@ -83,6 +86,7 @@ document.addEventListener('click', function(e) {
 });
 
 </script>
+<script src="engine.js"></script>
 <script>
 // Node structure: { value, next }
 // TOP of stack = head of linked list (leftmost node visually)
@@ -102,6 +106,25 @@ let maxSize = 0;
 // ── Node class ────────────────────────────────────────────────
 function Node(val) { this.value = val; this.next = null; }
 
+function cloneList(h) {
+    if (!h) return null;
+    let newHead = new Node(h.value);
+    let cur = newHead;
+    let orig = h.next;
+    while (orig) {
+        cur.next = new Node(orig.value);
+        cur = cur.next;
+        orig = orig.next;
+    }
+    return newHead;
+}
+
+const animEngine = new AnimEngine((step) => {
+    head = cloneList(step.headState);
+    size = step.sizeState;
+    draw();
+});
+
 function initStack() {
     const s = parseInt(document.getElementById('sizeInput').value);
     if (!s || s < 1) { showPopup('Please enter a valid size.'); return; }
@@ -118,60 +141,64 @@ function initStack() {
 function resetStack() {
     head = null;
     size = 0;
-    draw();
-    setCode('# Reset Stack List Linier\nhead = None');
-    setMsg('');
+    animEngine.loadSteps([
+        { headState: null, sizeState: 0, code: '# Reset Stack List Linier\nhead = None', line: "1-2", msg: "Stack has been reset." }
+    ]);
 }
 
 function doPush() {
     const val = parseFloat(document.getElementById('pushVal').value);
     if (isNaN(val)) { showPopup('Please enter a value to push.'); return; }
-    if (size >= maxSize) { // GANTI TEKS ERROR DI BAWAH INI
-        showPopup('⚠️ Stack Overflow! Meski ini Linked List, kita membatasi ukuran maksimal untuk visualisasi. Secara teori, Linked List hanya overflow jika RAM komputer Anda habis (MemoryError)!'); return; }
+    if (size >= maxSize) { showPopup('⚠️ Stack Overflow! Meski ini Linked List, kita membatasi ukuran maksimal untuk visualisasi. Secara teori, Linked List hanya overflow jika RAM komputer Anda habis (MemoryError)!'); return; }
 
     const node = new Node(val);
-    node.next  = head;
-    head       = node;
+    let steps = [];
+    const baseCode = `def push(self, X):\n    # X = ${val}\n    Q = Node(X)\n    Q.next = self.top\n    self.top = Q\n    return`;
+
+    steps.push({ headState: cloneList(head), sizeState: size, code: baseCode, line: "1-2", msg: "Memulai push(" + val + ")" });
+
+    steps.push({ headState: cloneList(head), sizeState: size, code: baseCode, line: "3", msg: "Membuat node baru Q (" + val + ")" });
+
+    node.next = head;
+    steps.push({ headState: cloneList(node), sizeState: size + 1, code: baseCode, line: "4", msg: "Menghubungkan Q.next ke top saat ini" });
+
+    head = node;
     size++;
-    draw();
-    setCode(`def push(self, X):
-    # X = ${val}
-    Q = Node(X)
-    Q.next = self.top
-    self.top = Q
-    return`);
+    steps.push({ headState: cloneList(head), sizeState: size, code: baseCode, line: "5", msg: "Menjadikan Q sebagai top baru" });
+    steps.push({ headState: cloneList(head), sizeState: size, code: baseCode, line: "6", msg: "Selesai!" });
+
     setComplexity('O(1)', 'O(1)');
-            setMsg('Pushed ' + val + '. Size: ' + size + '/' + maxSize);
+    animEngine.loadSteps(steps);
     document.getElementById('pushVal').value = '';
 }
 
 function doPop() {
-    if (!head) { // GANTI TEKS ERROR DI BAWAH INI
-        showPopup('⚠️ Stack Underflow! Pointer head adalah None. Jika Anda memaksa mengeksekusi self.top.next di Python, program akan terhenti dengan AttributeError: NoneType has no attribute next!'); return; }
+    if (!head) { showPopup('⚠️ Stack Underflow! Pointer head adalah None. Jika Anda memaksa mengeksekusi self.top.next di Python, program akan terhenti dengan AttributeError: NoneType has no attribute next!'); return; }
+    
+    let steps = [];
     const val = head.value;
+    const baseCode = `def pop(self):\n    Q = self.top\n    self.top = self.top.next\n    Q.next = None\n    return Q.info\n\n# removed_val = ${val}`;
+
+    steps.push({ headState: cloneList(head), sizeState: size, code: baseCode, line: "2", msg: "Menyimpan nilai teratas ke node Q = " + val });
+
     head = head.next;
     size--;
-    draw();
-    setCode(`def pop(self):
-    Q = self.top
-    self.top = self.top.next
-    Q.next = None
-    return Q.info
+    steps.push({ headState: cloneList(head), sizeState: size, code: baseCode, line: "3", msg: "Menggeser top ke node berikutnya" });
+    steps.push({ headState: cloneList(head), sizeState: size, code: baseCode, line: "4-5", msg: "Memutuskan referensi Q.next" });
 
-# removed_val = ${val}`);
     setComplexity('O(1)', 'O(1)');
-            setMsg('Popped ' + val + '. Size: ' + size + '/' + maxSize);
+    animEngine.loadSteps(steps);
 }
 
 function doIsEmpty() {
     const empty = head === null;
-    draw();
-    setCode(`def isEmpty(self):
-    return (self.top == None)
+    let steps = [];
+    const baseCode = `def isEmpty(self):\n    return (self.top == None)\n\n# status = ${empty}`;
 
-# status = ${empty}`);
+    steps.push({ headState: cloneList(head), sizeState: size, code: baseCode, line: "2", msg: "Mengecek apakah top None (" + empty + ")" });
+
     setComplexity('O(1)', 'O(1)');
-            setMsg('isEmpty → ' + empty);
+    animEngine.loadSteps(steps);
 }
 
 // ── Draw ──────────────────────────────────────────────────────
@@ -179,7 +206,7 @@ function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     if (!head) {
-        ctx.fillStyle    = '#666666';
+        ctx.fillStyle    = getComputedStyle(document.documentElement).getPropertyValue('--canvas-text-empty');
         ctx.font         = '13px Arial';
         ctx.textAlign    = 'left';
         ctx.textBaseline = 'middle';
@@ -195,13 +222,13 @@ function draw() {
         const isTop = (i === 0);
 
         // value box
-        ctx.fillStyle   = isTop ? '#003b5c' : '#3c3c3c';
+        ctx.fillStyle   = isTop ? getComputedStyle(document.documentElement).getPropertyValue('--canvas-head') : getComputedStyle(document.documentElement).getPropertyValue('--canvas-filled');
         ctx.fillRect(x, NODE_Y, NODE_W, NODE_H);
-        ctx.strokeStyle = isTop ? '#c586c0' : '#555555';
+        ctx.strokeStyle = isTop ? getComputedStyle(document.documentElement).getPropertyValue('--canvas-accent') : getComputedStyle(document.documentElement).getPropertyValue('--canvas-border');
         ctx.lineWidth   = isTop ? 2 : 1.5;
         ctx.strokeRect(x, NODE_Y, NODE_W, NODE_H);
 
-        ctx.fillStyle    = '#d4d4d4';
+        ctx.fillStyle    = getComputedStyle(document.documentElement).getPropertyValue('--canvas-text');
         ctx.font         = 'bold 15px Arial';
         ctx.textAlign    = 'center';
         ctx.textBaseline = 'middle';
@@ -209,9 +236,9 @@ function draw() {
 
         // pointer box
         const ptrX = x + NODE_W;
-        ctx.fillStyle   = '#2d2d30';
+        ctx.fillStyle   = getComputedStyle(document.documentElement).getPropertyValue('--canvas-empty');
         ctx.fillRect(ptrX, NODE_Y, PTR_W, NODE_H);
-        ctx.strokeStyle = '#666666';
+        ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--canvas-text-empty');
         ctx.lineWidth   = 1;
         ctx.strokeRect(ptrX, NODE_Y, PTR_W, NODE_H);
 
@@ -235,7 +262,7 @@ function draw() {
             ctx.fill();
         } else {
             // NULL label
-            ctx.fillStyle    = '#666666';
+            ctx.fillStyle    = getComputedStyle(document.documentElement).getPropertyValue('--canvas-text-empty');
             ctx.font         = '10px Arial';
             ctx.textAlign    = 'center';
             ctx.textBaseline = 'middle';
@@ -244,7 +271,7 @@ function draw() {
 
         // TOP label
         if (isTop) {
-            ctx.fillStyle    = '#c586c0';
+            ctx.fillStyle    = getComputedStyle(document.documentElement).getPropertyValue('--canvas-accent');
             ctx.font         = 'bold 11px Arial';
             ctx.textAlign    = 'center';
             ctx.textBaseline = 'bottom';
@@ -274,6 +301,7 @@ function setComplexity(time, space) {
 </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-highlight/prism-line-highlight.min.js"></script>
 </body>
 </html>
 

@@ -1,20 +1,85 @@
-/* style.css — VS Code Dark Theme */
+:root {
+    --bg-main: #1e1e1e;
+    --text-main: #d4d4d4;
+    --text-muted: #cccccc;
+    --panel-bg: #252526;
+    --panel-border: #3c3c3c;
+    --input-bg: #3c3c3c;
+    --accent: #007acc;
+    --accent-hover: #1177bb;
+    --accent-text: #ffffff;
+    --btn-danger: #ab3737;
+    --btn-danger-hover: #d13f3f;
+    --code-bg: #1e1e1e;
+    --code-label: #9cdcfe;
+    --msg-success: #4ec9b0;
+    --overlay-bg: rgba(0,0,0,0.6);
+    --analogy-bg: rgba(0, 122, 204, 0.15);
+    --analogy-border: #007acc;
+    --badge-bg: #2d2d30;
+    
+    /* Canvas specific vars for JS to read */
+    --canvas-bg: #1e1e1e;
+    --canvas-empty: #2d2d30;
+    --canvas-filled: #3c3c3c;
+    --canvas-border: #555555;
+    --canvas-border-empty: #3c3c3c;
+    --canvas-text: #d4d4d4;
+    --canvas-text-empty: #666666;
+    --canvas-highlight: #569cd6;
+    --canvas-accent: #c586c0;
+    --canvas-head: #003b5c;
+}
+
+[data-theme="light"] {
+    --bg-main: #f5f5f5;
+    --text-main: #333333;
+    --text-muted: #555555;
+    --panel-bg: #ffffff;
+    --panel-border: #cccccc;
+    --input-bg: #ffffff;
+    --accent: #007acc;
+    --accent-hover: #005a9e;
+    --accent-text: #ffffff;
+    --btn-danger: #d32f2f;
+    --btn-danger-hover: #b71c1c;
+    --code-bg: #f5f2f0;
+    --code-label: #007acc;
+    --msg-success: #2e7d32;
+    --overlay-bg: rgba(0,0,0,0.4);
+    --analogy-bg: rgba(0, 122, 204, 0.1);
+    --analogy-border: #007acc;
+    --badge-bg: #e0e0e0;
+    
+    /* Canvas specific vars for JS to read */
+    --canvas-bg: #f5f5f5;
+    --canvas-empty: #f9f9f9;
+    --canvas-filled: #ffffff;
+    --canvas-border: #333333;
+    --canvas-border-empty: #dddddd;
+    --canvas-text: #111111;
+    --canvas-text-empty: #bbbbbb;
+    --canvas-highlight: #4CAF50;
+    --canvas-accent: #f0a500;
+    --canvas-head: #fffbe6;
+}
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     padding: 20px;
-    background: #1e1e1e;
-    color: #d4d4d4;
+    background: var(--bg-main);
+    color: var(--text-main);
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
+    transition: background-color 0.3s, color 0.3s;
 }
 
 h2 {
     margin-bottom: 16px;
     font-size: 20px;
-    color: #cccccc;
+    color: var(--text-muted);
     font-weight: 500;
 }
 
@@ -22,12 +87,12 @@ a.back {
     display: inline-block;
     margin-bottom: 16px;
     font-size: 24px;
-    color: #007acc;
+    color: var(--accent);
     text-decoration: none;
     transition: color 0.2s;
 }
 a.back:hover { 
-    color: #3794ff;
+    color: var(--accent-hover);
 }
 
 /* ── Init screen ─────────────────────────────────────────── */
@@ -41,14 +106,14 @@ a.back:hover {
 #initScreen input {
     padding: 6px 10px;
     width: 80px;
-    background: #3c3c3c;
-    color: #d4d4d4;
-    border: 1px solid #3c3c3c;
+    background: var(--input-bg);
+    color: var(--text-main);
+    border: 1px solid var(--panel-border);
     border-radius: 4px;
     font-size: 14px;
 }
 #initScreen input:focus {
-    border-color: #007acc;
+    border-color: var(--accent);
     outline: none;
 }
 
@@ -60,11 +125,12 @@ a.back:hover {
     justify-content: center;
     gap: 16px;
     padding: 18px 24px;
-    background: #252526;
-    border: 1px solid #3c3c3c;
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
     border-radius: 6px;
     margin-bottom: 20px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    transition: background-color 0.3s;
 }
 
 .ctrl-group {
@@ -76,20 +142,20 @@ a.back:hover {
 
 .ctrl-group label {
     font-weight: 500;
-    color: #cccccc;
+    color: var(--text-muted);
 }
 
 .ctrl-group input, .ctrl-group select {
     padding: 8px 12px;
     width: 110px;
-    background: #3c3c3c;
-    color: #d4d4d4;
-    border: 1px solid #3c3c3c;
+    background: var(--input-bg);
+    color: var(--text-main);
+    border: 1px solid var(--panel-border);
     border-radius: 4px;
     font-size: 14px;
 }
 .ctrl-group input:focus, .ctrl-group select:focus {
-    border-color: #007acc;
+    border-color: var(--accent);
     outline: none;
 }
 
@@ -101,14 +167,14 @@ button {
     cursor: pointer;
     border: 1px solid transparent;
     border-radius: 2px;
-    background: #0e639c;
-    color: #ffffff;
+    background: var(--accent);
+    color: var(--accent-text);
     transition: background-color 0.2s;
 }
-button:hover { background: #1177bb; }
+button:hover { background: var(--accent-hover); }
 
-.btn-reset { background: #ab3737; color: white; }
-.btn-reset:hover { background: #d13f3f; }
+.btn-reset { background: var(--btn-danger); color: white; }
+.btn-reset:hover { background: var(--btn-danger-hover); }
 
 /* ── Viz row (canvas + code) ─────────────────────────────── */
 .viz-row {
@@ -122,57 +188,61 @@ button:hover { background: #1177bb; }
 }
 
 canvas {
-    border: 1px solid #3c3c3c;
-    background: #1e1e1e;
+    border: 1px solid var(--panel-border);
+    background: var(--canvas-bg);
     border-radius: 4px;
     display: block;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 
 /* ── Code panel ──────────────────────────────────────────── */
 .code-panel {
-    background: #1e1e1e;
+    background: var(--code-bg);
     border-radius: 6px;
     min-width: 320px;
     max-width: 500px;
     overflow: hidden;
-    border: 1px solid #3c3c3c;
+    border: 1px solid var(--panel-border);
     text-align: left;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 
 .code-label {
     padding: 8px 14px;
-    background: #252526;
-    color: #9cdcfe;
+    background: var(--panel-bg);
+    color: var(--code-label);
     font-size: 12px;
     font-family: 'Consolas', monospace;
-    border-bottom: 1px solid #3c3c3c;
+    border-bottom: 1px solid var(--panel-border);
 }
 
 pre {
     margin: 0 !important;
-    padding: 0 !important;
-    background: transparent !important;
+    padding: 14px 16px 14px 38px !important;
+    background: var(--code-bg) !important;
+    position: relative;
+    font-family: 'Consolas', monospace;
+    font-size: 13px;
+    line-height: 1.6;
 }
 
 #codeDisplay {
     display: block;
     margin: 0;
-    padding: 14px 16px;
-    color: #d4d4d4;
-    font-family: 'Consolas', monospace;
-    font-size: 13px;
-    line-height: 1.6;
+    padding: 0;
+    color: var(--text-main);
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
     white-space: pre;
-    background: #1e1e1e !important;
+    background: transparent !important;
 }
 
 /* ── Status message ──────────────────────────────────────── */
 .msg {
     margin-top: 16px;
     font-size: 14px;
-    color: #4ec9b0; /* VS Code greenish accent */
+    color: var(--msg-success);
     min-height: 20px;
     font-family: 'Consolas', monospace;
 }
@@ -182,7 +252,7 @@ pre {
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.6);
+    background: var(--overlay-bg);
     z-index: 100;
     align-items: center;
     justify-content: center;
@@ -192,8 +262,8 @@ pre {
 .popup-overlay.show { display: flex; }
 
 .popup-box {
-    background: #252526;
-    border: 1px solid #454545;
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
     border-radius: 6px;
     padding: 28px 32px;
     max-width: 400px;
@@ -209,51 +279,51 @@ pre {
 
 .popup-box p {
     font-size: 14px;
-    color: #d4d4d4;
+    color: var(--text-main);
     margin-bottom: 24px;
     line-height: 1.6;
 }
 
 .popup-box button {
     padding: 8px 32px;
-    background: #0e639c;
+    background: var(--accent);
     color: #fff;
     border: none;
     border-radius: 2px;
     font-size: 14px;
     cursor: pointer;
 }
-.popup-box button:hover { background: #1177bb; }
+.popup-box button:hover { background: var(--accent-hover); }
 
 /* ── Education Features ──────────────────────────────────── */
 .analogy-panel {
-    background: rgba(0, 122, 204, 0.15);
-    border-left: 4px solid #007acc;
+    background: var(--analogy-bg);
+    border-left: 4px solid var(--analogy-border);
     padding: 16px 20px;
     margin-bottom: 24px;
     border-radius: 0 4px 4px 0;
-    color: #cccccc;
+    color: var(--text-muted);
     font-size: 0.95rem;
     line-height: 1.6;
     max-width: 800px;
     margin-left: auto;
     margin-right: auto;
     text-align: left;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
-.analogy-panel strong { color: #569cd6; font-weight: 600;}
+.analogy-panel strong { color: var(--accent); font-weight: 600;}
 
 .complexity-container {
     display: flex;
     gap: 12px;
     padding: 10px 16px 14px 16px;
-    background: #1e1e1e;
-    border-top: 1px dashed #3c3c3c;
+    background: var(--code-bg);
+    border-top: 1px dashed var(--panel-border);
     justify-content: flex-start;
 }
 .badge {
-    background: #2d2d30;
-    border: 1px solid #3c3c3c;
+    background: var(--badge-bg);
+    border: 1px solid var(--panel-border);
     padding: 4px 10px;
     border-radius: 12px;
     font-size: 11px;
@@ -262,3 +332,135 @@ pre {
 }
 .badge-time { color: #4ec9b0; }
 .badge-space { color: #ce9178; }
+
+/* ── Web Component Navbar ────────────────────────────────── */
+nav-bar {
+    width: 100%;
+    max-width: 1200px;
+    margin-bottom: 30px;
+    display: block;
+}
+
+.top-navbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    background: var(--panel-bg);
+    padding: 12px 20px;
+    border: 1px solid var(--panel-border);
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    justify-content: center;
+    position: relative;
+}
+
+.nav-link {
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 38px;
+    text-decoration: none;
+    color: var(--text-main);
+    font-size: 14px;
+    font-family: inherit;
+    font-weight: 500;
+    padding: 0 16px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    background: var(--bg-main);
+    border: 1px solid var(--panel-border);
+    cursor: pointer;
+}
+
+.nav-link:hover {
+    background: var(--accent);
+    color: #ffffff;
+    border-color: var(--accent);
+}
+
+.nav-link.active {
+    background: var(--accent);
+    color: #ffffff;
+    border-color: var(--accent);
+    box-shadow: inset 0 0 0 2px rgba(255,255,255,0.2);
+}
+
+/* Theme Toggle Button */
+.theme-toggle {
+    position: absolute;
+    right: 20px;
+    background: transparent;
+    border: 1px solid var(--panel-border);
+    color: var(--text-main);
+    font-size: 18px;
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.theme-toggle:hover {
+    background: var(--input-bg);
+    transform: scale(1.1);
+}
+
+/* ── Dropdown Navbar ─────────────────────────────────────── */
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-btn {
+    cursor: pointer;
+    background: var(--bg-main);
+    font-size: 14px;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: var(--panel-bg);
+    min-width: 180px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.5);
+    z-index: 1000;
+    border: 1px solid var(--panel-border);
+    border-radius: 4px;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    overflow: hidden;
+}
+
+.dropdown-content a {
+    color: var(--text-main);
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    font-size: 13px;
+    border-bottom: 1px solid var(--panel-border);
+    transition: background-color 0.2s;
+}
+
+.dropdown-content a:last-child {
+    border-bottom: none;
+}
+
+.dropdown-content a:hover, .dropdown-content a.active {
+    background-color: var(--accent);
+    color: white;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+.dropdown:hover .dropdown-btn {
+    background-color: var(--accent);
+    color: white;
+    border-color: var(--accent);
+}

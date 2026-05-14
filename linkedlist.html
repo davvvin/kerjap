@@ -7,16 +7,21 @@
     <title>Linked List – DS Visualizer</title>
     <link rel="stylesheet" href="style.css" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-highlight/prism-line-highlight.min.css"
+        rel="stylesheet" />
 </head>
 
 <body>
 
-    <a href="index.html" class="back">← Back</a>
+    <script src="components.js"></script>
+    <nav-bar></nav-bar>
     <h2>Linked List (Singly)</h2>
 
     <!-- GANTI TEKS ANALOGI DI BAWAH INI -->
     <div class="analogy-panel">
-        <strong>Analogi Dunia Nyata:</strong> Singly Linked List mirip dengan permainan berburu harta karun. Setiap petunjuk (Node) mengarahkan Anda ke petunjuk berikutnya (Next Pointer). Anda tidak bisa melompat langsung ke akhir, Anda harus membaca petunjuk secara berurutan!
+        <strong>Analogi Dunia Nyata:</strong> Singly Linked List mirip dengan permainan berburu harta karun. Setiap
+        petunjuk (Node) mengarahkan Anda ke petunjuk berikutnya (Next Pointer). Anda tidak bisa melompat langsung ke
+        akhir, Anda harus membaca petunjuk secara berurutan!
     </div>
 
     <div id="mainScreen">
@@ -51,7 +56,8 @@
             <canvas id="c" height="110"></canvas>
             <div class="code-panel">
                 <div class="code-label">// Python</div>
-                <pre><code id="codeDisplay" class="language-python">No operations yet.</code></pre>
+                <pre id="codePre"><code id="codeDisplay" class="language-python">No operations yet.</code></pre>
+                <engine-controls id="animControls"></engine-controls>
                 <div class="complexity-container" id="complexityBadges" style="display:none;">
                     <div class="badge badge-time" id="badgeTime">Waktu: O(1)</div>
                     <div class="badge badge-space" id="badgeSpace">Ruang: O(1)</div>
@@ -88,7 +94,9 @@
         });
 
     </script>
+    <script src="engine.js"></script>
     <script>
+
         const NODE_W = 80, NODE_H = 50, PTR_W = 30;
         const TOTAL_W = NODE_W + PTR_W;
         const START_X = 20, NODE_Y = 35;
@@ -100,6 +108,28 @@
 
         let head = null;
         let size = 0;
+        let activeNodeIdx = null; // untuk highlight warna kuning pada node tertentu
+
+        // Fungsi bantuan untuk menduplikasi linked list agar state per langkah aman
+        function cloneList(h) {
+            if (!h) return null;
+            let newHead = new Node(h.value);
+            let cur = newHead;
+            let orig = h.next;
+            while (orig) {
+                cur.next = new Node(orig.value);
+                cur = cur.next;
+                orig = orig.next;
+            }
+            return newHead;
+        }
+
+        const animEngine = new AnimEngine((step) => {
+            head = cloneList(step.headState);
+            size = step.sizeState;
+            activeNodeIdx = step.activeNodeIdx !== undefined ? step.activeNodeIdx : null;
+            draw();
+        });
 
         // show/hide index input based on position select
         document.getElementById('insPos').addEventListener('change', function () {
@@ -112,9 +142,10 @@
         function resetList() {
             head = null;
             size = 0;
-            draw();
-            setCode('# Reset linked list\nfirst = None');
-            setMsg('');
+            activeNodeIdx = null;
+            animEngine.loadSteps([
+                { headState: null, sizeState: 0, activeNodeIdx: null, code: '# Reset linked list\nfirst = None', line: "1-2", msg: "List has been reset." }
+            ]);
         }
 
         // ── Insert ────────────────────────────────────────────────────
@@ -124,66 +155,82 @@
             if (isNaN(val)) { showPopup('Please enter a value.'); return; }
 
             const node = new Node(val);
+            let steps = [];
 
             if (pos === 'head') {
+                const baseCode = `def InsertFirst(self, Q):\n    # Q = Node(${val})\n    Q.next = self.first\n    self.first = Q\n    return`;
+                steps.push({ headState: cloneList(head), sizeState: size, code: baseCode, line: "1-2", msg: "Menyiapkan node baru Q..." });
+
                 node.next = head;
+                steps.push({ headState: cloneList(node), sizeState: size + 1, activeNodeIdx: 0, code: baseCode, line: "3", msg: "Q.next diarahkan ke first." });
+
                 head = node;
                 size++;
-                draw();
-                setCode(`def InsertFirst(self, Q):
-    # Q = Node(${val})
-    Q.next = self.first
-    self.first = Q
-    return`);
+                steps.push({ headState: cloneList(head), sizeState: size, activeNodeIdx: 0, code: baseCode, line: "4", msg: "first dipindahkan ke Q." });
+                steps.push({ headState: cloneList(head), sizeState: size, activeNodeIdx: null, code: baseCode, line: "5", msg: "Selesai!" });
+
                 setComplexity('O(1)', 'O(1)');
-            setMsg('Inserted ' + val + ' at first.');
+                animEngine.loadSteps(steps);
 
             } else if (pos === 'tail') {
+                const baseCode = `def InsertLast(self, Q):\n    # Q = Node(${val})\n    if (self.first == None):\n        self.InsertFirst(Q)\n    else:\n        last = self.first\n        while (last.next != None):\n            last = last.next\n        last.next = Q\n    return`;
+
+                steps.push({ headState: cloneList(head), sizeState: size, code: baseCode, line: "1-2", msg: "Menyiapkan node baru Q..." });
+
                 if (!head) {
+                    steps.push({ headState: cloneList(head), sizeState: size, code: baseCode, line: "3-4", msg: "Karena list kosong, panggil InsertFirst." });
                     head = node;
+                    size++;
+                    steps.push({ headState: cloneList(head), sizeState: size, activeNodeIdx: 0, code: baseCode, line: "4", msg: "Node Q menjadi first." });
                 } else {
+                    steps.push({ headState: cloneList(head), sizeState: size, code: baseCode, line: "6-8", msg: "Mencari node terakhir (looping sampai last.next == None)..." });
                     let cur = head;
-                    while (cur.next) cur = cur.next;
+                    let i = 0;
+                    while (cur.next) {
+                        cur = cur.next;
+                        i++;
+                    }
+                    steps.push({ headState: cloneList(head), sizeState: size, activeNodeIdx: i, code: baseCode, line: "8", msg: "Node terakhir ditemukan!" });
                     cur.next = node;
+                    size++;
+                    steps.push({ headState: cloneList(head), sizeState: size, activeNodeIdx: i + 1, code: baseCode, line: "9", msg: "last.next ditautkan ke Q." });
                 }
-                size++;
-                draw();
-                setCode(`def InsertLast(self, Q):
-    # Q = Node(${val})
-    if (self.first == None):
-        self.InsertFirst(Q)
-    else:
-        last = self.first
-        while (last.next != None):
-            last = last.next
-        last.next = Q
-    return`);
-                setComplexity('O(1)', 'O(1)');
-            setMsg('Inserted ' + val + ' at last.');
+                steps.push({ headState: cloneList(head), sizeState: size, activeNodeIdx: null, code: baseCode, line: "10", msg: "Selesai!" });
+
+                setComplexity('O(N)', 'O(1)');
+                animEngine.loadSteps(steps);
 
             } else {
                 const idx = parseInt(document.getElementById('insIdx').value);
                 if (isNaN(idx) || idx < 0 || idx > size) {
                     showPopup('Index must be between 0 and ' + size + '.'); return;
                 }
+
+                const baseCode = `def InsertAfter(self, prev, Q):\n    # prev = node[${idx}-1], Q = Node(${val})\n    Q.next = prev.next\n    prev.next = Q\n    return`;
+                steps.push({ headState: cloneList(head), sizeState: size, code: baseCode, line: "1-2", msg: "Menyiapkan parameter node prev dan node Q..." });
+
                 if (idx === 0) {
                     node.next = head;
                     head = node;
+                    size++;
+                    steps.push({ headState: cloneList(head), sizeState: size, activeNodeIdx: 0, code: baseCode, line: "3-4", msg: "Karena index 0, disisipkan di awal." });
                 } else {
                     let cur = head;
                     for (let i = 0; i < idx - 1; i++) cur = cur.next;
+
+                    steps.push({ headState: cloneList(head), sizeState: size, activeNodeIdx: idx - 1, code: baseCode, line: "2", msg: "Node prev (sebelumnya) ditemukan." });
+
                     node.next = cur.next;
+                    steps.push({ headState: cloneList(head), sizeState: size, activeNodeIdx: idx, code: baseCode, line: "3", msg: "Q.next diarahkan ke prev.next." });
+
                     cur.next = node;
+                    size++;
+                    steps.push({ headState: cloneList(head), sizeState: size, activeNodeIdx: idx, code: baseCode, line: "4", msg: "prev.next diarahkan ke Q." });
                 }
-                size++;
-                draw();
-                setCode(`def InsertAfter(self, prev, Q):
-    # prev = node[${idx}-1], Q = Node(${val})
-    Q.next = prev.next
-    prev.next = Q
-    return`);
-                setComplexity('O(1)', 'O(1)');
-            setMsg('Inserted ' + val + ' at index ' + idx + '.');
+                steps.push({ headState: cloneList(head), sizeState: size, activeNodeIdx: null, code: baseCode, line: "5", msg: "Selesai!" });
+
+                setComplexity('O(N) traverse', 'O(1)');
+                animEngine.loadSteps(steps);
             }
 
             document.getElementById('insVal').value = '';
@@ -196,77 +243,85 @@
             if (!head) { showPopup('List is empty!'); return; }
 
             let removed;
+            let steps = [];
 
             if (pos === 'head') {
                 removed = head.value;
+                const baseCode = `def DeleteFirst(self):\n    Q = self.first\n    self.first = self.first.next\n    Q.next = None\n    return Q\n\n# removed_val = ${removed}`;
+
+                steps.push({ headState: cloneList(head), sizeState: size, activeNodeIdx: 0, code: baseCode, line: "1-2", msg: "Menyimpan referensi Q = first." });
+
                 head = head.next;
                 size--;
-                draw();
-                setCode(`def DeleteFirst(self):
-    Q = self.first
-    self.first = self.first.next
-    Q.next = None
-    return Q
+                steps.push({ headState: cloneList(head), sizeState: size, code: baseCode, line: "3", msg: "Memindahkan first ke elemen berikutnya." });
+                steps.push({ headState: cloneList(head), sizeState: size, code: baseCode, line: "4-5", msg: "Memutuskan Q.next dan mengembalikan nilai." });
 
-# removed_val = ${removed}`);
                 setComplexity('O(1)', 'O(1)');
-            setMsg('Deleted first (was: ' + removed + ').');
+                animEngine.loadSteps(steps);
 
             } else if (pos === 'tail') {
+                const baseCode = `def DeleteLast(self):\n    if (self.first.next == None):\n        last = self.first\n        self.first = None\n    else:\n        prevlast = None\n        last = self.first\n        while (last.next != None):\n            prevlast = last\n            last = last.next\n        prevlast.next = None\n    return last`;
+
+                steps.push({ headState: cloneList(head), sizeState: size, code: baseCode, line: "1", msg: "Memanggil DeleteLast..." });
+
                 if (!head.next) {
                     removed = head.value;
                     head = null;
+                    size--;
+                    steps.push({ headState: cloneList(head), sizeState: size, code: baseCode, line: "2-4", msg: "Hanya 1 elemen, langsung hapus." });
                 } else {
+                    steps.push({ headState: cloneList(head), sizeState: size, code: baseCode, line: "8-10", msg: "Traverse mencari last dan prevlast..." });
                     let cur = head;
-                    while (cur.next.next) cur = cur.next;
+                    let i = 0;
+                    while (cur.next.next) {
+                        cur = cur.next;
+                        i++;
+                    }
                     removed = cur.next.value;
-                    cur.next = null;
-                }
-                size--;
-                draw();
-                setCode(`def DeleteLast(self):
-    if (self.first.next == None):
-        last = self.first
-        self.first = None
-    else:
-        prevlast = None  
-        last = self.first
-        while (last.next != None):
-            prevlast = last
-            last = last.next
-        prevlast.next = None
-    return last 
+                    steps.push({ headState: cloneList(head), sizeState: size, activeNodeIdx: i, code: baseCode, line: "10", msg: "prevlast ditemukan." });
 
-# removed_val = ${removed}`);
-                setComplexity('O(1)', 'O(1)');
-            setMsg('Deleted last (was: ' + removed + ').');
+                    cur.next = null;
+                    size--;
+                    steps.push({ headState: cloneList(head), sizeState: size, activeNodeIdx: i, code: baseCode, line: "11", msg: "prevlast.next diubah menjadi None." });
+                }
+
+                steps.push({ headState: cloneList(head), sizeState: size, code: baseCode + `\n\n# removed_val = ${removed}`, line: "12", msg: "Selesai!" });
+
+                setComplexity('O(N)', 'O(1)');
+                animEngine.loadSteps(steps);
 
             } else {
                 const idx = parseInt(document.getElementById('delIdx').value);
                 if (isNaN(idx) || idx < 0 || idx >= size) {
                     showPopup('Index must be between 0 and ' + (size - 1) + '.'); return;
                 }
+
+                const baseCode = `def DeleteAfter(self, prev):\n    # prev = node[${idx}-1]\n    Q = prev.next\n    prev.next = prev.next.next\n    Q.next = None\n    return Q`;
+
                 if (idx === 0) {
                     removed = head.value;
                     head = head.next;
+                    size--;
+                    steps.push({ headState: cloneList(head), sizeState: size, code: baseCode, line: "2", msg: "Karena index 0, sama seperti DeleteFirst." });
                 } else {
                     let cur = head;
                     for (let i = 0; i < idx - 1; i++) cur = cur.next;
-                    removed = cur.next.value;
-                    cur.next = cur.next.next;
-                }
-                size--;
-                draw();
-                setCode(`def DeleteAfter(self, prev):
-    # prev = node[${idx}-1]
-    Q = prev.next
-    prev.next = prev.next.next
-    Q.next = None
-    return Q 
 
-# removed_val = ${removed}`);
-                setComplexity('O(1)', 'O(1)');
-            setMsg('Deleted index ' + idx + ' (was: ' + removed + ').');
+                    removed = cur.next.value;
+                    steps.push({ headState: cloneList(head), sizeState: size, activeNodeIdx: idx - 1, code: baseCode, line: "2", msg: "Node prev (sebelumnya) ditemukan." });
+
+                    steps.push({ headState: cloneList(head), sizeState: size, activeNodeIdx: idx, code: baseCode, line: "3", msg: "Node Q yang akan dihapus ditarget." });
+
+                    cur.next = cur.next.next;
+                    size--;
+                    steps.push({ headState: cloneList(head), sizeState: size, activeNodeIdx: idx - 1, code: baseCode, line: "4", msg: "prev.next diloncati melangkahi Q." });
+                }
+
+                steps.push({ headState: cloneList(head), sizeState: size, code: baseCode + `\n\n# removed_val = ${removed}`, line: "6", msg: "Selesai!" });
+
+                setComplexity('O(N) traverse', 'O(1)');
+                animEngine.loadSteps(steps);
+
                 document.getElementById('delIdx').value = '';
             }
         }
@@ -277,7 +332,7 @@
             resizeCanvas();
 
             if (!head) {
-                ctx.fillStyle = '#666666';
+                ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--canvas-text-empty');
                 ctx.font = '13px Arial';
                 ctx.textAlign = 'left';
                 ctx.textBaseline = 'middle';
@@ -294,13 +349,20 @@
                 const isTail = (node.next === null);
 
                 // value box
-                ctx.fillStyle = isHead ? '#e3f2fd' : '#3c3c3c';
+                if (i === activeNodeIdx) {
+                    ctx.fillStyle = "#cca700"; // gold highlight
+                } else {
+                    ctx.fillStyle = isHead ? '#e3f2fd' : getComputedStyle(document.documentElement).getPropertyValue('--canvas-filled');
+                }
+
                 ctx.fillRect(x, NODE_Y, NODE_W, NODE_H);
-                ctx.strokeStyle = isHead ? '#1976d2' : '#555555';
+                ctx.strokeStyle = isHead && i !== activeNodeIdx ? '#1976d2' : getComputedStyle(document.documentElement).getPropertyValue('--canvas-border');
                 ctx.lineWidth = isHead ? 2 : 1.5;
                 ctx.strokeRect(x, NODE_Y, NODE_W, NODE_H);
 
-                ctx.fillStyle = '#d4d4d4';
+                ctx.fillStyle = (i === activeNodeIdx) ? '#ffffff' : getComputedStyle(document.documentElement).getPropertyValue('--canvas-text');
+                if (isHead && i !== activeNodeIdx) ctx.fillStyle = '#000000';
+
                 ctx.font = 'bold 15px Arial';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
@@ -308,9 +370,9 @@
 
                 // pointer box
                 const ptrX = x + NODE_W;
-                ctx.fillStyle = '#2d2d30';
+                ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--canvas-empty');
                 ctx.fillRect(ptrX, NODE_Y, PTR_W, NODE_H);
-                ctx.strokeStyle = '#666666';
+                ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--canvas-text-empty');
                 ctx.lineWidth = 1;
                 ctx.strokeRect(ptrX, NODE_Y, PTR_W, NODE_H);
 
@@ -328,7 +390,7 @@
                     ctx.lineTo(aE, midY + 4);
                     ctx.fill();
                 } else {
-                    ctx.fillStyle = '#666666';
+                    ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--canvas-text-empty');
                     ctx.font = '10px Arial';
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
@@ -336,7 +398,7 @@
                 }
 
                 // index label below
-                ctx.fillStyle = '#888';
+                ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--text-muted');
                 ctx.font = '11px Arial';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'top';
@@ -346,7 +408,7 @@
                 ctx.font = 'bold 11px Arial';
                 ctx.textBaseline = 'bottom';
                 if (isHead && isTail) {
-                    ctx.fillStyle = '#888';
+                    ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--text-muted');
                     ctx.fillText('FIRST & LAST', x + NODE_W / 2, NODE_Y - 4);
                 } else if (isHead) {
                     ctx.fillStyle = '#1976d2';
@@ -360,15 +422,14 @@
                 i++;
             }
         }
-
         function resizeCanvas() {
             const nodes = size === 0 ? 1 : size;
             canvas.width = START_X * 2 + nodes * (TOTAL_W + 4) + 20;
         }
 
-        function setCode(t) { 
+        function setCode(t) {
             const el = document.getElementById('codeDisplay');
-            el.textContent = t; 
+            el.textContent = t;
             if (window.Prism) Prism.highlightElement(el);
         }
         function setComplexity(time, space) {
@@ -384,6 +445,8 @@
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-highlight/prism-line-highlight.min.js"></script>
 </body>
 
 </html>

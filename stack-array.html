@@ -4,14 +4,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="img/logo-removebg-preview.png">
     <title>Stack (Array) – DS Visualizer</title>
     <link rel="stylesheet" href="style.css" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-highlight/prism-line-highlight.min.css" rel="stylesheet" />
 </head>
 
 <body>
 
-    <a href="index.html" class="back">← Back</a>
+    <script src="components.js"></script>
+    <nav-bar></nav-bar>
     <h2>Stack – Array Implementation</h2>
 
     <!-- GANTI TEKS ANALOGI DI BAWAH INI -->
@@ -48,7 +51,8 @@
             <canvas id="c"></canvas>
             <div class="code-panel">
                 <div class="code-label">// Python</div>
-                <pre><code id="codeDisplay" class="language-python">No operations yet.</code></pre>
+                <pre id="codePre"><code id="codeDisplay" class="language-python">No operations yet.</code></pre>
+                <engine-controls id="animControls"></engine-controls>
                 <div class="complexity-container" id="complexityBadges" style="display:none;">
                     <div class="badge badge-time" id="badgeTime">Waktu: O(1)</div>
                     <div class="badge badge-space" id="badgeSpace">Ruang: O(1)</div>
@@ -85,6 +89,7 @@ document.addEventListener('click', function(e) {
 });
 
 </script>
+    <script src="engine.js"></script>
     <script>
         const CELL_W = 160, CELL_H = 50, CELL_X = 20;
         const canvas = document.getElementById('c');
@@ -92,6 +97,11 @@ document.addEventListener('click', function(e) {
 
         let stack = [];
         let maxSize = 0;
+
+        const animEngine = new AnimEngine((step) => {
+            stack = step.stackState ? [...step.stackState] : [];
+            draw();
+        });
 
         function initStack() {
             const size = parseInt(document.getElementById('sizeInput').value);
@@ -107,63 +117,62 @@ document.addEventListener('click', function(e) {
 
         function resetStack() {
             stack = [];
-            draw();
-            setCode('# Reset ADT Stack');
-            setMsg('');
+            animEngine.loadSteps([
+                { stackState: [], code: '# Reset ADT Stack', line: "1", msg: "Stack has been reset." }
+            ]);
         }
 
         function doPush() {
             const val = parseFloat(document.getElementById('pushVal').value);
             if (isNaN(val)) { showPopup('Please enter a value to push.'); return; }
             if (stack.length >= maxSize) { 
-                // GANTI TEKS ERROR DI BAWAH INI
                 showPopup('⚠️ Stack Overflow! Kapasitas penuh. Di eksekusi program sesungguhnya, call stack yang kepenuhan akan menyebabkan program crash!'); 
                 return; 
             }
+            
+            let steps = [];
+            const baseCode = `def push(self, X):\n    # X = ${val}\n    self.top = self.top + 1\n    self.items[self.top] = X\n    return`;
+            
+            steps.push({ stackState: [...stack], code: baseCode, line: "1-2", msg: "Memulai push(" + val + ")" });
+            
             stack.push(val);
-            draw();
-            setCode(`def push(self, X):
-    # X = ${val}
-    self.top = self.top + 1
-    self.items[self.top] = X
-    return
-
-# State: ${fmt()}
-# size() = ${stack.length}`);
+            steps.push({ stackState: [...stack], code: baseCode, line: "3-4", msg: "Menambahkan elemen ke top (" + val + ")" });
+            steps.push({ stackState: [...stack], code: baseCode, line: "5", msg: "Selesai!" });
+            
             setComplexity('O(1)', 'O(1)');
-            setMsg('Pushed ' + val + '. Size: ' + stack.length + '/' + maxSize);
+            animEngine.loadSteps(steps);
             document.getElementById('pushVal').value = '';
         }
 
         function doPop() {
             if (stack.length === 0) { 
-                // GANTI TEKS ERROR DI BAWAH INI
                 showPopup('⚠️ Stack Underflow! Anda tidak bisa Pop dari Stack kosong. Di struktur Python list, ini akan menghasilkan IndexError: pop from empty list!'); 
                 return; 
             }
-            const val = stack.pop();
-            draw();
-            setCode(`def pop(self):
-    X = self.items[self.top]
-    self.top = self.top - 1
-    return X
-    
-# removed_val = ${val}
-# State: ${fmt()}
-# size() = ${stack.length}`);
+            
+            let steps = [];
+            const val = stack[stack.length - 1];
+            const baseCode = `def pop(self):\n    X = self.items[self.top]\n    self.top = self.top - 1\n    return X\n    \n# removed_val = ${val}`;
+            
+            steps.push({ stackState: [...stack], code: baseCode, line: "2", msg: "Menyimpan nilai teratas X = " + val });
+            
+            stack.pop();
+            steps.push({ stackState: [...stack], code: baseCode, line: "3", msg: "Mengurangi nilai top" });
+            steps.push({ stackState: [...stack], code: baseCode, line: "4", msg: "Selesai!" });
+            
             setComplexity('O(1)', 'O(1)');
-            setMsg('Popped ' + val + '. Size: ' + stack.length + '/' + maxSize);
+            animEngine.loadSteps(steps);
         }
 
         function doIsEmpty() {
             const empty = stack.length === 0;
-            draw();
-            setCode(`def isEmpty(self):
-    return self.top == 0
-
-# status = ${empty}`);
+            let steps = [];
+            const baseCode = `def isEmpty(self):\n    return self.top == 0\n\n# status = ${empty}`;
+            
+            steps.push({ stackState: [...stack], code: baseCode, line: "2", msg: "Mengecek apakah top == 0 (" + empty + ")" });
+            
             setComplexity('O(1)', 'O(1)');
-            setMsg('isEmpty → ' + empty);
+            animEngine.loadSteps(steps);
         }
 
         function draw() {
@@ -177,20 +186,20 @@ document.addEventListener('click', function(e) {
                 const hasVal = val !== undefined;
                 const isTop = hasVal && slot === stack.length - 1;
 
-                ctx.fillStyle = isTop ? '#003b5c' : hasVal ? '#3c3c3c' : '#2d2d30';
+                ctx.fillStyle = isTop ? getComputedStyle(document.documentElement).getPropertyValue('--canvas-head') : hasVal ? getComputedStyle(document.documentElement).getPropertyValue('--canvas-filled') : getComputedStyle(document.documentElement).getPropertyValue('--canvas-empty');
                 ctx.fillRect(CELL_X, y, CELL_W, CELL_H);
-                ctx.strokeStyle = isTop ? '#c586c0' : hasVal ? '#555555' : '#3c3c3c';
+                ctx.strokeStyle = isTop ? getComputedStyle(document.documentElement).getPropertyValue('--canvas-accent') : hasVal ? getComputedStyle(document.documentElement).getPropertyValue('--canvas-border') : getComputedStyle(document.documentElement).getPropertyValue('--canvas-filled');
                 ctx.lineWidth = isTop ? 2 : 1;
                 ctx.strokeRect(CELL_X, y, CELL_W, CELL_H);
 
-                ctx.fillStyle = hasVal ? '#d4d4d4' : '#666666';
+                ctx.fillStyle = hasVal ? getComputedStyle(document.documentElement).getPropertyValue('--canvas-text') : getComputedStyle(document.documentElement).getPropertyValue('--canvas-text-empty');
                 ctx.font = hasVal ? 'bold 15px Arial' : '12px Arial';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
                 ctx.fillText(hasVal ? val : 'empty', CELL_X + CELL_W / 2, y + CELL_H / 2);
 
                 if (isTop) {
-                    ctx.fillStyle = '#c586c0';
+                    ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--canvas-accent');
                     ctx.font = 'bold 11px Arial';
                     ctx.textAlign = 'left';
                     ctx.fillText('← TOP', CELL_X + CELL_W + 8, y + CELL_H / 2);
@@ -198,7 +207,7 @@ document.addEventListener('click', function(e) {
             }
 
             // BOTTOM label
-            ctx.fillStyle = '#888';
+            ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--text-muted');
             ctx.font = '11px Arial';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'top';
@@ -222,8 +231,13 @@ document.addEventListener('click', function(e) {
             document.getElementById('badgeSpace').textContent = 'Ruang: ' + space;
         }
         function setMsg(t) { document.getElementById('msg').textContent = t; }
+    
+        window.addEventListener('themeChanged', () => {
+            if (typeof draw === 'function') draw();
+        });
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-highlight/prism-line-highlight.min.js"></script>
 </body>
 </html>

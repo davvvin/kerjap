@@ -4,6 +4,7 @@
 <head>
   <title>DS Visualizer</title>
   <link rel="stylesheet" href="style.css" />
+    <link rel="icon" type="image/png" href="img/logo-removebg-preview.png">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
 </head>
 
@@ -172,16 +173,16 @@
         const y = 10 + visualRow * CELL_H;
 
         // cell bg
-        ctx.fillStyle = isTop ? '#003b5c' : isEmpty ? '#2d2d30' : '#3c3c3c';
+        ctx.fillStyle = isTop ? getComputedStyle(document.documentElement).getPropertyValue('--canvas-head') : isEmpty ? getComputedStyle(document.documentElement).getPropertyValue('--canvas-empty') : getComputedStyle(document.documentElement).getPropertyValue('--canvas-filled');
         ctx.fillRect(CELL_X, y, CELL_W, CELL_H);
 
         // cell border
-        ctx.strokeStyle = isTop ? '#c586c0' : isEmpty ? '#3c3c3c' : '#555555';
+        ctx.strokeStyle = isTop ? getComputedStyle(document.documentElement).getPropertyValue('--canvas-accent') : isEmpty ? getComputedStyle(document.documentElement).getPropertyValue('--canvas-filled') : getComputedStyle(document.documentElement).getPropertyValue('--canvas-border');
         ctx.lineWidth = isTop ? 2 : 1;
         ctx.strokeRect(CELL_X, y, CELL_W, CELL_H);
 
         // value
-        ctx.fillStyle = isEmpty ? '#666666' : '#d4d4d4';
+        ctx.fillStyle = isEmpty ? getComputedStyle(document.documentElement).getPropertyValue('--canvas-text-empty') : getComputedStyle(document.documentElement).getPropertyValue('--canvas-text');
         ctx.font = isEmpty ? '12px Arial' : 'bold 15px Arial';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
@@ -189,7 +190,7 @@
 
         // TOP label
         if (isTop) {
-          ctx.fillStyle = '#c586c0';
+          ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--canvas-accent');
           ctx.font = 'bold 11px Arial';
           ctx.textAlign = 'left';
           ctx.fillText('← TOP', CELL_X + CELL_W + 8, y + CELL_H / 2);
@@ -198,7 +199,7 @@
 
       // bottom label
       const bottomY = 10 + (totalSlots) * CELL_H;
-      ctx.fillStyle = '#888';
+      ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--text-muted');
       ctx.font = '11px Arial';
       ctx.textAlign = 'center';
       ctx.fillText('▲ BOTTOM', CELL_X + CELL_W / 2, bottomY + 14);

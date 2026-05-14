@@ -3,13 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="img/logo-removebg-preview.png">
     <title>Queue (Linked List) – DS Visualizer</title>
     <link rel="stylesheet" href="style.css" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
-</head>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-highlight/prism-line-highlight.min.css" rel="stylesheet" />
 <body>
 
-<a href="index.html" class="back">← Back</a>
+<script src="components.js"></script>
+    <nav-bar></nav-bar>
 <h2>Queue – Linked List Implementation</h2>
 
     <!-- GANTI TEKS ANALOGI DI BAWAH INI -->
@@ -46,11 +48,12 @@
         <canvas id="c" height="110"></canvas>
         <div class="code-panel">
             <div class="code-label">// Python</div>
-            <pre><code id="codeDisplay" class="language-python">No operations yet.</code></pre>
-                <div class="complexity-container" id="complexityBadges" style="display:none;">
-                    <div class="badge badge-time" id="badgeTime">Waktu: O(1)</div>
-                    <div class="badge badge-space" id="badgeSpace">Ruang: O(1)</div>
-                </div>
+            <pre id="codePre"><code id="codeDisplay" class="language-python">No operations yet.</code></pre>
+            <engine-controls id="animControls"></engine-controls>
+            <div class="complexity-container" id="complexityBadges" style="display:none;">
+                <div class="badge badge-time" id="badgeTime">Waktu: O(1)</div>
+                <div class="badge badge-space" id="badgeSpace">Ruang: O(1)</div>
+            </div>
         </div>
     </div>
     <div id="msg" class="msg"></div>
@@ -83,6 +86,7 @@ document.addEventListener('click', function(e) {
 });
 
 </script>
+<script src="engine.js"></script>
 <script>
 // Horizontal: FRONT on left (dequeue), REAR on right (enqueue)
 // head = front, tail = rear
@@ -101,6 +105,34 @@ let tail    = null;
 let size    = 0;
 let maxSize = 0;
 
+function cloneList(h) {
+    if (!h) return null;
+    let newHead = new Node(h.value);
+    let cur = newHead;
+    let orig = h.next;
+    while (orig) {
+        cur.next = new Node(orig.value);
+        cur = cur.next;
+        orig = orig.next;
+    }
+    return newHead;
+}
+
+const animEngine = new AnimEngine((step) => {
+    head = cloneList(step.headState);
+    
+    // Recalculate tail
+    tail = head;
+    if (tail) {
+        while (tail.next) {
+            tail = tail.next;
+        }
+    }
+    
+    size = step.sizeState;
+    draw();
+});
+
 function initQueue() {
     const s = parseInt(document.getElementById('sizeInput').value);
     if (!s || s < 1) { showPopup('Please enter a valid size.'); return; }
@@ -117,9 +149,9 @@ function initQueue() {
 function resetQueue() {
     head = tail = null;
     size = 0;
-    draw();
-    setCode('# Reset Queue List Linier\nhead = None\ntail = None');
-    setMsg('');
+    animEngine.loadSteps([
+        { headState: null, sizeState: 0, code: '# Reset Queue List Linier\nhead = None\ntail = None', line: "1-3", msg: "Queue has been reset." }
+    ]);
 }
 
 function doEnqueue() {
@@ -128,66 +160,69 @@ function doEnqueue() {
     if (size >= maxSize) { showPopup('Queue is full! Max size is ' + maxSize + '.'); return; }
 
     const node = new Node(val);
+    let steps = [];
+    const baseCode = `def insert(self, X):\n    # X = ${val}\n    Q = Node(X)\n    if self.IsEmpty():\n        self.head = Q\n        self.tail = Q\n    else:\n        self.tail.next = Q\n        self.tail = Q\n    return`;
+
+    steps.push({ headState: cloneList(head), sizeState: size, code: baseCode, line: "1-2", msg: "Memulai insert(" + val + ")" });
+    steps.push({ headState: cloneList(head), sizeState: size, code: baseCode, line: "3", msg: "Membuat node baru Q (" + val + ")" });
+
     if (tail === null) {
         head = tail = node;
+        steps.push({ headState: cloneList(head), sizeState: size + 1, code: baseCode, line: "4-6", msg: "Queue kosong, Q menjadi head dan tail" });
     } else {
         tail.next = node;
+        steps.push({ headState: cloneList(head), sizeState: size + 1, code: baseCode, line: "7-8", msg: "Menghubungkan tail saat ini ke Q" });
         tail = node;
+        steps.push({ headState: cloneList(head), sizeState: size + 1, code: baseCode, line: "9", msg: "Menjadikan Q sebagai tail baru" });
     }
     size++;
-    draw();
-    setCode(`def insert(self, X):
-    # X = ${val}
-    Q = Node(X)
-    if self.IsEmpty():
-        self.head = Q
-        self.tail = Q
-    else:
-        self.tail.next = Q
-        self.tail = Q
-    return`);
+    steps.push({ headState: cloneList(head), sizeState: size, code: baseCode, line: "10", msg: "Selesai!" });
+
     setComplexity('O(1)', 'O(1)');
-            setMsg('Enqueued ' + val + '. Size: ' + size + '/' + maxSize);
+    animEngine.loadSteps(steps);
     document.getElementById('enqVal').value = '';
 }
 
 function doDequeue() {
     if (!head) { showPopup('Queue is empty! Cannot dequeue.'); return; }
+    
+    let steps = [];
     const val = head.value;
-    head = head.next;
-    if (!head) tail = null;
-    size--;
-    draw();
-    setCode(`def delete(self):
-    Q = self.head
-    if self.head == self.tail:
-        self.head = None
-        self.tail = None
-    else:
-        self.head = self.head.next
-    return Q.info
+    const baseCode = `def delete(self):\n    Q = self.head\n    if self.head == self.tail:\n        self.head = None\n        self.tail = None\n    else:\n        self.head = self.head.next\n    return Q.info\n\n# removed_val = ${val}`;
 
-# removed_val = ${val}`);
+    steps.push({ headState: cloneList(head), sizeState: size, code: baseCode, line: "2", msg: "Menyimpan head di node Q = " + val });
+
+    if (head === tail) {
+        head = head.next;
+        tail = null;
+        steps.push({ headState: cloneList(head), sizeState: size - 1, code: baseCode, line: "3-5", msg: "Hanya ada 1 elemen, set head dan tail ke None" });
+    } else {
+        head = head.next;
+        steps.push({ headState: cloneList(head), sizeState: size - 1, code: baseCode, line: "6-7", msg: "Menggeser head ke node berikutnya" });
+    }
+    size--;
+    steps.push({ headState: cloneList(head), sizeState: size, code: baseCode, line: "8", msg: "Mengembalikan info dari Q" });
+
     setComplexity('O(1)', 'O(1)');
-            setMsg('Dequeued ' + val + '. Size: ' + size + '/' + maxSize);
+    animEngine.loadSteps(steps);
 }
 
 function doIsEmpty() {
     const empty = head === null;
-    draw();
-    setCode(`def isEmpty(self):
-    return (self.head == None)
+    let steps = [];
+    const baseCode = `def isEmpty(self):\n    return (self.head == None)\n\n# status = ${empty}`;
 
-# status = ${empty}`);
+    steps.push({ headState: cloneList(head), sizeState: size, code: baseCode, line: "2", msg: "Mengecek apakah head None (" + empty + ")" });
+
     setComplexity('O(1)', 'O(1)');
-            setMsg('isEmpty → ' + empty);
+    animEngine.loadSteps(steps);
 }
 
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     if (!head) {
-        ctx.fillStyle    = '#666666';
+        ctx.fillStyle    = getComputedStyle(document.documentElement).getPropertyValue('--canvas-text-empty');
         ctx.font         = '13px Arial';
         ctx.textAlign    = 'left';
         ctx.textBaseline = 'middle';
@@ -204,13 +239,13 @@ function draw() {
         const isRear  = (node.next === null);
 
         // value box
-        ctx.fillStyle   = isFront ? '#e8f5e9' : isRear ? '#003b5c' : '#3c3c3c';
+        ctx.fillStyle   = isFront ? '#e8f5e9' : isRear ? getComputedStyle(document.documentElement).getPropertyValue('--canvas-head') : getComputedStyle(document.documentElement).getPropertyValue('--canvas-filled');
         ctx.fillRect(x, NODE_Y, NODE_W, NODE_H);
-        ctx.strokeStyle = isFront ? '#569cd6' : isRear ? '#c586c0' : '#555555';
+        ctx.strokeStyle = isFront ? getComputedStyle(document.documentElement).getPropertyValue('--canvas-highlight') : isRear ? getComputedStyle(document.documentElement).getPropertyValue('--canvas-accent') : getComputedStyle(document.documentElement).getPropertyValue('--canvas-border');
         ctx.lineWidth   = (isFront || isRear) ? 2 : 1.5;
         ctx.strokeRect(x, NODE_Y, NODE_W, NODE_H);
 
-        ctx.fillStyle    = '#d4d4d4';
+        ctx.fillStyle    = getComputedStyle(document.documentElement).getPropertyValue('--canvas-text');
         ctx.font         = 'bold 15px Arial';
         ctx.textAlign    = 'center';
         ctx.textBaseline = 'middle';
@@ -218,9 +253,9 @@ function draw() {
 
         // pointer box
         const ptrX = x + NODE_W;
-        ctx.fillStyle   = '#2d2d30';
+        ctx.fillStyle   = getComputedStyle(document.documentElement).getPropertyValue('--canvas-empty');
         ctx.fillRect(ptrX, NODE_Y, PTR_W, NODE_H);
-        ctx.strokeStyle = '#666666';
+        ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--canvas-text-empty');
         ctx.lineWidth   = 1;
         ctx.strokeRect(ptrX, NODE_Y, PTR_W, NODE_H);
 
@@ -238,7 +273,7 @@ function draw() {
             ctx.lineTo(aE, midY + 4);
             ctx.fill();
         } else {
-            ctx.fillStyle    = '#666666';
+            ctx.fillStyle    = getComputedStyle(document.documentElement).getPropertyValue('--canvas-text-empty');
             ctx.font         = '10px Arial';
             ctx.textAlign    = 'center';
             ctx.textBaseline = 'middle';
@@ -250,13 +285,13 @@ function draw() {
         ctx.textAlign    = 'center';
         ctx.textBaseline = 'bottom';
         if (isFront && isRear) {
-            ctx.fillStyle = '#888';
+            ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--text-muted');
             ctx.fillText('FRONT & REAR', x + NODE_W / 2, NODE_Y - 4);
         } else if (isFront) {
-            ctx.fillStyle = '#569cd6';
+            ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--canvas-highlight');
             ctx.fillText('FRONT', x + NODE_W / 2, NODE_Y - 4);
         } else if (isRear) {
-            ctx.fillStyle = '#c586c0';
+            ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--canvas-accent');
             ctx.fillText('REAR', x + NODE_W / 2, NODE_Y - 4);
         }
 
@@ -283,6 +318,6 @@ function setComplexity(time, space) {
 </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-highlight/prism-line-highlight.min.js"></script>
 </body>
 </html>
-
