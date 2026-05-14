@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="img/logo-removebg-preview.png">
+    <title>Min Heap – DS Visualizer</title>
+    <link rel="stylesheet" href="style.css" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <style>
+        .viz-row {
+            flex-direction: column;
+            align-items: center;
+        }
+    </style>
+</head>
+
+<body>
+
+    <script src="components.js"></script>
+    <nav-bar></nav-bar>
+    <h2>Min Heap (Priority Queue)</h2>
+
+    <div class="analogy-panel">
+        <strong>Analogi Dunia Nyata:</strong> Min Heap beroperasi seperti sistem VIP atau sistem antrean tugas berdasar prioritas di mana angka terkecil berarti prioritas teratas (misal: ranking 1). Pasien/Tugas dengan nilai terkecil akan selalu berada di puncak antrean (Root).
+    </div>
+
+    <div id="mainScreen">
+        <div class="controls">
+            <span class="ctrl-group">
+                <label>Insert</label>
+                <input id="insVal" type="number" placeholder="value" />
+                <button onclick="doInsert()">Insert</button>
+            </span>
+            <span class="ctrl-group">
+                <label>Extract</label>
+                <button onclick="doExtract()">Extract Min</button>
+            </span>
+            <span class="ctrl-group">
+                <button class="btn-reset" onclick="resetTree()">Reset</button>
+            </span>
+        </div>
+
+        <div class="viz-row">
+            <canvas id="c" width="800" height="400"></canvas>
+            <div class="code-panel" style="width:100%; max-width:800px;">
+                <div class="code-label">// Python - Min Heap</div>
+                <pre><code id="codeDisplay" class="language-python">No operations yet.</code></pre>
+                <div class="complexity-container" id="complexityBadges" style="display:none;">
+                    <div class="badge badge-time" id="badgeTime">Waktu: O(1)</div>
+                    <div class="badge badge-space" id="badgeSpace">Ruang: O(1)</div>
+                </div>
+            </div>
+        </div>
+        <div id="msg" class="msg"></div>
+    </div>
+
+    <!-- POPUP -->
+    <div class="popup-overlay" id="popupOverlay">
+        <div class="popup-box">
+            <div class="popup-icon">⚠️</div>
+            <p id="popupMsg"></p>
+            <button onclick="closePopup()">OK</button>
+        </div>
+    </div>
+
+    <script>
+        function showPopup(message) {
+            document.getElementById('popupMsg').textContent = message;
+            document.getElementById('popupOverlay').classList.add('show');
+        }
+
+        function closePopup() {
+            document.getElementById('popupOverlay').classList.remove('show');
+        }
+
+        document.addEventListener('click', function (e) {
+            if (e.target.id === 'popupOverlay') closePopup();
+        });
+
+        const RADIUS = 20;
+        const canvas = document.getElementById('c');
+        const ctx = canvas.getContext('2d');
+
+        let heap = [];
+        let heapNodes = [];
+
+        function resetTree() {
+            heap = [];
+            draw();
+            setCode('heap = []');
+            setMsg('Heap has been reset.');
+        }
+
+        function swap(i, j) {
+            let temp = heap[i];
+            heap[i] = heap[j];
+            heap[j] = temp;
+        }
+
+        function bubbleUp(i) {
+            while (i > 0) {
+                let p = Math.floor((i - 1) / 2);
+                if (heap[i] < heap[p]) {
+                    swap(i, p);
+                    i = p;
+                } else {
+                    break;
+                }
+            }
+        }
+
+        function sinkDown(i) {
+            let n = heap.length;
+            while (true) {
+                let left = 2 * i + 1;
+                let right = 2 * i + 2;
+                let smallest = i;
+
+                if (left < n && heap[left] < heap[smallest]) smallest = left;
+                if (right < n && heap[right] < heap[smallest]) smallest = right;
+
+                if (smallest !== i) {
+                    swap(i, smallest);
+                    i = smallest;
+                } else {
+                    break;
+                }
+            }
+        }
+
+        function doInsert() {
+            const val = parseFloat(document.getElementById('insVal').value);
+            if (isNaN(val)) { showPopup('Please enter a valid number.'); return; }
+
+            heap.push(val);
+            bubbleUp(heap.length - 1);
+            
+            draw();
+            setCode(`def insert(self, val):\n    self.heap.append(val)\n    self._bubble_up(len(self.heap) - 1)\n\n# Inserted ${val}`);
+            setComplexity('O(log N)', 'O(1)');
+            setMsg('Inserted ' + val + ' into Min Heap.');
+            document.getElementById('insVal').value = '';
+        }
+
+        function doExtract() {
+            if (heap.length === 0) { showPopup('Heap is empty.'); return; }
+            
+            let minVal = heap[0];
+            let lastVal = heap.pop();
+            
+            if (heap.length > 0) {
+                heap[0] = lastVal;
+                sinkDown(0);
+            }
+            
+            draw();
+            setCode(`def extract_min(self):\n    if len(self.heap) == 0: return None\n    min_val = self.heap[0]\n    last_val = self.heap.pop()\n    if len(self.heap) > 0:\n        self.heap[0] = last_val\n        self._sink_down(0)\n    return min_val\n\n# Extracted ${minVal}`);
+            setComplexity('O(log N)', 'O(1)');
+            setMsg('Extracted minimum value: ' + minVal);
+        }
+
+        function calcTree(idx, x, y, dx) {
+            if (idx >= heap.length) return;
+            heapNodes[idx] = { x: x, y: y };
+            calcTree(2 * idx + 1, x - dx, y + 70, dx / 2);
+            calcTree(2 * idx + 2, x + dx, y + 70, dx / 2);
+        }
+
+        function drawConnections() {
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = '#555';
+            for (let i = 0; i < heap.length; i++) {
+                let left = 2 * i + 1;
+                let right = 2 * i + 2;
+                if (left < heap.length) {
+                    ctx.beginPath();
+                    ctx.moveTo(heapNodes[i].x, heapNodes[i].y);
+                    ctx.lineTo(heapNodes[left].x, heapNodes[left].y);
+                    ctx.stroke();
+                }
+                if (right < heap.length) {
+                    ctx.beginPath();
+                    ctx.moveTo(heapNodes[i].x, heapNodes[i].y);
+                    ctx.lineTo(heapNodes[right].x, heapNodes[right].y);
+                    ctx.stroke();
+                }
+            }
+        }
+
+        function drawNodes() {
+            for (let i = 0; i < heap.length; i++) {
+                let n = heapNodes[i];
+                ctx.beginPath();
+                ctx.arc(n.x, n.y, RADIUS, 0, 2 * Math.PI);
+                ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--panel-bg');
+                ctx.fill();
+                ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--canvas-border');
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--canvas-text');
+                ctx.font = 'bold 15px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(heap[i], n.x, n.y);
+            }
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if (heap.length === 0) {
+                ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--canvas-text-empty');
+                ctx.font = '15px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('Heap is empty', canvas.width / 2, canvas.height / 2);
+                return;
+            }
+            heapNodes = [];
+            calcTree(0, canvas.width / 2, RADIUS + 10, canvas.width / 4);
+            drawConnections();
+            drawNodes();
+        }
+
+        function setCode(t) {
+            const el = document.getElementById('codeDisplay');
+            el.textContent = t;
+            if (window.Prism) Prism.highlightElement(el);
+        }
+        function setComplexity(time, space) {
+            document.getElementById('complexityBadges').style.display = 'flex';
+            document.getElementById('badgeTime').textContent = 'Waktu: ' + time;
+            document.getElementById('badgeSpace').textContent = 'Ruang: ' + space;
+        }
+        function setMsg(t) { document.getElementById('msg').textContent = t; }
+
+        draw();
+        setCode('# Array-based Min Heap\nheap = []');
+    
+        window.addEventListener('themeChanged', () => {
+            if (typeof draw === 'function') draw();
+        });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+</body>
+
+</html>

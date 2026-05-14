@@ -28,7 +28,15 @@ class NavBar extends HTMLElement {
                 </div>
 
                 <a href="linkedlist.html" class="nav-link">Linked Lists</a>
-                <a href="tree.html" class="nav-link">Trees</a>
+                <div class="dropdown">
+                    <button class="nav-link dropdown-btn">Trees ↓</button>
+                    <div class="dropdown-content">
+                        <a href="tree.html">Binary Tree</a>
+                        <a href="tree-nary.html">N-Ary Tree</a>
+                        <a href="tree-maxheap.html">Max Heap</a>
+                        <a href="tree-minheap.html">Min Heap</a>
+                    </div>
+                </div>
                 
                 <button class="theme-toggle" id="themeBtn" title="Toggle Light/Dark Mode">☀️</button>
             </div>

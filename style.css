@@ -35,7 +35,7 @@
     --bg-main: #f5f5f5;
     --text-main: #333333;
     --text-muted: #555555;
-    --panel-bg: #ffffff;
+    --panel-bg: #dddddd;
     --panel-border: #cccccc;
     --input-bg: #ffffff;
     --accent: #007acc;
@@ -463,4 +463,57 @@ nav-bar {
     background-color: var(--accent);
     color: white;
     border-color: var(--accent);
+}
+
+/* ── Grid Layout for Menus (index.html) ──────────────────── */
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 25px;
+    max-width: 1100px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.grid-column {
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    text-align: center;
+}
+
+.grid-column h3 {
+    color: var(--text-main);
+    border-bottom: 2px solid var(--accent);
+    padding-bottom: 10px;
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 18px;
+    text-align: center;
+}
+
+.grid-column a {
+    display: block;
+    padding: 12px 15px;
+    background-color: var(--input-bg);
+    color: var(--text-main);
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 12px;
+    transition: all 0.2s ease;
+    border-left: 4px solid transparent;
+}
+
+.grid-column a:last-child {
+    margin-bottom: 0;
+}
+
+.grid-column a:hover {
+    background-color: var(--accent);
+    border-left: 4px solid var(--canvas-highlight);
+    color: var(--accent-text);
 }

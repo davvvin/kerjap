@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="img/logo-removebg-preview.png">
+    <title>N-Ary Tree – DS Visualizer</title>
+    <link rel="stylesheet" href="style.css" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <style>
+        .viz-row {
+            flex-direction: column;
+            align-items: center;
+        }
+    </style>
+</head>
+
+<body>
+
+    <script src="components.js"></script>
+    <nav-bar></nav-bar>
+    <h2>N-Ary Tree</h2>
+
+    <div class="analogy-panel">
+        <strong>Analogi Dunia Nyata:</strong> N-Ary Tree beroperasi seperti struktur direktori (folder) di komputer atau
+        struktur organisasi perusahaan. Satu folder/atasan bisa berisi banyak sub-folder/bawahan, tidak dibatasi hanya
+        dua cabang saja.
+    </div>
+
+    <div id="mainScreen">
+        <div class="controls">
+            <span class="ctrl-group">
+                <label>Insert</label>
+                <input id="insParent" type="number" placeholder="parent val"
+                    title="Biarkan kosong jika ini node Root pertama" />
+                <input id="insChild" type="number" placeholder="new child val" />
+                <button onclick="doInsert()">Insert</button>
+            </span>
+            <span class="ctrl-group">
+                <label>Delete</label>
+                <input id="delVal" type="number" placeholder="value" />
+                <button onclick="doDelete()">Delete</button>
+            </span>
+            <span class="ctrl-group">
+                <button class="btn-reset" onclick="resetTree()">Reset</button>
+            </span>
+        </div>
+
+        <div class="viz-row">
+            <canvas id="c" width="800" height="400"></canvas>
+            <div class="code-panel" style="width:100%; max-width:800px;">
+                <div class="code-label">// Python - N-Ary Tree</div>
+                <pre><code id="codeDisplay" class="language-python">No operations yet.</code></pre>
+                <div class="complexity-container" id="complexityBadges" style="display:none;">
+                    <div class="badge badge-time" id="badgeTime">Waktu: O(1)</div>
+                    <div class="badge badge-space" id="badgeSpace">Ruang: O(1)</div>
+                </div>
+            </div>
+        </div>
+        <div id="msg" class="msg"></div>
+    </div>
+
+    <!-- POPUP -->
+    <div class="popup-overlay" id="popupOverlay">
+        <div class="popup-box">
+            <div class="popup-icon">⚠️</div>
+            <p id="popupMsg"></p>
+            <button onclick="closePopup()">OK</button>
+        </div>
+    </div>
+
+    <script>
+        function showPopup(message) {
+            document.getElementById('popupMsg').textContent = message;
+            document.getElementById('popupOverlay').classList.add('show');
+        }
+
+        function closePopup() {
+            document.getElementById('popupOverlay').classList.remove('show');
+        }
+
+        document.addEventListener('click', function (e) {
+            if (e.target.id === 'popupOverlay') closePopup();
+        });
+
+        const RADIUS = 20;
+        const canvas = document.getElementById('c');
+        const ctx = canvas.getContext('2d');
+
+        class Node {
+            constructor(val) {
+                this.info = val;
+                this.children = [];
+                this.x = 0;
+                this.y = 0;
+            }
+        }
+
+        let root = null;
+
+        function resetTree() {
+            root = null;
+            draw();
+            setCode('# Root pointer reset to None\nroot = None');
+            setMsg('Tree has been reset.');
+        }
+
+        function findNode(node, val) {
+            if (!node) return null;
+            if (node.info === val) return node;
+            for (let child of node.children) {
+                let res = findNode(child, val);
+                if (res) return res;
+            }
+            return null;
+        }
+
+        function deleteNAry(node, val) {
+            if (!node) return null;
+            if (node.info === val) return null;
+
+            for (let i = 0; i < node.children.length; i++) {
+                if (node.children[i].info === val) {
+                    node.children.splice(i, 1);
+                    return node;
+                } else {
+                    deleteNAry(node.children[i], val);
+                }
+            }
+            return node;
+        }
+
+        function doInsert() {
+            const pValStr = document.getElementById('insParent').value;
+            const cVal = parseFloat(document.getElementById('insChild').value);
+
+            if (isNaN(cVal)) { showPopup('Please enter a valid number for child value.'); return; }
+            if (findNode(root, cVal)) { showPopup('Value ' + cVal + ' already exists.'); return; }
+
+            if (!root) {
+                root = new Node(cVal);
+                setMsg('Inserted root node ' + cVal + '.');
+            } else {
+                const pVal = parseFloat(pValStr);
+                if (isNaN(pVal)) { showPopup('Please enter a valid parent value.'); return; }
+                let pNode = findNode(root, pVal);
+                if (!pNode) { showPopup('Parent ' + pVal + ' not found.'); return; }
+                pNode.children.push(new Node(cVal));
+                setMsg('Inserted ' + cVal + ' under parent ' + pVal + '.');
+            }
+            draw();
+            setCode(`class Node:\n    def __init__(self, key):\n        self.info = key\n        self.children = []\n\n# Node Inserted`);
+            setComplexity('O(N)', 'O(1)');
+            document.getElementById('insParent').value = '';
+            document.getElementById('insChild').value = '';
+        }
+
+        function doDelete() {
+            const val = parseFloat(document.getElementById('delVal').value);
+            if (isNaN(val)) { showPopup('Please enter a valid number to delete.'); return; }
+
+            if (!findNode(root, val)) { showPopup('Value ' + val + ' not found in tree.'); return; }
+
+            if (root.info === val) {
+                root = null;
+            } else {
+                deleteNAry(root, val);
+            }
+            draw();
+            setCode(`def delete(self, root, key):\n    # Removes subtree rooted at key\n    pass`);
+            setComplexity('O(N)', 'O(1)');
+            setMsg('Deleted subtree rooted at ' + val + '.');
+            document.getElementById('delVal').value = '';
+        }
+
+        function calcTree(node, x, y, dx) {
+            if (!node) return;
+            node.x = x;
+            node.y = y;
+            let n = node.children.length;
+            if (n === 0) return;
+            if (n === 1) {
+                calcTree(node.children[0], x, y + 70, dx / 2);
+            } else {
+                let startX = x - dx;
+                let stepX = (2 * dx) / (n - 1);
+                for (let i = 0; i < n; i++) {
+                    calcTree(node.children[i], startX + i * stepX, y + 70, dx / 2);
+                }
+            }
+        }
+
+        function drawConnections(node) {
+            if (!node) return;
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = '#555';
+
+            for (let child of node.children) {
+                ctx.beginPath();
+                ctx.moveTo(node.x, node.y);
+                ctx.lineTo(child.x, child.y);
+                ctx.stroke();
+                drawConnections(child);
+            }
+        }
+
+        function drawNodes(node) {
+            if (!node) return;
+
+            ctx.beginPath();
+            ctx.arc(node.x, node.y, RADIUS, 0, 2 * Math.PI);
+            ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--panel-bg');
+            ctx.fill();
+            ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--canvas-border');
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--canvas-text');
+            ctx.font = 'bold 15px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(node.info, node.x, node.y);
+
+            for (let child of node.children) {
+                drawNodes(child);
+            }
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if (!root) {
+                ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--canvas-text-empty');
+                ctx.font = '15px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('Tree is empty', canvas.width / 2, canvas.height / 2);
+                return;
+            }
+            calcTree(root, canvas.width / 2, RADIUS + 10, canvas.width / 3);
+            drawConnections(root);
+            drawNodes(root);
+        }
+
+        function setCode(t) {
+            const el = document.getElementById('codeDisplay');
+            el.textContent = t;
+            if (window.Prism) Prism.highlightElement(el);
+        }
+        function setComplexity(time, space) {
+            document.getElementById('complexityBadges').style.display = 'flex';
+            document.getElementById('badgeTime').textContent = 'Waktu: ' + time;
+            document.getElementById('badgeSpace').textContent = 'Ruang: ' + space;
+        }
+        function setMsg(t) { document.getElementById('msg').textContent = t; }
+
+        draw();
+        setCode('# Class Definitions for N-Ary Tree\nclass Node:\n    def __init__(self, key):\n        self.info = key\n        self.children = []\n\nroot = None');
+
+        window.addEventListener('themeChanged', () => {
+            if (typeof draw === 'function') draw();
+        });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+</body>
+
+</html>
