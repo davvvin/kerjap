@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="img/logo-removebg-preview.png">
+    <title>AVL Tree – DS Visualizer</title>
+    <link rel="stylesheet" href="style.css" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <style>
+        .viz-row {
+            flex-direction: column;
+            align-items: center;
+        }
+    </style>
+</head>
+
+<body>
+
+    <script src="components.js"></script>
+    <nav-bar></nav-bar>
+    <h2>AVL Tree (Self-Balancing BST)</h2>
+
+    <div class="analogy-panel">
+        <strong>Analogi Dunia Nyata:</strong> AVL Tree layaknya timbangan dacing. Setiap kali ada penambahan atau pengurangan beban di satu sisi, timbangan akan segera menyesuaikan posisi lengan bebannya (Rotasi) agar selisih tinggi sisi kiri dan kanan tidak lebih dari 1. Ini memastikan pencarian akan selalu optimal dan terhindar dari pohon yang berat sebelah.
+    </div>
+
+    <div id="mainScreen">
+        <div class="controls">
+            <span class="ctrl-group">
+                <label>Insert</label>
+                <input id="insVal" type="number" placeholder="value" />
+                <button onclick="doInsert()">Insert</button>
+            </span>
+            <span class="ctrl-group">
+                <label>Update</label>
+                <input id="updOld" type="number" placeholder="old val" />
+                <input id="updNew" type="number" placeholder="new val" />
+                <button onclick="doUpdate()">Update</button>
+            </span>
+            <span class="ctrl-group">
+                <label>Delete</label>
+                <input id="delVal" type="number" placeholder="value" />
+                <button onclick="doDelete()">Delete</button>
+            </span>
+            <span class="ctrl-group">
+                <button class="btn-reset" onclick="resetTree()">Reset</button>
+            </span>
+        </div>
+
+        <div class="viz-row">
+            <canvas id="c" width="800" height="350"></canvas>
+            <div class="code-panel" style="width:100%; max-width:800px;">
+                <div class="code-label">// Python - AVL Tree Balance Factors</div>
+                <pre><code id="codeDisplay" class="language-python">No operations yet.</code></pre>
+                <div class="complexity-container" id="complexityBadges" style="display:none;">
+                    <div class="badge badge-time" id="badgeTime">Waktu: O(1)</div>
+                    <div class="badge badge-space" id="badgeSpace">Ruang: O(1)</div>
+                </div>
+            </div>
+        </div>
+        <div id="msg" class="msg"></div>
+    </div>
+
+    <!-- POPUP -->
+    <div class="popup-overlay" id="popupOverlay">
+        <div class="popup-box">
+            <div class="popup-icon">⚠️</div>
+            <p id="popupMsg"></p>
+            <button onclick="closePopup()">OK</button>
+        </div>
+    </div>
+
+    <script>
+        function showPopup(message) {
+            document.getElementById('popupMsg').textContent = message;
+            document.getElementById('popupOverlay').classList.add('show');
+        }
+
+        function closePopup() {
+            document.getElementById('popupOverlay').classList.remove('show');
+        }
+
+        document.addEventListener('click', function (e) {
+            if (e.target.id === 'popupOverlay') closePopup();
+        });
+
+        const RADIUS = 20;
+        const canvas = document.getElementById('c');
+        const ctx = canvas.getContext('2d');
+
+        class Node {
+            constructor(val) {
+                this.info = val;
+                this.left = null;
+                this.right = null;
+                this.height = 1;
+                this.x = 0;
+                this.y = 0;
+            }
+        }
+
+        let root = null;
+
+        function resetTree() {
+            root = null;
+            draw();
+            setCode('# Root pointer reset to None\nroot = None');
+            setMsg('Tree has been reset.');
+        }
+
+        // ── AVL Logic ───────────────────────────────────────────────
+        function getHeight(node) {
+            if (!node) return 0;
+            return node.height;
+        }
+
+        function getBalance(node) {
+            if (!node) return 0;
+            return getHeight(node.left) - getHeight(node.right);
+        }
+
+        function rightRotate(y) {
+            let x = y.left;
+            let T2 = x.right;
+            x.right = y;
+            y.left = T2;
+            y.height = Math.max(getHeight(y.left), getHeight(y.right)) + 1;
+            x.height = Math.max(getHeight(x.left), getHeight(x.right)) + 1;
+            return x;
+        }
+
+        function leftRotate(x) {
+            let y = x.right;
+            let T2 = y.left;
+            y.left = x;
+            x.right = T2;
+            x.height = Math.max(getHeight(x.left), getHeight(x.right)) + 1;
+            y.height = Math.max(getHeight(y.left), getHeight(y.right)) + 1;
+            return y;
+        }
+
+        function insertAVL(node, val) {
+            if (!node) return new Node(val);
+
+            if (val < node.info) {
+                node.left = insertAVL(node.left, val);
+            } else if (val > node.info) {
+                node.right = insertAVL(node.right, val);
+            } else {
+                return node; // Duplicate keys not allowed
+            }
+
+            node.height = 1 + Math.max(getHeight(node.left), getHeight(node.right));
+            let balance = getBalance(node);
+
+            // Left Left Case
+            if (balance > 1 && val < node.left.info) {
+                setMsg('LL Case Rotasi Kanan pada ' + node.info);
+                return rightRotate(node);
+            }
+            // Right Right Case
+            if (balance < -1 && val > node.right.info) {
+                setMsg('RR Case Rotasi Kiri pada ' + node.info);
+                return leftRotate(node);
+            }
+            // Left Right Case
+            if (balance > 1 && val > node.left.info) {
+                setMsg('LR Case Rotasi Kiri-Kanan pada ' + node.info);
+                node.left = leftRotate(node.left);
+                return rightRotate(node);
+            }
+            // Right Left Case
+            if (balance < -1 && val < node.right.info) {
+                setMsg('RL Case Rotasi Kanan-Kiri pada ' + node.info);
+                node.right = rightRotate(node.right);
+                return leftRotate(node);
+            }
+
+            return node;
+        }
+
+        function minValueNode(node) {
+            let current = node;
+            while (current.left !== null) current = current.left;
+            return current;
+        }
+
+        function deleteAVL(node, val) {
+            if (!node) return node;
+
+            if (val < node.info) {
+                node.left = deleteAVL(node.left, val);
+            } else if (val > node.info) {
+                node.right = deleteAVL(node.right, val);
+            } else {
+                if (!node.left || !node.right) {
+                    let temp = node.left ? node.left : node.right;
+                    if (!temp) {
+                        temp = node;
+                        node = null;
+                    } else {
+                        node = temp;
+                    }
+                } else {
+                    let temp = minValueNode(node.right);
+                    node.info = temp.info;
+                    node.right = deleteAVL(node.right, temp.info);
+                }
+            }
+
+            if (!node) return node;
+
+            node.height = 1 + Math.max(getHeight(node.left), getHeight(node.right));
+            let balance = getBalance(node);
+
+            // Left Left
+            if (balance > 1 && getBalance(node.left) >= 0) {
+                setMsg('LL Case Rotasi Kanan pada ' + node.info);
+                return rightRotate(node);
+            }
+            // Left Right
+            if (balance > 1 && getBalance(node.left) < 0) {
+                setMsg('LR Case Rotasi Kiri-Kanan pada ' + node.info);
+                node.left = leftRotate(node.left);
+                return rightRotate(node);
+            }
+            // Right Right
+            if (balance < -1 && getBalance(node.right) <= 0) {
+                setMsg('RR Case Rotasi Kiri pada ' + node.info);
+                return leftRotate(node);
+            }
+            // Right Left
+            if (balance < -1 && getBalance(node.right) > 0) {
+                setMsg('RL Case Rotasi Kanan-Kiri pada ' + node.info);
+                node.right = rightRotate(node.right);
+                return leftRotate(node);
+            }
+
+            return node;
+        }
+
+        function exists(node, val) {
+            if (!node) return false;
+            if (node.info === val) return true;
+            return val < node.info ? exists(node.left, val) : exists(node.right, val);
+        }
+
+        // ── UI Actions ──────────────────────────────────────────────
+        function doInsert() {
+            const val = parseFloat(document.getElementById('insVal').value);
+            if (isNaN(val)) { showPopup('Please enter a valid number.'); return; }
+
+            if (exists(root, val)) {
+                showPopup('Value ' + val + ' already exists in Tree.'); return;
+            }
+
+            setMsg('Inserted ' + val + '.');
+            root = insertAVL(root, val);
+            draw();
+            setCode(`def getBalance(self, root):\n    if not root: return 0\n    return self.getHeight(root.left) - self.getHeight(root.right)\n\n# Balanced inserted ${val}`);
+            setComplexity('O(log N)', 'O(N)');
+            document.getElementById('insVal').value = '';
+        }
+
+        function doUpdate() {
+            const oldV = parseFloat(document.getElementById('updOld').value);
+            const newV = parseFloat(document.getElementById('updNew').value);
+            if (isNaN(oldV) || isNaN(newV)) { showPopup('Please provide both old and new values.'); return; }
+
+            if (!exists(root, oldV)) { showPopup('Value ' + oldV + ' not found.'); return; }
+
+            root = deleteAVL(root, oldV);
+            root = insertAVL(root, newV);
+            draw();
+            setCode(`def update(self, root, old_key, new_key):\n    # old_key = ${oldV}, new_key = ${newV}\n    root = self.delete(root, old_key)\n    root = self.insert(root, new_key)\n    return root`);
+            setMsg('Updated ' + oldV + ' to ' + newV + ' with re-balancing.');
+        }
+
+        function doDelete() {
+            const val = parseFloat(document.getElementById('delVal').value);
+            if (isNaN(val)) { showPopup('Please enter a valid number to delete.'); return; }
+
+            if (!exists(root, val)) { showPopup('Value ' + val + ' not found in tree.'); return; }
+
+            setMsg('Deleted ' + val + '.');
+            root = deleteAVL(root, val);
+            draw();
+            setCode(`def delete(self, root, key):\n    # Performs standard BST delete\n    # Then updates height and performs rotations if unbalanced\n    pass`);
+            setComplexity('O(log N)', 'O(N)');
+            document.getElementById('delVal').value = '';
+        }
+
+        // ── Drawing ──────────────────────────────────────────────────
+        function calcTree(node, x, y, dx) {
+            if (!node) return;
+            node.x = x;
+            node.y = y;
+            calcTree(node.left, x - dx, y + 65, dx / 2);
+            calcTree(node.right, x + dx, y + 65, dx / 2);
+        }
+
+        function drawConnections(node) {
+            if (!node) return;
+
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = '#555';
+
+            if (node.left) {
+                ctx.beginPath();
+                ctx.moveTo(node.x, node.y);
+                ctx.lineTo(node.left.x, node.left.y);
+                ctx.stroke();
+                drawConnections(node.left);
+            }
+            if (node.right) {
+                ctx.beginPath();
+                ctx.moveTo(node.x, node.y);
+                ctx.lineTo(node.right.x, node.right.y);
+                ctx.stroke();
+                drawConnections(node.right);
+            }
+        }
+
+        function drawNodes(node) {
+            if (!node) return;
+
+            ctx.beginPath();
+            ctx.arc(node.x, node.y, RADIUS, 0, 2 * Math.PI);
+            ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--panel-bg');
+            ctx.fill();
+            ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--canvas-border');
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--canvas-text');
+            ctx.font = 'bold 15px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(node.info, node.x, node.y);
+
+            // Draw Balance Factor
+            let bf = getBalance(node);
+            let bfColor = (bf > 1 || bf < -1) ? '#ff4d4d' : '#4CAF50';
+            
+            // Background capsule for better readability
+            ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--bg-main');
+            ctx.fillRect(node.x + RADIUS - 2, node.y - RADIUS - 12, 38, 14);
+
+            ctx.fillStyle = bfColor;
+            ctx.font = 'bold 11px Consolas, monospace';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('BF:' + bf, node.x + RADIUS, node.y - RADIUS - 5);
+
+            drawNodes(node.left);
+            drawNodes(node.right);
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if (!root) {
+                ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--canvas-text-empty');
+                ctx.font = '15px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('Tree is empty', canvas.width / 2, canvas.height / 2);
+                return;
+            }
+            calcTree(root, canvas.width / 2, RADIUS + 15, canvas.width / 4);
+            drawConnections(root);
+            drawNodes(root);
+        }
+
+        function setCode(t) {
+            const el = document.getElementById('codeDisplay');
+            el.textContent = t;
+            if (window.Prism) Prism.highlightElement(el);
+        }
+        function setComplexity(time, space) {
+            document.getElementById('complexityBadges').style.display = 'flex';
+            document.getElementById('badgeTime').textContent = 'Waktu: ' + time;
+            document.getElementById('badgeSpace').textContent = 'Ruang: ' + space;
+        }
+        function setMsg(t) { document.getElementById('msg').textContent = t; }
+
+        draw();
+        setCode('# AVL Tree Balance Factor\ndef getBalance(self, root):\n    if not root: return 0\n    return self.getHeight(root.left) - self.getHeight(root.right)');
+    
+        window.addEventListener('themeChanged', () => {
+            if (typeof draw === 'function') draw();
+        });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+</body>
+
+</html>

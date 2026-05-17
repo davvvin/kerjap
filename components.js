@@ -32,6 +32,7 @@ class NavBar extends HTMLElement {
                     <button class="nav-link dropdown-btn">Trees ↓</button>
                     <div class="dropdown-content">
                         <a href="tree.html">Binary Tree</a>
+                        <a href="tree-avl.html">AVL Tree</a>
                         <a href="tree-nary.html">N-Ary Tree</a>
                         <a href="tree-maxheap.html">Max Heap</a>
                         <a href="tree-minheap.html">Min Heap</a>
