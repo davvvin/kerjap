@@ -102,8 +102,20 @@
         }
 
         let root = null;
+        let animationQueue = [];
+        let isAnimating = false;
+
+        function cloneTree(node) {
+            if (!node) return null;
+            let newNode = new Node(node.info);
+            newNode.height = node.height;
+            newNode.left = cloneTree(node.left);
+            newNode.right = cloneTree(node.right);
+            return newNode;
+        }
 
         function resetTree() {
+            if (isAnimating) return;
             root = null;
             draw();
             setCode('# Root pointer reset to None\nroot = None');
@@ -155,27 +167,36 @@
             node.height = 1 + Math.max(getHeight(node.left), getHeight(node.right));
             let balance = getBalance(node);
 
-            // Left Left Case
-            if (balance > 1 && val < node.left.info) {
-                setMsg('LL Case Rotasi Kanan pada ' + node.info);
-                return rightRotate(node);
-            }
-            // Right Right Case
-            if (balance < -1 && val > node.right.info) {
-                setMsg('RR Case Rotasi Kiri pada ' + node.info);
-                return leftRotate(node);
-            }
-            // Left Right Case
-            if (balance > 1 && val > node.left.info) {
-                setMsg('LR Case Rotasi Kiri-Kanan pada ' + node.info);
-                node.left = leftRotate(node.left);
-                return rightRotate(node);
-            }
-            // Right Left Case
-            if (balance < -1 && val < node.right.info) {
-                setMsg('RL Case Rotasi Kanan-Kiri pada ' + node.info);
-                node.right = rightRotate(node.right);
-                return leftRotate(node);
+            if (balance > 1 || balance < -1) {
+                let msg = '';
+                // Left Left Case
+                if (balance > 1 && val < node.left.info) {
+                    msg = 'LL Case: Rotasi Kanan pada ' + node.info;
+                    animationQueue.push({ tree: cloneTree(root), msg: 'Mendeteksi ketidakseimbangan (BF > 1). Bersiap: ' + msg });
+                    return rightRotate(node);
+                }
+                // Right Right Case
+                if (balance < -1 && val > node.right.info) {
+                    msg = 'RR Case: Rotasi Kiri pada ' + node.info;
+                    animationQueue.push({ tree: cloneTree(root), msg: 'Mendeteksi ketidakseimbangan (BF < -1). Bersiap: ' + msg });
+                    return leftRotate(node);
+                }
+                // Left Right Case
+                if (balance > 1 && val > node.left.info) {
+                    msg = 'LR Case: Rotasi Kiri-Kanan pada ' + node.info;
+                    animationQueue.push({ tree: cloneTree(root), msg: 'Mendeteksi ketidakseimbangan. Bersiap: ' + msg });
+                    node.left = leftRotate(node.left);
+                    animationQueue.push({ tree: cloneTree(root), msg: 'Rotasi Kiri selesai. Bersiap Rotasi Kanan pada ' + node.info });
+                    return rightRotate(node);
+                }
+                // Right Left Case
+                if (balance < -1 && val < node.right.info) {
+                    msg = 'RL Case: Rotasi Kanan-Kiri pada ' + node.info;
+                    animationQueue.push({ tree: cloneTree(root), msg: 'Mendeteksi ketidakseimbangan. Bersiap: ' + msg });
+                    node.right = rightRotate(node.right);
+                    animationQueue.push({ tree: cloneTree(root), msg: 'Rotasi Kanan selesai. Bersiap Rotasi Kiri pada ' + node.info });
+                    return leftRotate(node);
+                }
             }
 
             return node;
@@ -215,27 +236,36 @@
             node.height = 1 + Math.max(getHeight(node.left), getHeight(node.right));
             let balance = getBalance(node);
 
-            // Left Left
-            if (balance > 1 && getBalance(node.left) >= 0) {
-                setMsg('LL Case Rotasi Kanan pada ' + node.info);
-                return rightRotate(node);
-            }
-            // Left Right
-            if (balance > 1 && getBalance(node.left) < 0) {
-                setMsg('LR Case Rotasi Kiri-Kanan pada ' + node.info);
-                node.left = leftRotate(node.left);
-                return rightRotate(node);
-            }
-            // Right Right
-            if (balance < -1 && getBalance(node.right) <= 0) {
-                setMsg('RR Case Rotasi Kiri pada ' + node.info);
-                return leftRotate(node);
-            }
-            // Right Left
-            if (balance < -1 && getBalance(node.right) > 0) {
-                setMsg('RL Case Rotasi Kanan-Kiri pada ' + node.info);
-                node.right = rightRotate(node.right);
-                return leftRotate(node);
+            if (balance > 1 || balance < -1) {
+                let msg = '';
+                // Left Left
+                if (balance > 1 && getBalance(node.left) >= 0) {
+                    msg = 'LL Case: Rotasi Kanan pada ' + node.info;
+                    animationQueue.push({ tree: cloneTree(root), msg: 'Ketidakseimbangan akibat Delete (BF > 1). Bersiap: ' + msg });
+                    return rightRotate(node);
+                }
+                // Left Right
+                if (balance > 1 && getBalance(node.left) < 0) {
+                    msg = 'LR Case: Rotasi Kiri-Kanan pada ' + node.info;
+                    animationQueue.push({ tree: cloneTree(root), msg: 'Ketidakseimbangan akibat Delete. Bersiap: ' + msg });
+                    node.left = leftRotate(node.left);
+                    animationQueue.push({ tree: cloneTree(root), msg: 'Rotasi Kiri selesai. Bersiap Rotasi Kanan pada ' + node.info });
+                    return rightRotate(node);
+                }
+                // Right Right
+                if (balance < -1 && getBalance(node.right) <= 0) {
+                    msg = 'RR Case: Rotasi Kiri pada ' + node.info;
+                    animationQueue.push({ tree: cloneTree(root), msg: 'Ketidakseimbangan akibat Delete (BF < -1). Bersiap: ' + msg });
+                    return leftRotate(node);
+                }
+                // Right Left
+                if (balance < -1 && getBalance(node.right) > 0) {
+                    msg = 'RL Case: Rotasi Kanan-Kiri pada ' + node.info;
+                    animationQueue.push({ tree: cloneTree(root), msg: 'Ketidakseimbangan akibat Delete. Bersiap: ' + msg });
+                    node.right = rightRotate(node.right);
+                    animationQueue.push({ tree: cloneTree(root), msg: 'Rotasi Kanan selesai. Bersiap Rotasi Kiri pada ' + node.info });
+                    return leftRotate(node);
+                }
             }
 
             return node;
@@ -248,7 +278,38 @@
         }
 
         // ── UI Actions ──────────────────────────────────────────────
+        function playAnimation(finalRoot, successMsg) {
+            if (animationQueue.length === 0) {
+                root = finalRoot;
+                draw();
+                setMsg(successMsg);
+                return;
+            }
+
+            isAnimating = true;
+            animationQueue.push({ tree: finalRoot, msg: successMsg });
+            
+            let i = 0;
+            function playNext() {
+                if (i >= animationQueue.length) {
+                    isAnimating = false;
+                    root = finalRoot;
+                    draw();
+                    return;
+                }
+                
+                root = animationQueue[i].tree;
+                setMsg(animationQueue[i].msg);
+                draw();
+                
+                i++;
+                setTimeout(playNext, 2000); // Wait 2 seconds per animation step
+            }
+            playNext();
+        }
+
         function doInsert() {
+            if (isAnimating) return;
             const val = parseFloat(document.getElementById('insVal').value);
             if (isNaN(val)) { showPopup('Please enter a valid number.'); return; }
 
@@ -256,40 +317,48 @@
                 showPopup('Value ' + val + ' already exists in Tree.'); return;
             }
 
-            setMsg('Inserted ' + val + '.');
-            root = insertAVL(root, val);
-            draw();
+            animationQueue = [];
+            let newRoot = insertAVL(root, val);
+            
             setCode(`def getBalance(self, root):\n    if not root: return 0\n    return self.getHeight(root.left) - self.getHeight(root.right)\n\n# Balanced inserted ${val}`);
             setComplexity('O(log N)', 'O(N)');
             document.getElementById('insVal').value = '';
+
+            playAnimation(newRoot, 'Inserted ' + val + ' (Balanced).');
         }
 
         function doUpdate() {
+            if (isAnimating) return;
             const oldV = parseFloat(document.getElementById('updOld').value);
             const newV = parseFloat(document.getElementById('updNew').value);
             if (isNaN(oldV) || isNaN(newV)) { showPopup('Please provide both old and new values.'); return; }
 
             if (!exists(root, oldV)) { showPopup('Value ' + oldV + ' not found.'); return; }
 
-            root = deleteAVL(root, oldV);
-            root = insertAVL(root, newV);
-            draw();
+            animationQueue = [];
+            let tempRoot = deleteAVL(root, oldV);
+            let newRoot = insertAVL(tempRoot, newV);
+            
             setCode(`def update(self, root, old_key, new_key):\n    # old_key = ${oldV}, new_key = ${newV}\n    root = self.delete(root, old_key)\n    root = self.insert(root, new_key)\n    return root`);
-            setMsg('Updated ' + oldV + ' to ' + newV + ' with re-balancing.');
+            
+            playAnimation(newRoot, 'Updated ' + oldV + ' to ' + newV + ' with re-balancing.');
         }
 
         function doDelete() {
+            if (isAnimating) return;
             const val = parseFloat(document.getElementById('delVal').value);
             if (isNaN(val)) { showPopup('Please enter a valid number to delete.'); return; }
 
             if (!exists(root, val)) { showPopup('Value ' + val + ' not found in tree.'); return; }
 
-            setMsg('Deleted ' + val + '.');
-            root = deleteAVL(root, val);
-            draw();
+            animationQueue = [];
+            let newRoot = deleteAVL(root, val);
+            
             setCode(`def delete(self, root, key):\n    # Performs standard BST delete\n    # Then updates height and performs rotations if unbalanced\n    pass`);
             setComplexity('O(log N)', 'O(N)');
             document.getElementById('delVal').value = '';
+
+            playAnimation(newRoot, 'Deleted ' + val + ' (Balanced).');              
         }
 
         // ── Drawing ──────────────────────────────────────────────────
