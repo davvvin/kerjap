@@ -1,0 +1,519 @@
+:root {
+    --bg-main: #1e1e1e;
+    --text-main: #d4d4d4;
+    --text-muted: #cccccc;
+    --panel-bg: #252526;
+    --panel-border: #3c3c3c;
+    --input-bg: #3c3c3c;
+    --accent: #007acc;
+    --accent-hover: #1177bb;
+    --accent-text: #ffffff;
+    --btn-danger: #ab3737;
+    --btn-danger-hover: #d13f3f;
+    --code-bg: #1e1e1e;
+    --code-label: #9cdcfe;
+    --msg-success: #4ec9b0;
+    --overlay-bg: rgba(0,0,0,0.6);
+    --analogy-bg: rgba(0, 122, 204, 0.15);
+    --analogy-border: #007acc;
+    --badge-bg: #2d2d30;
+    
+    /* Canvas specific vars for JS to read */
+    --canvas-bg: #1e1e1e;
+    --canvas-empty: #2d2d30;
+    --canvas-filled: #3c3c3c;
+    --canvas-border: #555555;
+    --canvas-border-empty: #3c3c3c;
+    --canvas-text: #d4d4d4;
+    --canvas-text-empty: #666666;
+    --canvas-highlight: #569cd6;
+    --canvas-accent: #c586c0;
+    --canvas-head: #003b5c;
+}
+
+[data-theme="light"] {
+    --bg-main: #f5f5f5;
+    --text-main: #333333;
+    --text-muted: #555555;
+    --panel-bg: #dddddd;
+    --panel-border: #cccccc;
+    --input-bg: #ffffff;
+    --accent: #007acc;
+    --accent-hover: #005a9e;
+    --accent-text: #ffffff;
+    --btn-danger: #d32f2f;
+    --btn-danger-hover: #b71c1c;
+    --code-bg: #f5f2f0;
+    --code-label: #007acc;
+    --msg-success: #2e7d32;
+    --overlay-bg: rgba(0,0,0,0.4);
+    --analogy-bg: rgba(0, 122, 204, 0.1);
+    --analogy-border: #007acc;
+    --badge-bg: #e0e0e0;
+    
+    /* Canvas specific vars for JS to read */
+    --canvas-bg: #f5f5f5;
+    --canvas-empty: #f9f9f9;
+    --canvas-filled: #ffffff;
+    --canvas-border: #333333;
+    --canvas-border-empty: #dddddd;
+    --canvas-text: #111111;
+    --canvas-text-empty: #bbbbbb;
+    --canvas-highlight: #4CAF50;
+    --canvas-accent: #f0a500;
+    --canvas-head: #fffbe6;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    padding: 20px;
+    background: var(--bg-main);
+    color: var(--text-main);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+h2 {
+    margin-bottom: 16px;
+    font-size: 20px;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+a.back {
+    display: inline-block;
+    margin-bottom: 16px;
+    font-size: 24px;
+    color: var(--accent);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+a.back:hover { 
+    color: var(--accent-hover);
+}
+
+/* ── Init screen ─────────────────────────────────────────── */
+#initScreen {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+#initScreen input {
+    padding: 6px 10px;
+    width: 80px;
+    background: var(--input-bg);
+    color: var(--text-main);
+    border: 1px solid var(--panel-border);
+    border-radius: 4px;
+    font-size: 14px;
+}
+#initScreen input:focus {
+    border-color: var(--accent);
+    outline: none;
+}
+
+/* ── Controls ────────────────────────────────────────────── */
+.controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 18px 24px;
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: 6px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    transition: background-color 0.3s;
+}
+
+.ctrl-group {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+}
+
+.ctrl-group label {
+    font-weight: 500;
+    color: var(--text-muted);
+}
+
+.ctrl-group input, .ctrl-group select {
+    padding: 8px 12px;
+    width: 110px;
+    background: var(--input-bg);
+    color: var(--text-main);
+    border: 1px solid var(--panel-border);
+    border-radius: 4px;
+    font-size: 14px;
+}
+.ctrl-group input:focus, .ctrl-group select:focus {
+    border-color: var(--accent);
+    outline: none;
+}
+
+/* ── Buttons ─────────────────────────────────────────────── */
+button {
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid transparent;
+    border-radius: 2px;
+    background: var(--accent);
+    color: var(--accent-text);
+    transition: background-color 0.2s;
+}
+button:hover { background: var(--accent-hover); }
+
+.btn-reset { background: var(--btn-danger); color: white; }
+.btn-reset:hover { background: var(--btn-danger-hover); }
+
+/* ── Viz row (canvas + code) ─────────────────────────────── */
+.viz-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 32px;
+    flex-wrap: wrap;
+    width: 100%;
+    max-width: 1200px;
+}
+
+canvas {
+    border: 1px solid var(--panel-border);
+    background: var(--canvas-bg);
+    border-radius: 4px;
+    display: block;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+/* ── Code panel ──────────────────────────────────────────── */
+.code-panel {
+    background: var(--code-bg);
+    border-radius: 6px;
+    min-width: 320px;
+    max-width: 500px;
+    overflow: hidden;
+    border: 1px solid var(--panel-border);
+    text-align: left;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.code-label {
+    padding: 8px 14px;
+    background: var(--panel-bg);
+    color: var(--code-label);
+    font-size: 12px;
+    font-family: 'Consolas', monospace;
+    border-bottom: 1px solid var(--panel-border);
+}
+
+pre {
+    margin: 0 !important;
+    padding: 14px 16px 14px 38px !important;
+    background: var(--code-bg) !important;
+    position: relative;
+    font-family: 'Consolas', monospace;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+#codeDisplay {
+    display: block;
+    margin: 0;
+    padding: 0;
+    color: var(--text-main);
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+    white-space: pre;
+    background: transparent !important;
+}
+
+/* ── Status message ──────────────────────────────────────── */
+.msg {
+    margin-top: 16px;
+    font-size: 14px;
+    color: var(--msg-success);
+    min-height: 20px;
+    font-family: 'Consolas', monospace;
+}
+
+/* ── Popup overlay ───────────────────────────────────────── */
+.popup-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: var(--overlay-bg);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(2px);
+}
+
+.popup-overlay.show { display: flex; }
+
+.popup-box {
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: 6px;
+    padding: 28px 32px;
+    max-width: 400px;
+    width: 90%;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    text-align: center;
+}
+
+.popup-box .popup-icon {
+    font-size: 32px;
+    margin-bottom: 12px;
+}
+
+.popup-box p {
+    font-size: 14px;
+    color: var(--text-main);
+    margin-bottom: 24px;
+    line-height: 1.6;
+}
+
+.popup-box button {
+    padding: 8px 32px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 2px;
+    font-size: 14px;
+    cursor: pointer;
+}
+.popup-box button:hover { background: var(--accent-hover); }
+
+/* ── Education Features ──────────────────────────────────── */
+.analogy-panel {
+    background: var(--analogy-bg);
+    border-left: 4px solid var(--analogy-border);
+    padding: 16px 20px;
+    margin-bottom: 24px;
+    border-radius: 0 4px 4px 0;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: left;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+.analogy-panel strong { color: var(--accent); font-weight: 600;}
+
+.complexity-container {
+    display: flex;
+    gap: 12px;
+    padding: 10px 16px 14px 16px;
+    background: var(--code-bg);
+    border-top: 1px dashed var(--panel-border);
+    justify-content: flex-start;
+}
+.badge {
+    background: var(--badge-bg);
+    border: 1px solid var(--panel-border);
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    font-family: 'Consolas', monospace;
+}
+.badge-time { color: #4ec9b0; }
+.badge-space { color: #ce9178; }
+
+/* ── Web Component Navbar ────────────────────────────────── */
+nav-bar {
+    width: 100%;
+    max-width: 1200px;
+    margin-bottom: 30px;
+    display: block;
+}
+
+.top-navbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    background: var(--panel-bg);
+    padding: 12px 20px;
+    border: 1px solid var(--panel-border);
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    justify-content: center;
+    position: relative;
+}
+
+.nav-link {
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 38px;
+    text-decoration: none;
+    color: var(--text-main);
+    font-size: 14px;
+    font-family: inherit;
+    font-weight: 500;
+    padding: 0 16px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    background: var(--bg-main);
+    border: 1px solid var(--panel-border);
+    cursor: pointer;
+}
+
+.nav-link:hover {
+    background: var(--accent);
+    color: #ffffff;
+    border-color: var(--accent);
+}
+
+.nav-link.active {
+    background: var(--accent);
+    color: #ffffff;
+    border-color: var(--accent);
+    box-shadow: inset 0 0 0 2px rgba(255,255,255,0.2);
+}
+
+/* Theme Toggle Button */
+.theme-toggle {
+    position: absolute;
+    right: 20px;
+    background: transparent;
+    border: 1px solid var(--panel-border);
+    color: var(--text-main);
+    font-size: 18px;
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.theme-toggle:hover {
+    background: var(--input-bg);
+    transform: scale(1.1);
+}
+
+/* ── Dropdown Navbar ─────────────────────────────────────── */
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-btn {
+    cursor: pointer;
+    background: var(--bg-main);
+    font-size: 14px;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: var(--panel-bg);
+    min-width: 180px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.5);
+    z-index: 1000;
+    border: 1px solid var(--panel-border);
+    border-radius: 4px;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    overflow: hidden;
+}
+
+.dropdown-content a {
+    color: var(--text-main);
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    font-size: 13px;
+    border-bottom: 1px solid var(--panel-border);
+    transition: background-color 0.2s;
+}
+
+.dropdown-content a:last-child {
+    border-bottom: none;
+}
+
+.dropdown-content a:hover, .dropdown-content a.active {
+    background-color: var(--accent);
+    color: white;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+.dropdown:hover .dropdown-btn {
+    background-color: var(--accent);
+    color: white;
+    border-color: var(--accent);
+}
+
+/* ── Grid Layout for Menus (index.html) ──────────────────── */
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 25px;
+    max-width: 1100px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.grid-column {
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    text-align: center;
+}
+
+.grid-column h3 {
+    color: var(--text-main);
+    border-bottom: 2px solid var(--accent);
+    padding-bottom: 10px;
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 18px;
+    text-align: center;
+}
+
+.grid-column a {
+    display: block;
+    padding: 12px 15px;
+    background-color: var(--input-bg);
+    color: var(--text-main);
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 12px;
+    transition: all 0.2s ease;
+    border-left: 4px solid transparent;
+}
+
+.grid-column a:last-child {
+    margin-bottom: 0;
+}
+
+.grid-column a:hover {
+    background-color: var(--accent);
+    border-left: 4px solid var(--canvas-highlight);
+    color: var(--accent-text);
+}
