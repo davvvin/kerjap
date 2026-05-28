@@ -99,7 +99,7 @@
             heap[j] = temp;
         }
 
-        function bubbleUp(i) {
+        function upheap(i) {
             while (i > 0) {
                 let p = Math.floor((i - 1) / 2);
                 if (heap[i] < heap[p]) {
@@ -111,7 +111,7 @@
             }
         }
 
-        function sinkDown(i) {
+        function downheap(i) {
             let n = heap.length;
             while (true) {
                 let left = 2 * i + 1;
@@ -135,10 +135,10 @@
             if (isNaN(val)) { showPopup('Please enter a valid number.'); return; }
 
             heap.push(val);
-            bubbleUp(heap.length - 1);
+            upheap(heap.length - 1);
             
             draw();
-            setCode(`def insert(self, val):\n    self.heap.append(val)\n    self._bubble_up(len(self.heap) - 1)\n\n# Inserted ${val}`);
+            setCode(`def insert(self, val):\n    self.heap.append(val)\n    self.upheap(len(self.heap) - 1)\n\n# Inserted ${val}`);
             setComplexity('O(log N)', 'O(1)');
             setMsg('Inserted ' + val + ' into Min Heap.');
             document.getElementById('insVal').value = '';
@@ -152,11 +152,11 @@
             
             if (heap.length > 0) {
                 heap[0] = lastVal;
-                sinkDown(0);
+                downheap(0);
             }
             
             draw();
-            setCode(`def extract_min(self):\n    if len(self.heap) == 0: return None\n    min_val = self.heap[0]\n    last_val = self.heap.pop()\n    if len(self.heap) > 0:\n        self.heap[0] = last_val\n        self._sink_down(0)\n    return min_val\n\n# Extracted ${minVal}`);
+            setCode(`def extract_min(self):\n    if len(self.heap) == 0: return None\n    min_val = self.heap[0]\n    last_val = self.heap.pop()\n    if len(self.heap) > 0:\n        self.heap[0] = last_val\n        self.downheap(0)\n    return min_val\n\n# Extracted ${minVal}`);
             setComplexity('O(log N)', 'O(1)');
             setMsg('Extracted minimum value: ' + minVal);
         }

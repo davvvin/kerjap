@@ -110,7 +110,7 @@ class EngineControls extends HTMLElement {
         this.innerHTML = `
             <div style="background: var(--panel-bg); padding: 8px; border-top: 1px solid var(--panel-border); display: flex; justify-content: center; align-items: center; gap: 12px;">
                 <label style="font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 4px; cursor: pointer;">
-                    <input type="checkbox" id="chkStepByStep" checked> Step-by-step
+                    <input type="checkbox" id="chkStepByStep"> Step-by-step
                 </label>
                 <button id="btnPrev" onclick="animEngine.prev()" disabled
                     style="padding: 4px 10px; font-size: 12px; background: var(--input-bg); color: var(--text-main); border: 1px solid var(--panel-border);">⏮

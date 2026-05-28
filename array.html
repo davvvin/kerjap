@@ -244,15 +244,17 @@
             if (isNaN(idx) || idx < 0 || idx >= capacity) { showPopup('Index must be between 0 and ' + (capacity - 1) + '.'); return; }
 
             const old = arr[idx];
-            const delCode = `def delData(self):\n    x = self.items[${idx}]\n    self.items[${idx}] = None\n    return x`;
+            // PDF materi menggunakan delData yang menghapus dari posisi N-1 (akhir virtual)
+            // Visualizer memperlihatkan kode PDF yang asli, tapi secara visual tetap hapus di index yang dipilih
+            const delCode = `def delData(self):\n    x = self.items[self.N - 1]\n    self.N = self.N - 1\n    return x`;
 
             let steps = [];
             steps.push({ arrState: [...arr], capState: capacity, modifiedIdx: idx, code: delCode, line: "1-2", msg: "Memanggil fungsi hapus..." });
-            steps.push({ arrState: [...arr], capState: capacity, modifiedIdx: idx, code: delCode, line: "3", msg: "Menyimpan nilai lama x = " + old });
+            steps.push({ arrState: [...arr], capState: capacity, modifiedIdx: idx, code: delCode, line: "2", msg: "Menyimpan nilai lama x = " + old });
 
             arr[idx] = NaN;
-            steps.push({ arrState: [...arr], capState: capacity, modifiedIdx: idx, code: delCode, line: "4", msg: "Menghapus nilai dari array." });
-            steps.push({ arrState: [...arr], capState: capacity, ghostIdx: idx, code: delCode, line: "5", msg: "Selesai mengembalikan x!" });
+            steps.push({ arrState: [...arr], capState: capacity, modifiedIdx: idx, code: delCode, line: "3", msg: "Mengecilkan N (ukuran virtual) — elemen terakhir 'tidak ada'." });
+            steps.push({ arrState: [...arr], capState: capacity, ghostIdx: idx, code: delCode, line: "4", msg: "Selesai mengembalikan x!" });
 
             setComplexity('O(1)', 'O(1)');
             animEngine.loadSteps(steps);
