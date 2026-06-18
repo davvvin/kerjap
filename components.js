@@ -46,7 +46,7 @@ class NavBar extends HTMLElement {
                     </div>
                 </div>
                 
-                <button class="theme-toggle" id="themeBtn" title="Toggle Light/Dark Mode">☀️</button>
+                <button class="theme-toggle" id="themeBtn" title="Toggle Light/Dark Mode">Light Mode</button>
             </div>
         `;
 
@@ -58,7 +58,7 @@ class NavBar extends HTMLElement {
         const savedTheme = localStorage.getItem('theme') || 'dark';
         if (savedTheme === 'light') {
             root.setAttribute('data-theme', 'light');
-            themeBtn.textContent = '🌙';
+            themeBtn.textContent = 'Dark Mode';
         }
 
         themeBtn.addEventListener('click', () => {
@@ -66,11 +66,11 @@ class NavBar extends HTMLElement {
             if (currentTheme === 'light') {
                 root.removeAttribute('data-theme');
                 localStorage.setItem('theme', 'dark');
-                themeBtn.textContent = '☀️';
+                themeBtn.textContent = 'Light Mode';
             } else {
                 root.setAttribute('data-theme', 'light');
                 localStorage.setItem('theme', 'light');
-                themeBtn.textContent = '🌙';
+                themeBtn.textContent = 'Dark Mode';
             }
             
             // Dispatch custom event so the canvases can redraw themselves with new colors

@@ -65,7 +65,7 @@
     <!-- POPUP -->
     <div class="popup-overlay" id="popupOverlay">
         <div class="popup-box">
-            <div class="popup-icon">⚠️</div>
+            <div class="popup-icon">[Warning]️</div>
             <p id="popupMsg"></p>
             <button onclick="closePopup()">OK</button>
         </div>
@@ -126,7 +126,7 @@ document.addEventListener('click', function(e) {
             const val = parseFloat(document.getElementById('pushVal').value);
             if (isNaN(val)) { showPopup('Please enter a value to push.'); return; }
             if (stack.length >= maxSize) { 
-                showPopup('⚠️ Stack Overflow! Kapasitas penuh. Di eksekusi program sesungguhnya, call stack yang kepenuhan akan menyebabkan program crash!'); 
+                showPopup('[Warning]️ Stack Overflow! Kapasitas penuh. Di eksekusi program sesungguhnya, call stack yang kepenuhan akan menyebabkan program crash!'); 
                 return; 
             }
             
@@ -146,7 +146,7 @@ document.addEventListener('click', function(e) {
 
         function doPop() {
             if (stack.length === 0) { 
-                showPopup('⚠️ Stack Underflow! Anda tidak bisa Pop dari Stack kosong. Di struktur Python list, ini akan menghasilkan IndexError: pop from empty list!'); 
+                showPopup('[Warning]️ Stack Underflow! Anda tidak bisa Pop dari Stack kosong. Di struktur Python list, ini akan menghasilkan IndexError: pop from empty list!'); 
                 return; 
             }
             

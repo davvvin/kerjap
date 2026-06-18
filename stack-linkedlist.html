@@ -62,7 +62,7 @@
 <!-- POPUP -->
 <div class="popup-overlay" id="popupOverlay">
     <div class="popup-box">
-        <div class="popup-icon">⚠️</div>
+        <div class="popup-icon">[Warning]️</div>
         <p id="popupMsg"></p>
         <button onclick="closePopup()">OK</button>
     </div>
@@ -149,7 +149,7 @@ function resetStack() {
 function doPush() {
     const val = parseFloat(document.getElementById('pushVal').value);
     if (isNaN(val)) { showPopup('Please enter a value to push.'); return; }
-    if (size >= maxSize) { showPopup('⚠️ Stack Overflow! Meski ini Linked List, kita membatasi ukuran maksimal untuk visualisasi. Secara teori, Linked List hanya overflow jika RAM komputer Anda habis (MemoryError)!'); return; }
+    if (size >= maxSize) { showPopup('[Warning]️ Stack Overflow! Meski ini Linked List, kita membatasi ukuran maksimal untuk visualisasi. Secara teori, Linked List hanya overflow jika RAM komputer Anda habis (MemoryError)!'); return; }
 
     const node = new Node(val);
     let steps = [];
@@ -173,7 +173,7 @@ function doPush() {
 }
 
 function doPop() {
-    if (!head) { showPopup('⚠️ Stack Underflow! Pointer head adalah None. Jika Anda memaksa mengeksekusi self.top.next di Python, program akan terhenti dengan AttributeError: NoneType has no attribute next!'); return; }
+    if (!head) { showPopup('[Warning]️ Stack Underflow! Pointer head adalah None. Jika Anda memaksa mengeksekusi self.top.next di Python, program akan terhenti dengan AttributeError: NoneType has no attribute next!'); return; }
     
     let steps = [];
     const val = head.value;
@@ -298,6 +298,10 @@ function setComplexity(time, space) {
             document.getElementById('badgeSpace').textContent = 'Ruang: ' + space;
         }
         function setMsg(t)  { document.getElementById('msg').textContent = t; }
+
+        window.addEventListener('themeChanged', () => {
+            if (typeof draw === 'function') draw();
+        });
 </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>

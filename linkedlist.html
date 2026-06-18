@@ -70,7 +70,7 @@
     <!-- POPUP -->
     <div class="popup-overlay" id="popupOverlay">
         <div class="popup-box">
-            <div class="popup-icon">⚠️</div>
+            <div class="popup-icon">[Warning]️</div>
             <p id="popupMsg"></p>
             <button onclick="closePopup()">OK</button>
         </div>
@@ -442,6 +442,10 @@
         // initial draw
         draw();
         setCode('# Singly linked list\nclass Node:\n    def __init__(self, val):\n        self.info = val\n        self.next = None\n\nfirst = None');
+
+        window.addEventListener('themeChanged', () => {
+            if (typeof draw === 'function') draw();
+        });
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>

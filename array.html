@@ -76,7 +76,7 @@
     <!-- POPUP -->
     <div class="popup-overlay" id="popupOverlay">
         <div class="popup-box">
-            <div class="popup-icon">⚠️</div>
+            <div class="popup-icon">[Warning]️</div>
             <p id="popupMsg"></p>
             <button onclick="closePopup()">OK</button>
         </div>
@@ -168,7 +168,7 @@
             if (idxRaw === '') {
                 const nextEmpty = arr.findIndex(x => isNaN(x));
                 if (nextEmpty === -1) {
-                    showPopup('⚠️ Array Overflow! Kapasitas penuh. Di struktur statis Python, mencoba memasukkan data ke indeks yang tidak ada akan menyebabkan IndexError: assignment index out of range!');
+                    showPopup('[Warning]️ Array Overflow! Kapasitas penuh. Di struktur statis Python, mencoba memasukkan data ke indeks yang tidak ada akan menyebabkan IndexError: assignment index out of range!');
                     return;
                 }
 
@@ -330,6 +330,10 @@
             document.getElementById('badgeSpace').textContent = 'Ruang: ' + space;
         }
         function setMsg(t) { document.getElementById('msg').textContent = t; }
+
+        window.addEventListener('themeChanged', () => {
+            if (typeof draw === 'function') draw();
+        });
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
