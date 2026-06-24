@@ -17,12 +17,11 @@
     <nav-bar></nav-bar>
     <h2>Linked List (Singly)</h2>
 
-    <!-- GANTI TEKS ANALOGI DI BAWAH INI -->
-    <div class="analogy-panel">
-        <strong>Analogi Dunia Nyata:</strong> Singly Linked List mirip dengan permainan berburu harta karun. Setiap
-        petunjuk (Node) mengarahkan Anda ke petunjuk berikutnya (Next Pointer). Anda tidak bisa melompat langsung ke
-        akhir, Anda harus membaca petunjuk secara berurutan!
+    <div class="tech-panel" style="margin: 0 auto 10px auto; max-width: 1200px; background-color: var(--panel-bg); color: var(--text-main); padding: 15px 20px; border-radius: 8px; border-left: 5px solid var(--accent); font-size: 14px; box-shadow: var(--shadow-md);; position: relative; margin-top: 25px;">
+        <span style="position: absolute; top: -12px; left: 20px; background-color: var(--accent); color: var(--panel-bg); padding: 2px 10px; border-radius: 4px; font-weight: bold; font-size: 11px; letter-spacing: 1px; z-index: 10;">TIP</span>
+        <strong>Deskripsi Teknis:</strong> Singly Linked List adalah struktur data linear dinamis di mana setiap elemen (node) menyimpan sebuah nilai dan sebuah pointer referensi yang menunjuk ke node berikutnya di memori.
     </div>
+    
 
     <div id="mainScreen">
         <div class="controls">
@@ -53,7 +52,9 @@
         </div>
 
         <div class="viz-row">
+            <div class="canvas-wrapper" style="overflow-x: auto; overflow-y: hidden; max-width: 100%; border: 1px solid var(--border-color, #334155); border-radius: 8px;">
             <canvas id="c" height="110"></canvas>
+        </div>
             <div class="code-panel">
                 <div class="code-label">// Python</div>
                 <pre id="codePre"><code id="codeDisplay" class="language-python">No operations yet.</code></pre>
@@ -65,6 +66,10 @@
             </div>
         </div>
         <div id="msg" class="msg"></div>
+    
+        <div class="analogy-panel" style="margin-top: 20px;">
+        <strong>Analogi Dunia Nyata:</strong> Singly Linked List mirip dengan permainan berburu harta karun. Setiap petunjuk (Node) mengarahkan Anda ke petunjuk berikutnya (Next Pointer). Anda tidak bisa melompat langsung ke petunjuk 5 tanpa melewati 1 sampai 4.
+    </div>
     </div>
 
     <!-- POPUP -->
@@ -75,6 +80,7 @@
             <button onclick="closePopup()">OK</button>
         </div>
     </div>
+
 
     <script>
         // popup.js — shared error popup utility
@@ -95,6 +101,7 @@
 
     </script>
     <script src="engine.js"></script>
+
     <script>
 
         const NODE_W = 80, NODE_H = 50, PTR_W = 30;

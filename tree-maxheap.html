@@ -22,9 +22,11 @@
     <nav-bar></nav-bar>
     <h2>Max Heap (Priority Queue)</h2>
 
-    <div class="analogy-panel">
-        <strong>Analogi Dunia Nyata:</strong> Max Heap beroperasi seperti sistem rumah sakit untuk pasien gawat darurat (Priority Queue). Pasien dengan tingkat keparahan paling tinggi (nilai terbesar) akan selalu berada di antrean paling depan (Root/Puncak Pohon) untuk ditangani terlebih dahulu.
+    <div class="tech-panel" style="margin: 0 auto 10px auto; max-width: 1200px; background-color: var(--panel-bg); color: var(--text-main); padding: 15px 20px; border-radius: 8px; border-left: 5px solid var(--accent); font-size: 14px; box-shadow: var(--shadow-md);; position: relative; margin-top: 25px;">
+        <span style="position: absolute; top: -12px; left: 20px; background-color: var(--accent); color: var(--panel-bg); padding: 2px 10px; border-radius: 4px; font-weight: bold; font-size: 11px; letter-spacing: 1px; z-index: 10;">TIP</span>
+        <strong>Deskripsi Teknis:</strong> Max Heap adalah Complete Binary Tree di mana nilai setiap parent selalu lebih besar atau sama dengan anak-anaknya. Root selalu mengandung nilai maksimum dari keseluruhan tree.
     </div>
+    
 
     <div id="mainScreen">
         <div class="controls">
@@ -43,7 +45,9 @@
         </div>
 
         <div class="viz-row">
+            <div class="canvas-wrapper" style="overflow: auto; max-width: 100%; max-height: 500px; border: 1px solid var(--border-color, #334155); border-radius: 8px;">
             <canvas id="c" width="800" height="400"></canvas>
+        </div>
             <div class="code-panel" style="width:100%; max-width:800px;">
                 <div class="code-label">// Python - Max Heap</div>
                 <pre><code id="codeDisplay" class="language-python">No operations yet.</code></pre>
@@ -54,6 +58,10 @@
             </div>
         </div>
         <div id="msg" class="msg"></div>
+    
+        <div class="analogy-panel" style="margin-top: 20px;">
+        <strong>Analogi Dunia Nyata:</strong> Max Heap beroperasi seperti sistem rumah sakit untuk pasien gawat darurat (Priority Queue). Pasien dengan tingkat keparahan paling tinggi (nilai terbesar) akan selalu berada di antrean paling depan (Root/Puncak Pohon) untuk ditangani terlebih dahulu.
+    </div>
     </div>
 
     <!-- POPUP -->
@@ -64,6 +72,7 @@
             <button onclick="closePopup()">OK</button>
         </div>
     </div>
+
 
     <script>
         function showPopup(message) {
@@ -208,7 +217,57 @@
             }
         }
 
+        
+        function getHeapDepth() {
+            if (heap.length === 0) return 0;
+            return Math.floor(Math.log2(heap.length)) + 1;
+        }
+
+        function getHeapNodeBounds(bounds) {
+            for (let i = 0; i < heapNodes.length; i++) {
+                if (!heapNodes[i]) continue;
+                if (heapNodes[i].x < bounds.minX) bounds.minX = heapNodes[i].x;
+                if (heapNodes[i].x > bounds.maxX) bounds.maxX = heapNodes[i].x;
+                if (heapNodes[i].y > bounds.maxY) bounds.maxY = heapNodes[i].y;
+            }
+        }
+
+        function resizeCanvasForTree() {
+            if (heap.length === 0) {
+                canvas.width = 800;
+                canvas.height = 400;
+                return;
+            }
+            let d = getHeapDepth();
+            let initDx = Math.max(40, d <= 3 ? 80 : 60);
+            let topDx = initDx * Math.pow(2, Math.max(0, d - 2));
+            
+            heapNodes = [];
+            calcTree(0, 0, RADIUS + 10, topDx);
+            
+            let bounds = { minX: Infinity, maxX: -Infinity, maxY: 0 };
+            getHeapNodeBounds(bounds);
+            
+            let padding = RADIUS + 30;
+            let reqWidth = Math.max(800, (bounds.maxX - bounds.minX) + padding * 2);
+            let reqHeight = Math.max(400, bounds.maxY + padding + 20);
+            
+            canvas.width = reqWidth;
+            canvas.height = reqHeight;
+            
+            let offsetX = (reqWidth / 2) - ((bounds.minX + bounds.maxX) / 2);
+            for (let i = 0; i < heapNodes.length; i++) {
+                if (heapNodes[i]) heapNodes[i].x += offsetX;
+            }
+            
+            let wrapper = canvas.parentElement;
+            if (wrapper && wrapper.classList.contains('canvas-wrapper')) {
+                wrapper.scrollLeft = (canvas.width - wrapper.clientWidth) / 2;
+            }
+        }
+
         function draw() {
+            resizeCanvasForTree();
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             if (heap.length === 0) {
                 ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--canvas-text-empty');
@@ -218,8 +277,7 @@
                 ctx.fillText('Heap is empty', canvas.width / 2, canvas.height / 2);
                 return;
             }
-            heapNodes = [];
-            calcTree(0, canvas.width / 2, RADIUS + 10, canvas.width / 4);
+            // positions already calculated by resizeCanvasForTree()
             drawConnections();
             drawNodes();
         }
@@ -248,3 +306,4 @@
 </body>
 
 </html>
+

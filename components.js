@@ -7,10 +7,6 @@ if (!document.getElementById('algomotion-fonts')) {
 }
 class NavBar extends HTMLElement {
     connectedCallback() {
-        // --- BAGIAN INI SANGAT MUDAH DIEDIT ---
-        // Anda cukup mengganti HTML di dalam tanda kutip backtick (`) ini.
-        // Jika Anda ingin menambah menu baru, cukup copy-paste tag <a> atau <div class="dropdown">!
-        
         this.innerHTML = `
             <div class="top-navbar">
                 <a href="index.html" class="nav-link">Home</a>

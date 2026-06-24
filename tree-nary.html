@@ -22,11 +22,11 @@
     <nav-bar></nav-bar>
     <h2>N-Ary Tree</h2>
 
-    <div class="analogy-panel">
-        <strong>Analogi Dunia Nyata:</strong> N-Ary Tree beroperasi seperti struktur direktori (folder) di komputer atau
-        struktur organisasi perusahaan. Satu folder/atasan bisa berisi banyak sub-folder/bawahan, tidak dibatasi hanya
-        dua cabang saja.
+    <div class="tech-panel" style="margin: 0 auto 10px auto; max-width: 1200px; background-color: var(--panel-bg); color: var(--text-main); padding: 15px 20px; border-radius: 8px; border-left: 5px solid var(--accent); font-size: 14px; box-shadow: var(--shadow-md);; position: relative; margin-top: 25px;">
+        <span style="position: absolute; top: -12px; left: 20px; background-color: var(--accent); color: var(--panel-bg); padding: 2px 10px; border-radius: 4px; font-weight: bold; font-size: 11px; letter-spacing: 1px; z-index: 10;">TIP</span>
+        <strong>Deskripsi Teknis:</strong> N-Ary Tree adalah generalisasi dari tree di mana setiap node dapat memiliki sejumlah N anak (bukan hanya dua). Struktur ini cocok untuk merepresentasikan hierarki kompleks seperti sistem file atau struktur organisasi.
     </div>
+    
 
     <div id="mainScreen">
         <div class="controls">
@@ -48,7 +48,9 @@
         </div>
 
         <div class="viz-row">
+            <div class="canvas-wrapper" style="overflow: auto; max-width: 100%; max-height: 500px; border: 1px solid var(--border-color, #334155); border-radius: 8px;">
             <canvas id="c" width="800" height="400"></canvas>
+        </div>
             <div class="code-panel" style="width:100%; max-width:800px;">
                 <div class="code-label">// Python - N-Ary Tree</div>
                 <pre><code id="codeDisplay" class="language-python">No operations yet.</code></pre>
@@ -59,6 +61,10 @@
             </div>
         </div>
         <div id="msg" class="msg"></div>
+    
+        <div class="analogy-panel" style="margin-top: 20px;">
+        <strong>Analogi Dunia Nyata:</strong> N-Ary Tree beroperasi seperti struktur direktori (folder) di komputer atau struktur organisasi perusahaan. Satu folder/atasan bisa berisi banyak sub-folder/bawahan, tidak dibatasi hanya dua.
+    </div>
     </div>
 
     <!-- POPUP -->
@@ -69,6 +75,7 @@
             <button onclick="closePopup()">OK</button>
         </div>
     </div>
+
 
     <script>
         function showPopup(message) {
@@ -227,7 +234,71 @@
             }
         }
 
+        
+        function getDepth(node) {
+            if (!node) return 0;
+            let maxChildDepth = 0;
+            for (let child of node.children) {
+                let d = getDepth(child);
+                if (d > maxChildDepth) maxChildDepth = d;
+            }
+            return 1 + maxChildDepth;
+        }
+
+        function getBreadth(node) {
+            if (!node) return 0;
+            if (node.children.length === 0) return 1;
+            let sum = 0;
+            for (let child of node.children) sum += getBreadth(child);
+            return sum;
+        }
+
+        function getNodeBoundsNary(node, bounds) {
+            if (!node) return;
+            if (node.x < bounds.minX) bounds.minX = node.x;
+            if (node.x > bounds.maxX) bounds.maxX = node.x;
+            if (node.y > bounds.maxY) bounds.maxY = node.y;
+            for (let child of node.children) getNodeBoundsNary(child, bounds);
+        }
+
+        function resizeCanvasForTree() {
+            if (!root) {
+                canvas.width = 800;
+                canvas.height = 400;
+                return;
+            }
+            let b = getBreadth(root);
+            let d = getDepth(root);
+            let initDx = Math.max(40, b * 35);
+            calcTree(root, 0, RADIUS + 10, initDx);
+            
+            let bounds = { minX: Infinity, maxX: -Infinity, maxY: 0 };
+            getNodeBoundsNary(root, bounds);
+            
+            let padding = RADIUS + 30;
+            let reqWidth = Math.max(800, (bounds.maxX - bounds.minX) + padding * 2);
+            let reqHeight = Math.max(400, bounds.maxY + padding + 20);
+            
+            canvas.width = reqWidth;
+            canvas.height = reqHeight;
+            
+            let offsetX = (reqWidth / 2) - ((bounds.minX + bounds.maxX) / 2);
+            shiftNodesNary(root, offsetX);
+            
+            let wrapper = canvas.parentElement;
+            if (wrapper && wrapper.classList.contains('canvas-wrapper')) {
+                wrapper.scrollLeft = (canvas.width - wrapper.clientWidth) / 2;
+            }
+        }
+        
+        function shiftNodesNary(node, dx) {
+            if (!node) return;
+            node.x += dx;
+            for (let child of node.children) shiftNodesNary(child, dx);
+        }
+
         function draw() {
+            resizeCanvasForTree();
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             if (!root) {
                 ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--canvas-text-empty');
@@ -237,7 +308,7 @@
                 ctx.fillText('Tree is empty', canvas.width / 2, canvas.height / 2);
                 return;
             }
-            calcTree(root, canvas.width / 2, RADIUS + 10, canvas.width / 3);
+            // positions already calculated by resizeCanvasForTree()
             drawConnections(root);
             drawNodes(root);
         }

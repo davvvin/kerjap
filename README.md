@@ -102,7 +102,7 @@ Diimplementasikan sebagai Custom Element menggunakan `HTMLElement`. Saat `connec
 ### `<engine-controls>`
 Hanya bertugas meng-inject HTML tombol (Prev, Auto, Next) dan checkbox Step-by-step ke dalam DOM. Tidak ada logika JS di dalamnya — tombol-tombol memanggil `animEngine.prev()`, `animEngine.next()`, `animEngine.toggleAuto()` langsung via atribut `onclick`, yang berarti variabel `animEngine` harus ada di scope global halaman.
 
-> [Warning]️ **Catatan penting**: Karena tombol memanggil `animEngine` via `onclick` string, variabel `animEngine` **wajib** dideklarasikan di scope global (`window`), bukan di dalam IIFE atau module. Ini adalah keterbatasan desain yang disengaja untuk menjaga kesederhanaan.
+> [Warning] **Catatan penting**: Karena tombol memanggil `animEngine` via `onclick` string, variabel `animEngine` **wajib** dideklarasikan di scope global (`window`), bukan di dalam IIFE atau module. Ini adalah keterbatasan desain yang disengaja untuk menjaga kesederhanaan.
 
 ---
 

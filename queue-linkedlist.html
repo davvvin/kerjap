@@ -14,17 +14,13 @@
     <nav-bar></nav-bar>
 <h2>Queue – Linked List Implementation</h2>
 
-    <!-- GANTI TEKS ANALOGI DI BAWAH INI -->
-    <div class="analogy-panel">
-        <strong>Analogi Dunia Nyata:</strong> Queue dengan Linked List ibarat barisan orang yang saling memegang bahu. Barisan ini bisa memanjang terus menerus ke belakang. Orang paling depan tetap akan dipanggil lebih dulu (Dequeue).
+    <div class="tech-panel" style="margin: 0 auto 10px auto; max-width: 1200px; background-color: var(--panel-bg); color: var(--text-main); padding: 15px 20px; border-radius: 8px; border-left: 5px solid var(--accent); font-size: 14px; box-shadow: var(--shadow-md);; position: relative; margin-top: 25px;">
+        <span style="position: absolute; top: -12px; left: 20px; background-color: var(--accent); color: var(--panel-bg); padding: 2px 10px; border-radius: 4px; font-weight: bold; font-size: 11px; letter-spacing: 1px; z-index: 10;">TIP</span>
+        <strong>Deskripsi Teknis:</strong> Queue (Antrean) adalah struktur data linear dengan prinsip First-In-First-Out (FIFO). Implementasi menggunakan Linked List memungkinkan antrean berkembang secara dinamis tanpa batasan alokasi awal.
     </div>
+    
 
-<div id="initScreen">
-    <label>Max size: <input id="sizeInput" type="number" min="1" max="20" placeholder="e.g. 6" /></label>
-    <button onclick="initQueue()">Create Queue</button>
-</div>
-
-<div id="mainScreen" style="display:none">
+<div id="mainScreen">
     <div class="controls">
         <span class="ctrl-group">
             <label>Enqueue</label>
@@ -45,7 +41,9 @@
     </div>
 
     <div class="viz-row">
-        <canvas id="c" height="110"></canvas>
+        <div class="canvas-wrapper" style="overflow-x: auto; overflow-y: hidden; max-width: 100%; border: 1px solid var(--border-color, #334155); border-radius: 8px;">
+            <canvas id="c" height="110"></canvas>
+        </div>
         <div class="code-panel">
             <div class="code-label">// Python</div>
             <pre id="codePre"><code id="codeDisplay" class="language-python">No operations yet.</code></pre>
@@ -57,7 +55,11 @@
         </div>
     </div>
     <div id="msg" class="msg"></div>
-</div>
+
+        <div class="analogy-panel" style="margin-top: 20px;">
+        <strong>Analogi Dunia Nyata:</strong> Queue dengan Linked List ibarat barisan orang yang saling memegang bahu. Barisan ini bisa memanjang terus menerus ke belakang. Orang paling depan tetap akan dipanggil lebih dulu (Dequeue).
+    </div>
+    </div>
 
 <!-- POPUP -->
 <div class="popup-overlay" id="popupOverlay">
@@ -67,6 +69,7 @@
         <button onclick="closePopup()">OK</button>
     </div>
 </div>
+
 
 <script>
 // popup.js — shared error popup utility
@@ -87,6 +90,7 @@ document.addEventListener('click', function(e) {
 
 </script>
 <script src="engine.js"></script>
+
 <script>
 // Horizontal: FRONT on left (dequeue), REAR on right (enqueue)
 // head = front, tail = rear
@@ -133,19 +137,6 @@ const animEngine = new AnimEngine((step) => {
     draw();
 });
 
-function initQueue() {
-    const s = parseInt(document.getElementById('sizeInput').value);
-    if (!s || s < 1) { showPopup('Please enter a valid size.'); return; }
-    maxSize = s;
-    head = tail = null;
-    size = 0;
-    document.getElementById('initScreen').style.display = 'none';
-    document.getElementById('mainScreen').style.display = 'block';
-    resizeCanvas();
-    draw();
-    setCode('# Queue via List Linier\nclass Node:\n    def __init__(self, val):\n        self.info = val\n        self.next = None\n\n# Front = Head, Rear = Tail\nhead = None\ntail = None');
-}
-
 function resetQueue() {
     head = tail = null;
     size = 0;
@@ -157,15 +148,13 @@ function resetQueue() {
 function doEnqueue() {
     const val = parseFloat(document.getElementById('enqVal').value);
     if (isNaN(val)) { showPopup('Please enter a value to enqueue.'); return; }
-    if (size >= maxSize) { showPopup('Queue is full! Max size is ' + maxSize + '.'); return; }
-
-    const node = new Node(val);
     let steps = [];
     const baseCode = `def insert(self, X):\n    # X = ${val}\n    Q = Node(X)\n    if self.IsEmpty():\n        self.head = Q\n        self.tail = Q\n    else:\n        self.tail.next = Q\n        self.tail = Q\n    return`;
 
     steps.push({ headState: cloneList(head), sizeState: size, code: baseCode, line: "1-2", msg: "Memulai insert(" + val + ")" });
     steps.push({ headState: cloneList(head), sizeState: size, code: baseCode, line: "3", msg: "Membuat node baru Q (" + val + ")" });
 
+    const node = new Node(val);
     if (tail === null) {
         head = tail = node;
         steps.push({ headState: cloneList(head), sizeState: size + 1, code: baseCode, line: "4-6", msg: "Queue kosong, Q menjadi head dan tail" });
@@ -219,6 +208,7 @@ function doIsEmpty() {
 }
 
 function draw() {
+    resizeCanvas();
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     if (!head) {
@@ -239,7 +229,7 @@ function draw() {
         const isRear  = (node.next === null);
 
         // value box
-        ctx.fillStyle   = isFront ? '#e8f5e9' : isRear ? getComputedStyle(document.documentElement).getPropertyValue('--canvas-head') : getComputedStyle(document.documentElement).getPropertyValue('--canvas-filled');
+        ctx.fillStyle   = isFront ? getComputedStyle(document.documentElement).getPropertyValue('--canvas-head') : isRear ? getComputedStyle(document.documentElement).getPropertyValue('--canvas-head') : getComputedStyle(document.documentElement).getPropertyValue('--canvas-filled');
         ctx.fillRect(x, NODE_Y, NODE_W, NODE_H);
         ctx.strokeStyle = isFront ? getComputedStyle(document.documentElement).getPropertyValue('--canvas-highlight') : isRear ? getComputedStyle(document.documentElement).getPropertyValue('--canvas-accent') : getComputedStyle(document.documentElement).getPropertyValue('--canvas-border');
         ctx.lineWidth   = (isFront || isRear) ? 2 : 1.5;
@@ -301,7 +291,8 @@ function draw() {
 }
 
 function resizeCanvas() {
-    canvas.width = START_X * 2 + maxSize * (TOTAL_W + 4) + 20;
+    const nodes = size === 0 ? 1 : size;
+    canvas.width = START_X * 2 + nodes * (TOTAL_W + 4) + 20;
 }
 
 function setCode(t) { 
@@ -319,9 +310,14 @@ function setComplexity(time, space) {
         window.addEventListener('themeChanged', () => {
             if (typeof draw === 'function') draw();
         });
+
+        // initial draw
+        draw();
+        setCode('# Singly linked list Queue\nclass Node:\n    def __init__(self, val):\n        self.info = val\n        self.next = None\n\nfirst = None\nlast = None');
 </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-highlight/prism-line-highlight.min.js"></script>
 </body>
 </html>
+

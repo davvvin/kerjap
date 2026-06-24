@@ -22,9 +22,20 @@
     <nav-bar></nav-bar>
     <h2>AVL Tree (Self-Balancing BST)</h2>
 
-    <div class="analogy-panel">
-        <strong>Analogi Dunia Nyata:</strong> AVL Tree layaknya timbangan dacing. Setiap kali ada penambahan atau pengurangan beban di satu sisi, timbangan akan segera menyesuaikan posisi lengan bebannya (Rotasi) agar selisih tinggi sisi kiri dan kanan tidak lebih dari 1. Ini memastikan pencarian akan selalu optimal dan terhindar dari pohon yang berat sebelah.
+    <div class="tech-panel" style="margin: 0 auto 10px auto; max-width: 1200px; background-color: var(--panel-bg); color: var(--text-main); padding: 15px 20px; border-radius: 8px; border-left: 5px solid var(--accent); font-size: 14px; box-shadow: var(--shadow-md);; position: relative; margin-top: 25px;">
+        <span style="position: absolute; top: -12px; left: 20px; background-color: var(--accent); color: var(--panel-bg); padding: 2px 10px; border-radius: 4px; font-weight: bold; font-size: 11px; letter-spacing: 1px; z-index: 10;">TIP</span>
+        <strong>Deskripsi Teknis:</strong> AVL Tree adalah Binary Search Tree yang dapat menyeimbangkan dirinya sendiri (self-balancing). Pohon ini secara ketat menjaga keseimbangan strukturalnya untuk menjamin waktu operasi O(log N).
+        <hr style="border: 0; height: 1px; background: #334155; margin: 10px 0;">
+        <strong>Balance Factor (BF):</strong> Dihitung dengan rumus <code>Tinggi Anak Kiri - Tinggi Anak Kanan</code>. AVL Tree wajib memiliki BF di antara -1, 0, atau 1.<br>
+        <strong>Kondisi Rotasi Balancing:</strong> Jika BF > 1 atau BF < -1, pohon dianggap tidak seimbang dan memicu salah satu dari 4 rotasi:
+        <ul style="margin-top: 5px; margin-bottom: 0;">
+            <li><strong>LL (Left-Left):</strong> Beban lebih di kiri anak kiri &rarr; <em>Single Right Rotation</em></li>
+            <li><strong>RR (Right-Right):</strong> Beban lebih di kanan anak kanan &rarr; <em>Single Left Rotation</em></li>
+            <li><strong>LR (Left-Right):</strong> Beban lebih di kanan anak kiri &rarr; <em>Double Left-Right Rotation</em></li>
+            <li><strong>RL (Right-Left):</strong> Beban lebih di kiri anak kanan &rarr; <em>Double Right-Left Rotation</em></li>
+        </ul>
     </div>
+    
 
     <div id="mainScreen">
         <div class="controls">
@@ -33,12 +44,7 @@
                 <input id="insVal" type="number" placeholder="value" />
                 <button onclick="doInsert()">Insert</button>
             </span>
-            <span class="ctrl-group">
-                <label>Update</label>
-                <input id="updOld" type="number" placeholder="old val" />
-                <input id="updNew" type="number" placeholder="new val" />
-                <button onclick="doUpdate()">Update</button>
-            </span>
+
             <span class="ctrl-group">
                 <label>Delete</label>
                 <input id="delVal" type="number" placeholder="value" />
@@ -50,7 +56,9 @@
         </div>
 
         <div class="viz-row">
+            <div class="canvas-wrapper" style="overflow: auto; max-width: 100%; max-height: 500px; border: 1px solid var(--border-color, #334155); border-radius: 8px;">
             <canvas id="c" width="800" height="350"></canvas>
+        </div>
             <div class="code-panel" style="width:100%; max-width:800px;">
                 <div class="code-label">// Python - AVL Tree Balance Factors</div>
                 <pre><code id="codeDisplay" class="language-python">No operations yet.</code></pre>
@@ -61,6 +69,10 @@
             </div>
         </div>
         <div id="msg" class="msg"></div>
+    
+        <div class="analogy-panel" style="margin-top: 20px;">
+        <strong>Analogi Dunia Nyata:</strong> AVL Tree layaknya timbangan dacing. Setiap kali ada penambahan atau pengurangan beban di satu sisi, timbangan akan segera menyesuaikan posisi lengan bebannya (Rotasi) agar selisih tinggi sisi kiri dan kanan tidak lebih dari 1. Ini memastikan pencarian akan selalu optimal dan terhindar dari pohon yang berat sebelah.
+    </div>
     </div>
 
     <!-- POPUP -->
@@ -71,6 +83,7 @@
             <button onclick="closePopup()">OK</button>
         </div>
     </div>
+
 
     <script>
         function showPopup(message) {
@@ -327,22 +340,7 @@
             playAnimation(newRoot, 'Inserted ' + val + ' (Balanced).');
         }
 
-        function doUpdate() {
-            if (isAnimating) return;
-            const oldV = parseFloat(document.getElementById('updOld').value);
-            const newV = parseFloat(document.getElementById('updNew').value);
-            if (isNaN(oldV) || isNaN(newV)) { showPopup('Please provide both old and new values.'); return; }
 
-            if (!exists(root, oldV)) { showPopup('Value ' + oldV + ' not found.'); return; }
-
-            animationQueue = [];
-            let tempRoot = deleteAVL(root, oldV);
-            let newRoot = insertAVL(tempRoot, newV);
-            
-            setCode(`def update(self, root, old_key, new_key):\n    # old_key = ${oldV}, new_key = ${newV}\n    root = self.delete(root, old_key)\n    root = self.insert(root, new_key)\n    return root`);
-            
-            playAnimation(newRoot, 'Updated ' + oldV + ' to ' + newV + ' with re-balancing.');
-        }
 
         function doDelete() {
             if (isAnimating) return;
@@ -427,7 +425,59 @@
             drawNodes(node.right);
         }
 
+        
+        function getDepth(node) {
+            if (!node) return 0;
+            return 1 + Math.max(getDepth(node.left), getDepth(node.right));
+        }
+
+        function getNodeBounds(node, bounds) {
+            if (!node) return;
+            if (node.x < bounds.minX) bounds.minX = node.x;
+            if (node.x > bounds.maxX) bounds.maxX = node.x;
+            if (node.y > bounds.maxY) bounds.maxY = node.y;
+            getNodeBounds(node.left, bounds);
+            getNodeBounds(node.right, bounds);
+        }
+
+        function resizeCanvasForTree() {
+            if (!root) {
+                canvas.width = 800;
+                canvas.height = 400;
+                return;
+            }
+            let d = getDepth(root);
+            let initDx = Math.max(40, d <= 3 ? 80 : 60);
+            calcTree(root, 0, RADIUS + 10, initDx * Math.pow(2, d - 2));
+            
+            let bounds = { minX: Infinity, maxX: -Infinity, maxY: 0 };
+            getNodeBounds(root, bounds);
+            
+            let padding = RADIUS + 30;
+            let reqWidth = Math.max(800, (bounds.maxX - bounds.minX) + padding * 2);
+            let reqHeight = Math.max(400, bounds.maxY + padding + 20);
+            
+            canvas.width = reqWidth;
+            canvas.height = reqHeight;
+            
+            let offsetX = (reqWidth / 2) - ((bounds.minX + bounds.maxX) / 2);
+            shiftNodes(root, offsetX);
+            
+            let wrapper = canvas.parentElement;
+            if (wrapper && wrapper.classList.contains('canvas-wrapper')) {
+                wrapper.scrollLeft = (canvas.width - wrapper.clientWidth) / 2;
+            }
+        }
+        
+        function shiftNodes(node, dx) {
+            if (!node) return;
+            node.x += dx;
+            shiftNodes(node.left, dx);
+            shiftNodes(node.right, dx);
+        }
+
         function draw() {
+            resizeCanvasForTree();
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             if (!root) {
                 ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--canvas-text-empty');
@@ -437,7 +487,7 @@
                 ctx.fillText('Tree is empty', canvas.width / 2, canvas.height / 2);
                 return;
             }
-            calcTree(root, canvas.width / 2, RADIUS + 15, canvas.width / 4);
+            // positions already calculated by resizeCanvasForTree()
             drawConnections(root);
             drawNodes(root);
         }
@@ -466,3 +516,4 @@
 </body>
 
 </html>
+

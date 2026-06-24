@@ -18,12 +18,11 @@
     <nav-bar></nav-bar>
     <h2>Array (Fixed-Size)</h2>
 
-    <!-- GANTI TEKS ANALOGI DI BAWAH INI -->
-    <div class="analogy-panel">
-        <strong>Analogi Dunia Nyata:</strong> Array statis ibarat rak loker di sekolah yang jumlahnya sudah tetap sejak
-        awal. Anda bisa langsung menaruh buku di loker nomor 3 dengan sangat cepat, tapi jika semua loker penuh, Anda
-        tidak bisa memaksakan menambah barang!
+    <div class="tech-panel" style="margin: 0 auto 10px auto; max-width: 1200px; background-color: var(--panel-bg); color: var(--text-main); padding: 15px 20px; border-radius: 8px; border-left: 5px solid var(--accent); font-size: 14px; box-shadow: var(--shadow-md);; position: relative; margin-top: 25px;">
+        <span style="position: absolute; top: -12px; left: 20px; background-color: var(--accent); color: var(--panel-bg); padding: 2px 10px; border-radius: 4px; font-weight: bold; font-size: 11px; letter-spacing: 1px; z-index: 10;">TIP</span>
+        <strong>Deskripsi Teknis:</strong> Array adalah struktur data linear bersifat statis yang mengalokasikan memori secara berurutan (contiguous). Elemen-elemen diakses secara langsung melalui indeks berbasis nol dalam waktu O(1).
     </div>
+    
 
     <!-- INIT -->
     <div id="initScreen">
@@ -57,7 +56,9 @@
         </div>
 
         <div class="viz-row">
+            <div class="canvas-wrapper" style="overflow-x: auto; overflow-y: hidden; max-width: 100%; border: 1px solid var(--border-color, #334155); border-radius: 8px;">
             <canvas id="c" height="140"></canvas>
+        </div>
             <div class="code-panel">
                 <div class="code-label">// Python</div>
                 <pre id="codePre"><code id="codeDisplay" class="language-python">No operations yet.</code></pre>
@@ -71,6 +72,10 @@
             </div>
         </div>
         <div id="msg" class="msg"></div>
+    
+        <div class="analogy-panel" style="margin-top: 20px;">
+        <strong>Analogi Dunia Nyata:</strong> Array statis ibarat rak loker di sekolah yang jumlahnya sudah tetap sejak awal. Anda bisa langsung menaruh buku di loker nomor 3 dengan sangat cepat, tapi jika semua loker penuh, Anda tidak bisa memaksakan menambah barang!
+    </div>
     </div>
 
     <!-- POPUP -->
@@ -81,6 +86,7 @@
             <button onclick="closePopup()">OK</button>
         </div>
     </div>
+
 
     <script>
         // popup.js — shared error popup utility
@@ -101,6 +107,7 @@
 
     </script>
     <script src="engine.js"></script>
+
     <script>
         const CELL_W = 60, CELL_H = 50, START_X = 10, START_Y = 30;
         const canvas = document.getElementById('c');
@@ -244,19 +251,27 @@
             if (isNaN(idx) || idx < 0 || idx >= capacity) { showPopup('Index must be between 0 and ' + (capacity - 1) + '.'); return; }
 
             const old = arr[idx];
-            // PDF materi menggunakan delData yang menghapus dari posisi N-1 (akhir virtual)
-            // Visualizer memperlihatkan kode PDF yang asli, tapi secara visual tetap hapus di index yang dipilih
-            const delCode = `def delData(self):\n    x = self.items[self.N - 1]\n    self.N = self.N - 1\n    return x`;
+            if (isNaN(old)) { showPopup('Tidak ada elemen di indeks tersebut.'); return; }
+
+            let N = arr.findIndex(x => isNaN(x));
+            if (N === -1) N = capacity;
+
+            const delCode = `def delData(self, index):\n    x = self.items[index]\n    for i in range(index, self.N - 1):\n        self.items[i] = self.items[i+1]\n    self.items[self.N - 1] = None\n    self.N -= 1\n    return x`;
 
             let steps = [];
-            steps.push({ arrState: [...arr], capState: capacity, modifiedIdx: idx, code: delCode, line: "1-2", msg: "Memanggil fungsi hapus..." });
-            steps.push({ arrState: [...arr], capState: capacity, modifiedIdx: idx, code: delCode, line: "2", msg: "Menyimpan nilai lama x = " + old });
+            steps.push({ arrState: [...arr], capState: capacity, modifiedIdx: idx, code: delCode, line: "1-2", msg: "Menyimpan nilai yang akan dihapus x = " + old });
 
-            arr[idx] = NaN;
-            steps.push({ arrState: [...arr], capState: capacity, modifiedIdx: idx, code: delCode, line: "3", msg: "Mengecilkan N (ukuran virtual) — elemen terakhir 'tidak ada'." });
-            steps.push({ arrState: [...arr], capState: capacity, ghostIdx: idx, code: delCode, line: "4", msg: "Selesai mengembalikan x!" });
+            for (let i = idx; i < N - 1; i++) {
+                arr[i] = arr[i + 1];
+                steps.push({ arrState: [...arr], capState: capacity, modifiedIdx: i, code: delCode, line: "3-4", msg: "Menggeser elemen dari indeks " + (i+1) + " ke " + i });
+            }
+            
+            arr[N - 1] = NaN;
+            steps.push({ arrState: [...arr], capState: capacity, ghostIdx: N - 1, code: delCode, line: "5", msg: "Mengosongkan slot elemen terakhir" });
+            
+            steps.push({ arrState: [...arr], capState: capacity, code: delCode, line: "6-7", msg: "Selesai mengembalikan x!" });
 
-            setComplexity('O(1)', 'O(1)');
+            setComplexity('O(N)', 'O(1)');
             animEngine.loadSteps(steps);
 
             document.getElementById('delIdx').value = '';
