@@ -5,44 +5,54 @@ if (!document.getElementById('algomotion-fonts')) {
   l.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap';
   document.head.appendChild(l);
 }
+
 class NavBar extends HTMLElement {
     connectedCallback() {
         this.innerHTML = `
-            <div class="top-navbar">
-                <a href="index.html" class="nav-link">Home</a>
-                <a href="array.html" class="nav-link">Arrays</a>
-                
-                <!-- Dropdown untuk Stacks -->
-                <div class="dropdown">
-                    <button class="nav-link dropdown-btn">Stacks ↓</button>
-                    <div class="dropdown-content">
+            <div class="sidebar-brand"><span class="brand-accent">Algo</span>Motion</div>
+            <nav class="sidebar-nav">
+                <a href="index.html" class="sidebar-link">Home</a>
+                <a href="array.html" class="sidebar-link">Arrays</a>
+
+                <div class="sidebar-group">
+                    <button class="sidebar-group-toggle">Stacks</button>
+                    <div class="sidebar-group-items">
                         <a href="stack-array.html">Stack (Array)</a>
                         <a href="stack-linkedlist.html">Stack (Linked List)</a>
                     </div>
                 </div>
 
-                <!-- Dropdown untuk Queues -->
-                <div class="dropdown">
-                    <button class="nav-link dropdown-btn">Queues ↓</button>
-                    <div class="dropdown-content">
+                <div class="sidebar-group">
+                    <button class="sidebar-group-toggle">Queues</button>
+                    <div class="sidebar-group-items">
                         <a href="queue-array.html">Queue (Array)</a>
                         <a href="queue-linkedlist.html">Queue (Linked List)</a>
                     </div>
                 </div>
 
-                <a href="linkedlist.html" class="nav-link">Linked Lists</a>
-                <div class="dropdown">
-                    <button class="nav-link dropdown-btn">Trees ↓</button>
-                    <div class="dropdown-content">
-                        <a href="tree.html">Binary Tree</a>
+                <div class="sidebar-group">
+                    <button class="sidebar-group-toggle">Linked Lists</button>
+                    <div class="sidebar-group-items">
+                        <a href="linkedlist.html">Singly Linked List</a>
+                        <a href="linkedlist-headtail.html">Singly (Head & Tail)</a>
+                        <a href="linkedlist-doubly.html">Doubly Linked List</a>
+                        <a href="linkedlist-circular.html">Circular Linked List</a>
+                    </div>
+                </div>
+
+                <div class="sidebar-group">
+                    <button class="sidebar-group-toggle">Trees</button>
+                    <div class="sidebar-group-items">
+                        <a href="tree.html">Binary Search Tree</a>
                         <a href="tree-avl.html">AVL Tree</a>
                         <a href="tree-nary.html">N-Ary Tree</a>
                         <a href="tree-maxheap.html">Max Heap</a>
                         <a href="tree-minheap.html">Min Heap</a>
                     </div>
                 </div>
-                
-                <button class="theme-toggle" id="themeBtn" title="Toggle Light/Dark Mode">Light Mode</button>
+            </nav>
+            <div class="sidebar-footer">
+                <button class="theme-toggle" id="themeBtn">Light Mode</button>
             </div>
         `;
 
@@ -73,28 +83,56 @@ class NavBar extends HTMLElement {
             window.dispatchEvent(new Event('themeChanged'));
         });
 
-        // --- LOGIKA AKTIF OTOMATIS (TIDAK PERLU DIUBAH) ---
-        // Kode di bawah ini hanya untuk membuat tombol bercahaya biru 
-        // saat Anda sedang berada di halaman tersebut.
-        const currentPath = window.location.pathname.split('/').pop();
+        // --- ACTIVE STATE LOGIC ---
+        const currentPath = window.location.pathname.split('/').pop() || 'index.html';
         
-        // Cek link tunggal
-        const links = this.querySelectorAll('a.nav-link');
+        // Check sidebar links
+        const links = this.querySelectorAll('a.sidebar-link');
         links.forEach(link => {
             if (link.getAttribute('href') === currentPath) {
                 link.classList.add('active');
             }
         });
 
-        // Cek link di dalam dropdown
-        const dropdownContents = this.querySelectorAll('.dropdown-content a');
-        dropdownContents.forEach(subLink => {
-            if (subLink.getAttribute('href') === currentPath) {
-                subLink.classList.add('active');
-                // Beri efek aktif juga pada tombol dropdown utamanya (induknya)
-                const parentBtn = subLink.closest('.dropdown').querySelector('.dropdown-btn');
-                parentBtn.classList.add('active');
+        // Check links inside groups
+        const groupLinks = this.querySelectorAll('.sidebar-group-items a');
+        groupLinks.forEach(link => {
+            if (link.getAttribute('href') === currentPath) {
+                link.classList.add('active');
+                // Auto-expand the parent group and mark it
+                const group = link.closest('.sidebar-group');
+                group.classList.add('open');
+                group.classList.add('has-active');
             }
+        });
+
+        // --- COLLAPSIBLE GROUP TOGGLE ---
+        const groupBtns = this.querySelectorAll('.sidebar-group-toggle');
+        groupBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const group = btn.closest('.sidebar-group');
+                group.classList.toggle('open');
+            });
+        });
+
+        // --- MOBILE HAMBURGER ---
+        const hamburger = document.createElement('button');
+        hamburger.className = 'sidebar-hamburger';
+        hamburger.innerHTML = '<span></span><span></span><span></span>';
+        hamburger.addEventListener('click', () => {
+            this.classList.toggle('open');
+        });
+        document.body.prepend(hamburger);
+
+        // Close sidebar on mobile when clicking a link
+        const allLinks = this.querySelectorAll('a');
+        allLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 768) {
+                    this.classList.remove('open');
+                }
+            });
         });
     }
 }
@@ -109,13 +147,13 @@ class EngineControls extends HTMLElement {
                     <input type="checkbox" id="chkStepByStep"> Step-by-step
                 </label>
                 <button id="btnPrev" onclick="animEngine.prev()" disabled
-                    style="padding: 4px 10px; font-size: 12px; background: var(--input-bg); color: var(--text-main); border: 1px solid var(--panel-border);">⏮
+                    style="padding: 4px 10px; font-size: 12px; background: var(--panel-bg-soft); color: var(--text-main); border: 1px solid var(--panel-border);">
                     Prev</button>
                 <button id="btnAuto" onclick="animEngine.toggleAuto()" disabled
-                    style="padding: 4px 10px; font-size: 12px; background: var(--input-bg); color: var(--text-main); border: 1px solid var(--panel-border);">▶️
+                    style="padding: 4px 10px; font-size: 12px; background: var(--panel-bg-soft); color: var(--text-main); border: 1px solid var(--panel-border);">
                     Auto</button>
                 <button id="btnNext" onclick="animEngine.next()" disabled
-                    style="padding: 4px 10px; font-size: 12px; background: var(--input-bg); color: var(--text-main); border: 1px solid var(--panel-border);">⏭
+                    style="padding: 4px 10px; font-size: 12px; background: var(--panel-bg-soft); color: var(--text-main); border: 1px solid var(--panel-border);">
                     Next</button>
             </div>
         `;

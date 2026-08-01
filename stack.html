@@ -4,8 +4,8 @@
 <head>
   <title>DS Visualizer</title>
   <link rel="stylesheet" href="style.css" />
-    <link rel="icon" type="image/png" href="img/logo-removebg-preview.png">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+  <link rel="icon" type="image/png" href="img/logo-removebg-preview.png">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
 </head>
 
 <body>
@@ -223,13 +223,13 @@
     function setMsg(text) {
       document.getElementById('msg').textContent = text;
     }
-  
-        window.addEventListener('themeChanged', () => {
-            if (typeof draw === 'function') draw();
-        });
-</script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+
+    window.addEventListener('themeChanged', () => {
+      if (typeof draw === 'function') draw();
+    });
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
 </body>
 
 </html>

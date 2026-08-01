@@ -4,7 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AM</title>
+    <title>AlgoMotion</title>
+    <meta name="description"
+        content="AlgoMotion is an interactive data structure visualizer with step-by-step animations and Python code highlighting.">
     <link rel="icon" type="image/png" href="img/logo-removebg-preview.png">
     <link rel="stylesheet" href="style.css">
 </head>
@@ -12,19 +14,13 @@
 <body>
     <script src="components.js"></script>
     <nav-bar></nav-bar>
-    <h1>Welcome To AlgoMotion</h1>
-    <p>This program is designed to help you visualize the operations of an algorithm taught in a programming data
-        structure. You can insert, update, and delete elements from the algorithms, and see the changes reflected in a
-        graphical representation.</p>
-    <p>To get started, simply enter a value and an optional index in the input fields below, and click the "Insert"
-        button to add an element to the algorithm. You can also update or delete elements by entering the appropriate
-        index and value, and clicking the corresponding buttons.</p>
-    <p>As you perform operations on the algorithm, a visual representation will be displayed on the canvas below,
-        showing the current state of the algorithm. Each element will be represented as a box with its value and index
-        displayed.</p>
-    <p>Feel free to experiment with different operations and see how the algorithm changes. This program is a great way
-        to learn about algorithms and how they work in programming!</p>
-    <p>Enjoy exploring the world of algorithm & data structures!</p>
+
+    <h1><span class="brand-accent">Algo</span>Motion</h1>
+    <p>An interactive data structure visualizer. Insert, update, and delete elements with step-by-step animations and
+        live Python code highlighting.</p>
+
+    <p class="section-label">Choose a structure to explore</p>
+
     <div class="grid-container">
         <div class="grid-column">
             <h3>Arrays</h3>
@@ -46,15 +42,18 @@
         <div class="grid-column">
             <h3>Linked Lists</h3>
             <a href="linkedlist.html">Singly Linked List</a>
+            <a href="linkedlist-headtail.html">Singly (Head & Tail)</a>
+            <a href="linkedlist-doubly.html">Doubly Linked List</a>
+            <a href="linkedlist-circular.html">Circular Linked List</a>
         </div>
 
         <div class="grid-column">
-            <h3>Trees</h3>
+            <h3>Trees and Heaps</h3>
             <a href="tree.html">Binary Search Tree</a>
             <a href="tree-avl.html">AVL Tree</a>
             <a href="tree-nary.html">N-Ary Tree</a>
-            <a href="tree-maxheap.html">Max Heap Tree</a>
-            <a href="tree-minheap.html">Min Heap Tree</a>
+            <a href="tree-maxheap.html">Max Heap</a>
+            <a href="tree-minheap.html">Min Heap</a>
         </div>
     </div>
 </body>
