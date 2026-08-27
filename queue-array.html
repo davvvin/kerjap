@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="style.css" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-highlight/prism-line-highlight.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
 </head>
 
 <body>
@@ -18,9 +19,11 @@
     <h2>Queue – Array Implementation</h2>
 
     <div class="tech-panel" style="margin-top: 20px;">
-        <strong>Deskripsi Teknis:</strong> Queue (Antrean) adalah struktur data linear yang mengikuti prinsip First-In-First-Out (FIFO). Pada implementasi array statis, operasi difokuskan pada pointer Front dan Rear dengan batasan ukuran memori tetap.
+        <strong>Deskripsi Teknis:</strong> Queue (Antrean) adalah struktur data linear yang mengikuti prinsip
+        First-In-First-Out (FIFO). Pada implementasi array statis, operasi difokuskan pada pointer Front dan Rear dengan
+        batasan ukuran memori tetap.
     </div>
-    
+
 
     <div id="initScreen">
         <label>Max size: <input id="sizeInput" type="number" min="1" max="20" placeholder="e.g. 6" /></label>
@@ -48,9 +51,10 @@
         </div>
 
         <div class="viz-row">
-            <div class="canvas-wrapper" style="overflow-x: auto; overflow-y: hidden; max-width: 100%; border: 1px solid var(--border-color, #334155); border-radius: 8px;">
-            <canvas id="c"></canvas>
-        </div>
+            <div class="canvas-wrapper"
+                style="overflow-x: auto; overflow-y: hidden; max-width: 100%; border: 1px solid var(--border-color, #334155); border-radius: 8px;">
+                <canvas id="c"></canvas>
+            </div>
             <div class="code-panel">
                 <div class="code-label">// Python</div>
                 <pre id="codePre"><code id="codeDisplay" class="language-python">No operations yet.</code></pre>
@@ -62,10 +66,12 @@
             </div>
         </div>
         <div id="msg" class="msg"></div>
-    
+
         <div class="analogy-panel" style="margin-top: 20px;">
-        <strong>Analogi Dunia Nyata:</strong> Queue (Antrean) statis ini persis seperti antrean loket stasiun kereta. Orang pertama yang masuk (Enqueue) akan menjadi orang pertama yang dilayani (Dequeue) — First In, First Out (FIFO). Jika ruang tunggu penuh, orang baru tidak bisa masuk.
-    </div>
+            <strong>Analogi Dunia Nyata:</strong> Queue (Antrean) statis ini persis seperti antrean loket stasiun
+            kereta. Orang pertama yang masuk (Enqueue) akan menjadi orang pertama yang dilayani (Dequeue) — First In,
+            First Out (FIFO). Jika ruang tunggu penuh, orang baru tidak bisa masuk.
+        </div>
     </div>
 
     <!-- POPUP -->
@@ -77,25 +83,67 @@
         </div>
     </div>
 
+    <!-- CODE PLAYGROUND -->
+    <div class="playground-section" id="playground" style="display:none">
+        <button class="playground-toggle-btn" onclick="togglePlayground()" id="playgroundToggleBtn">
+            <span class="pg-label">
+                Code Playground
+                <span class="pg-beta-badge">Beta</span>
+            </span>
+            <span class="pg-chevron" id="pgChevron">&#9660;</span>
+        </button>
+        <div class="playground-body" id="playgroundBody">
+            <div class="pg-header">
+                <div style="display:flex; align-items:center; gap:6px;">
+                    <div class="lang-tabs">
+                        <button class="lang-tab active" id="tabPython" onclick="switchLang('python')">Python</button>
+                        <button class="lang-tab" id="tabJava" onclick="switchLang('java')">Java</button>
+                    </div>
+                    <span class="simulated-badge" id="simulatedBadge" style="display:none">Simulated</span>
+                </div>
+                <div class="pg-actions">
+                    <button class="pg-btn-secondary" onclick="resetCode()">Reset Code</button>
+                    <button class="pg-btn-run" id="runBtn" onclick="runCode()">Run</button>
+                </div>
+            </div>
+            <div class="pg-description" id="pgDescription">
+                Write your <strong>Queue implementation</strong> in the method bodies below. When you click Run,
+                AlgoMotion will execute your code and feed each enqueue/dequeue into the canvas animation automatically.
+            </div>
+            <div class="editor-wrapper">
+                <textarea id="codeEditor"></textarea>
+            </div>
+            <div class="pg-error-panel" id="errorPanel" style="display:none">
+                <div class="pg-error-title">Python Error</div>
+                <pre class="pg-error-body" id="errorBody"></pre>
+            </div>
+            <div class="pg-hint">
+                Your class must be named <code>QueueArray</code>. Keep the
+                <code># --- Run your operations below this line ---</code> delimiter in place. AlgoMotion automatically
+                hooks into your <code>enqueue()</code> and <code>dequeue()</code> methods to record animation steps.
+            </div>
+        </div>
+    </div>
+
 
     <script>
-// popup.js — shared error popup utility
+        // popup.js — shared error popup utility
 
-function showPopup(message) {
-    document.getElementById('popupMsg').textContent = message;
-    document.getElementById('popupOverlay').classList.add('show');
-}
+        function showPopup(message) {
+            document.getElementById('popupMsg').textContent = message;
+            document.getElementById('popupOverlay').classList.add('show');
+        }
 
-function closePopup() {
-    document.getElementById('popupOverlay').classList.remove('show');
-}
+        function closePopup() {
+            document.getElementById('popupOverlay').classList.remove('show');
+        }
 
-// close on overlay click
-document.addEventListener('click', function(e) {
-    if (e.target.id === 'popupOverlay') closePopup();
-});
+        // close on overlay click
+        document.addEventListener('click', function (e) {
+            if (e.target.id === 'popupOverlay') closePopup();
+        });
 
-</script>
+    </script>
     <script src="engine.js"></script>
 
     <script>
@@ -121,6 +169,7 @@ document.addEventListener('click', function(e) {
             queue = [];
             document.getElementById('initScreen').style.display = 'none';
             document.getElementById('mainScreen').style.display = 'block';
+            document.getElementById('playground').style.display = 'block';
             resizeCanvas();
             draw();
             setCode('# Create ADT Queue (Static Structure)\nclass Queue:\n    # Limitations: Space O(n)\n    max_size = ' + size);
@@ -137,21 +186,21 @@ document.addEventListener('click', function(e) {
             const val = parseFloat(document.getElementById('enqVal').value);
             if (isNaN(val)) { showPopup('Please enter a value to enqueue.'); return; }
             if (queue.length >= maxSize) { showPopup('Queue is full! Max size is ' + maxSize + '.'); return; }
-            
+
             let steps = [];
             const baseCode = `def insert(self, X):\n    # X = ${val}\n    if (self.isEmpty()):\n        self.head = 1\n        self.tail = 1\n    else:\n        if (self.tail == self.MaxEl):\n            self.tail = 1\n        else:\n            self.tail = self.tail + 1\n    self.items[self.tail] = X`;
-            
+
             steps.push({ queueState: [...queue], code: baseCode, line: "1-2", msg: "Memulai insert(" + val + ")" });
-            
+
             if (queue.length === 0) {
                 steps.push({ queueState: [...queue], code: baseCode, line: "3-5", msg: "Queue kosong, set head dan tail ke 1" });
             } else {
                 steps.push({ queueState: [...queue], code: baseCode, line: "7-10", msg: "Menyesuaikan posisi tail" });
             }
-            
+
             queue.push(val);  // add to rear
             steps.push({ queueState: [...queue], code: baseCode, line: "11", msg: "Memasukkan elemen ke posisi tail (" + val + ")" });
-            
+
             setComplexity('O(1)', 'O(1)');
             animEngine.loadSteps(steps);
             document.getElementById('enqVal').value = '';
@@ -159,22 +208,22 @@ document.addEventListener('click', function(e) {
 
         function doDequeue() {
             if (queue.length === 0) { showPopup('Queue is empty! Cannot dequeue.'); return; }
-            
+
             let steps = [];
             const val = queue[0];
             const baseCode = `def delete(self):\n    X = self.items[self.head]\n    if (self.head == self.tail):\n        self.head = 0\n        self.tail = 0\n    else:\n        if (self.head == self.MaxEl):\n            self.head = 1\n        else:\n            self.head = self.head + 1\n    return X\n\n# removed_val = ${val}`;
-            
+
             steps.push({ queueState: [...queue], code: baseCode, line: "2", msg: "Menyimpan nilai pada head X = " + val });
-            
+
             if (queue.length === 1) {
                 steps.push({ queueState: [...queue], code: baseCode, line: "3-5", msg: "Hanya 1 elemen, set head dan tail kembali ke 0" });
             } else {
                 steps.push({ queueState: [...queue], code: baseCode, line: "7-10", msg: "Menyesuaikan posisi head ke elemen berikutnya" });
             }
-            
+
             queue.shift();  // remove from front
             steps.push({ queueState: [...queue], code: baseCode, line: "11", msg: "Selesai mendequeue!" });
-            
+
             setComplexity('O(1)', 'O(1)');
             animEngine.loadSteps(steps);
         }
@@ -183,9 +232,9 @@ document.addEventListener('click', function(e) {
             const empty = queue.length === 0;
             let steps = [];
             const baseCode = `def isEmpty(self):\n    return (self.head == 0 and self.tail == 0)\n\n# status = ${empty}`;
-            
+
             steps.push({ queueState: [...queue], code: baseCode, line: "2", msg: "Mengecek apakah head dan tail 0 (" + empty + ")" });
-            
+
             setComplexity('O(1)', 'O(1)');
             animEngine.loadSteps(steps);
         }
@@ -243,9 +292,9 @@ document.addEventListener('click', function(e) {
         }
 
         function fmt() { return '[' + queue.join(', ') + ']'; }
-        function setCode(t) { 
+        function setCode(t) {
             const el = document.getElementById('codeDisplay');
-            el.textContent = t; 
+            el.textContent = t;
             if (window.Prism) Prism.highlightElement(el);
         }
         function setComplexity(time, space) {
@@ -258,12 +307,351 @@ document.addEventListener('click', function(e) {
         window.addEventListener('themeChanged', () => {
             if (typeof draw === 'function') draw();
         });
+
+        // ── Code Playground ───────────────────────────────────────────
+
+        function getPythonScaffold() {
+            return `class QueueArray:
+    def __init__(self, max_size):
+        self.max_size = max_size
+        self.items = [None] * max_size
+        self.front = -1
+        self.rear = -1
+        self.size = 0
+
+    def enqueue(self, x):
+        if self.is_full():
+            return  # Queue overflow
+        if self.is_empty():
+            self.front = 0
+            self.rear = 0
+        else:
+            self.rear += 1
+        self.items[self.rear] = x
+        self.size += 1
+
+    def dequeue(self):
+        if self.is_empty():
+            return None  # Queue underflow
+        val = self.items[self.front]
+        self.items[self.front] = None
+        self.size -= 1
+        if self.is_empty():
+            self.front = -1
+            self.rear = -1
+        else:
+            self.front += 1
+        return val
+
+    def is_empty(self):
+        return self.size == 0
+
+    def is_full(self):
+        return self.rear == self.max_size - 1
+
+# --- Run your operations below this line ---
+q = QueueArray(${maxSize})
+q.enqueue(10)
+q.enqueue(20)
+q.enqueue(30)
+q.dequeue()`;
+        }
+
+        function getJavaScaffold() {
+            return `class QueueArray {
+    private int maxSize;
+    private int[] items;
+    private int front;
+    private int rear;
+    private int size;
+
+    public QueueArray(int maxSize) {
+        this.maxSize = maxSize;
+        this.items = new int[maxSize];
+        this.front = -1;
+        this.rear = -1;
+        this.size = 0;
+    }
+
+    public void enqueue(int x) {
+        // Implement enqueue here.
+    }
+
+    public int dequeue() {
+        // Implement dequeue here.
+        return 0;
+    }
+
+    public boolean isEmpty() { return this.size == 0; }
+    public boolean isFull()  { return this.rear == this.maxSize - 1; }
+
+    // --- Run your operations below this line ---
+    public static void main(String[] args) {
+        QueueArray q = new QueueArray(${maxSize});
+        q.enqueue(10);
+        q.enqueue(20);
+        q.enqueue(30);
+        q.dequeue();
+    }
+}`;
+        }
+
+        let pgEditor = null;
+        let pgCurrentLang = 'python';
+        let pgOpen = false;
+        let _pgSteps = [];
+        let _pgCode = '';
+
+        function togglePlayground() {
+            pgOpen = !pgOpen;
+            const body = document.getElementById('playgroundBody');
+            const chevron = document.getElementById('pgChevron');
+            if (pgOpen) {
+                body.classList.add('open');
+                chevron.style.transform = 'rotate(180deg)';
+                initPlaygroundEditor();
+            } else {
+                body.classList.remove('open');
+                chevron.style.transform = '';
+            }
+        }
+
+        function initPlaygroundEditor() {
+            if (pgEditor) return;
+
+            function loadScript(src, cb) {
+                const s = document.createElement('script');
+                s.src = src;
+                s.onload = cb;
+                document.head.appendChild(s);
+            }
+
+            const CDN = 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16';
+
+            loadScript(CDN + '/codemirror.min.js', function () {
+                loadScript(CDN + '/mode/python/python.min.js', function () {
+                    loadScript(CDN + '/mode/clike/clike.min.js', function () {
+                        loadScript(CDN + '/addon/selection/active-line.min.js', function () {
+                            loadScript(CDN + '/addon/edit/matchbrackets.min.js', function () {
+                                _createEditor();
+                            });
+                        });
+                    });
+                });
+            });
+        }
+
+        function _createEditor() {
+            const textarea = document.getElementById('codeEditor');
+            pgEditor = CodeMirror.fromTextArea(textarea, {
+                mode: 'python',
+                theme: 'algomotion',
+                lineNumbers: true,
+                styleActiveLine: true,
+                matchBrackets: true,
+                indentUnit: 4,
+                tabSize: 4,
+                indentWithTabs: false,
+                lineWrapping: false,
+                autofocus: false,
+                extraKeys: {
+                    'Tab': function (cm) { cm.replaceSelection('    '); }
+                }
+            });
+            pgEditor.setValue(getPythonScaffold());
+            pgEditor.setSize('100%', '360px');
+        }
+
+        function switchLang(lang) {
+            pgCurrentLang = lang;
+            const tabPy = document.getElementById('tabPython');
+            const tabJava = document.getElementById('tabJava');
+            const badge = document.getElementById('simulatedBadge');
+            const runBtn = document.getElementById('runBtn');
+            const desc = document.getElementById('pgDescription');
+
+            if (lang === 'python') {
+                tabPy.classList.add('active');
+                tabJava.classList.remove('active');
+                badge.style.display = 'none';
+                runBtn.textContent = 'Run';
+                desc.innerHTML = 'Write your <strong>Queue implementation</strong> in the method bodies below. When you click Run, AlgoMotion will execute your code and feed each enqueue/dequeue into the canvas animation automatically.';
+                if (pgEditor) { pgEditor.setOption('mode', 'python'); pgEditor.setValue(getPythonScaffold()); }
+            } else {
+                tabJava.classList.add('active');
+                tabPy.classList.remove('active');
+                badge.style.display = 'inline';
+                runBtn.textContent = 'Run (Simulated)';
+                desc.innerHTML = 'Java execution is <strong>simulated</strong> for this prototype. The animation below reflects what a fully-integrated Java runtime would produce, based on the default operations in the script.';
+                if (pgEditor) { pgEditor.setOption('mode', 'text/x-java'); pgEditor.setValue(getJavaScaffold()); }
+            }
+            _hidePgError();
+        }
+
+        function resetCode() {
+            if (!pgEditor) return;
+            pgEditor.setValue(pgCurrentLang === 'python' ? getPythonScaffold() : getJavaScaffold());
+            _hidePgError();
+        }
+
+        function _hidePgError() {
+            document.getElementById('errorPanel').style.display = 'none';
+        }
+
+        function _showPgError(msg) {
+            const panel = document.getElementById('errorPanel');
+            const body = document.getElementById('errorBody');
+            let clean = msg || 'Unknown error';
+            body.textContent = clean;
+            panel.style.display = 'block';
+        }
+
+        function runCode() {
+            if (pgCurrentLang === 'java') { _runJavaMock(); return; }
+            _runPython();
+        }
+
+        function _runPython() {
+            if (!pgEditor) { _showPgError('Editor not ready yet. Try reopening the playground.'); return; }
+
+            const code = pgEditor.getValue();
+            const DELIM = '# --- Run your operations below this line ---';
+            const delimIdx = code.indexOf(DELIM);
+
+            if (delimIdx === -1) {
+                _showPgError('Delimiter missing: "# --- Run your operations below this line ---"\\nPlease keep this line in your code so AlgoMotion knows where your operations start.');
+                return;
+            }
+
+            const classCode = code.substring(0, delimIdx);
+            const opsCode = code.substring(delimIdx + DELIM.length);
+
+            const bridge = `
+# AlgoMotion Bridge (auto-injected — do not modify)
+try:
+    _am_orig_init = QueueArray.__init__
+    _am_orig_enq  = QueueArray.enqueue
+    _am_orig_deq  = QueueArray.dequeue
+
+    def _am_init(self, max_size):
+        _am_orig_init(self, max_size)
+        _am_set_size(max_size)
+
+    def _am_enq(self, x):
+        if self.is_full():
+            if self.is_empty():
+                state = []
+            else:
+                state = [self.items[i] for i in range(self.front, self.rear + 1)]
+            _am_record(state, 'Queue Overflow! enqueue(' + str(x) + ') rejected — queue is full')
+            return
+        _am_orig_enq(self, x)
+        if self.is_empty():
+            state = []
+        else:
+            state = [self.items[i] for i in range(self.front, self.rear + 1)]
+        _am_record(state, 'enqueue(' + str(x) + ')')
+
+    def _am_deq(self):
+        val = _am_orig_deq(self)
+        if self.is_empty():
+            state = []
+        else:
+            state = [self.items[i] for i in range(self.front, self.rear + 1)]
+        _am_record(state, 'dequeue() returned ' + str(val))
+        return val
+
+    QueueArray.__init__ = _am_init
+    QueueArray.enqueue  = _am_enq
+    QueueArray.dequeue  = _am_deq
+except NameError as e:
+    pass
+`;
+
+            const fullCode = classCode + '\n' + bridge + '\n' + opsCode;
+
+            _pgSteps = [];
+            _pgCode = code;
+
+            const runBtn = document.getElementById('runBtn');
+            runBtn.disabled = true;
+            runBtn.textContent = 'Running...';
+
+            Sk.configure({
+                output: function (text) { /* ignore stdout */ },
+                read: function (fname) {
+                    if (Sk.builtinFiles && Sk.builtinFiles['files'][fname])
+                        return Sk.builtinFiles['files'][fname];
+                    throw 'File not found: ' + fname;
+                },
+                __future__: Sk.python3
+            });
+
+            Sk.builtins['_am_set_size'] = new Sk.builtin.func(function (skSize) {
+                const size = skSize && skSize.v !== undefined ? parseInt(skSize.v) : maxSize;
+                if (size > 0) {
+                    maxSize = size;
+                    resizeCanvas();
+                }
+                return Sk.builtin.none.none$;
+            });
+            Sk.builtins['_am_record'] = new Sk.builtin.func(function (skList, skMsg) {
+                const arr = [];
+                if (skList && skList.v) {
+                    for (let i = 0; i < skList.v.length; i++) {
+                        const item = skList.v[i];
+                        arr.push(item && item.v !== undefined ? item.v : null);
+                    }
+                }
+                _pgSteps.push({
+                    queueState: arr,
+                    code: _pgCode,
+                    line: "0",
+                    msg: skMsg ? skMsg.v : "Executed step"
+                });
+                return Sk.builtin.none.none$;
+            });
+
+            Sk.misceval.asyncToPromise(function () {
+                return Sk.importMainWithBody("<stdin>", false, fullCode, true);
+            }).then(function () {
+                runBtn.disabled = false;
+                runBtn.textContent = 'Run';
+                if (_pgSteps.length > 0) {
+                    animEngine.loadSteps(_pgSteps);
+                } else {
+                    _showPgError('No operations recorded. Did you call enqueue()/dequeue() below the delimiter?');
+                }
+            }, function (err) {
+                runBtn.disabled = false;
+                runBtn.textContent = 'Run';
+                _showPgError(err.toString());
+            });
+        }
+
+        function _runJavaMock() {
+            _pgSteps = [];
+            _pgCode = pgEditor.getValue();
+            let mockQ = [];
+            
+            _pgSteps.push({ queueState: [...mockQ], code: _pgCode, line: "0", msg: "enqueue(10)" });
+            mockQ.push(10);
+            _pgSteps.push({ queueState: [...mockQ], code: _pgCode, line: "0", msg: "enqueue(20)" });
+            mockQ.push(20);
+            _pgSteps.push({ queueState: [...mockQ], code: _pgCode, line: "0", msg: "enqueue(30)" });
+            mockQ.push(30);
+            _pgSteps.push({ queueState: [...mockQ], code: _pgCode, line: "0", msg: "dequeue() returned 10" });
+            mockQ.shift();
+
+            animEngine.loadSteps(_pgSteps);
+        }
     </script>
+    <script src="https://skulpt.org/js/skulpt.min.js" type="text/javascript"></script>
+    <script src="https://skulpt.org/js/skulpt-stdlib.js" type="text/javascript"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-highlight/prism-line-highlight.min.js"></script>
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-highlight/prism-line-highlight.min.js"></script>
 </body>
 
 </html>
-
-
