@@ -503,7 +503,7 @@ button:focus-visible { outline: none; box-shadow: var(--ring); }
     gap: 24px;
     flex-wrap: wrap;
     width: 100%;
-    max-width: 1100px;
+    max-width: 1250px;
 }
 
 canvas {
@@ -724,28 +724,100 @@ pre {
 [data-theme="light"] .badge-time  { color: #0b7a65; border-color: rgba(11,122,101,0.3); }
 [data-theme="light"] .badge-space { color: #9a4a22; border-color: rgba(154,74,34,0.3); }
 
-/* ── Engine controls ─────────────────────────────────────── */
-engine-controls > div {
-    background: var(--panel-bg) !important;
-    border-top: 1px solid var(--panel-border) !important;
-    padding: 10px !important;
+/* ── Engine controls (merged into code-label bar) ────────── */
+.eng-ctrl-bar {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: auto;
 }
-engine-controls button {
-    background: var(--panel-bg-soft) !important;
-    color: var(--text-muted) !important;
-    border: 1px solid var(--panel-border) !important;
+.eng-ctrl-bar button {
+    padding: 3px 8px;
+    font-size: 11px;
+    background: var(--panel-bg-soft);
+    color: var(--text-muted);
+    border: 1px solid var(--panel-border);
+    border-radius: var(--r-sm);
+    box-shadow: none;
     font-family: var(--font-sans);
     font-weight: 600;
-    box-shadow: none;
+    line-height: 1;
 }
-engine-controls button:not(:disabled):hover {
-    background: var(--accent-soft) !important;
-    color: var(--accent) !important;
-    border-color: var(--accent) !important;
+.eng-ctrl-bar button:not(:disabled):hover {
+    background: var(--accent-soft);
+    color: var(--accent);
+    border-color: var(--accent);
     filter: none;
     box-shadow: none;
 }
-engine-controls button:disabled { opacity: 0.35; cursor: not-allowed; }
+.eng-ctrl-bar button:disabled { opacity: 0.3; cursor: not-allowed; }
+.eng-step-label {
+    font-size: 11px;
+    color: var(--text-faint);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    margin-left: 4px;
+    font-weight: 600;
+    user-select: none;
+}
+.eng-step-label input { cursor: pointer; accent-color: var(--accent); }
+
+/* ── Sidebar collapse button ─────────────────────────────── */
+.sidebar-collapse-btn {
+    position: fixed;
+    top: 50%;
+    left: var(--sidebar-w);
+    transform: translateY(-50%);
+    width: 22px;
+    height: 48px;
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border-strong);
+    border-left: none;
+    border-radius: 0 var(--r-sm) var(--r-sm) 0;
+    color: var(--text-muted);
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    box-shadow: 2px 0 8px rgba(0,0,0,0.5);
+    z-index: 60;
+    transition: left 0.25s ease, background 0.15s, color 0.15s;
+}
+.sidebar-collapse-btn:hover {
+    color: var(--accent);
+    background: var(--panel-bg-hover);
+    filter: none;
+    box-shadow: 2px 0 8px rgba(0,0,0,0.5);
+}
+.sidebar-collapse-btn:active {
+    transform: translateY(-50%);
+}
+
+/* ── Collapsed sidebar state ─────────────────────────────── */
+nav-bar {
+    transition: transform 0.25s ease;
+}
+html.sidebar-collapsed nav-bar {
+    transform: translateX(-100%);
+}
+html.sidebar-collapsed .sidebar-collapse-btn {
+    left: 0;
+    border-left: 1px solid var(--panel-border-strong);
+}
+body {
+    transition: padding-left 0.25s ease;
+}
+html.sidebar-collapsed body {
+    padding-left: 24px;
+}
+@media (max-width: 768px) {
+    .sidebar-collapse-btn { display: none; }
+    html.sidebar-collapsed body { padding-left: 14px; }
+}
 
 /* ── Home page ───────────────────────────────────────────── */
 body > p {
