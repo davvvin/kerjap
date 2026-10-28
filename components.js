@@ -143,10 +143,11 @@ class EngineControls extends HTMLElement {
         this.innerHTML = `
             <div class="eng-ctrl-bar">
                 <button id="btnPrev" onclick="animEngine.prev()" disabled title="Previous step">&#9664;</button>
-                <button id="btnAuto" onclick="animEngine.toggleAuto()" disabled title="Play / Pause">&#9654;</button>
+                <button id="btnAuto" onclick="animEngine.toggleAuto()" disabled title="Play / Pause">&#9654; Auto</button>
                 <button id="btnNext" onclick="animEngine.next()" disabled title="Next step">&#9654;&#9654;</button>
+                <span id="stepCounter" class="eng-step-counter" style="display:none">0/0</span>
                 <label class="eng-step-label" title="Step-by-step mode">
-                    <input type="checkbox" id="chkStepByStep"> Step
+                    <input type="checkbox" id="chkStepByStep" checked> Step
                 </label>
             </div>
         `;

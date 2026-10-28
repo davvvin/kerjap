@@ -699,6 +699,85 @@ pre {
     font-family: var(--font-sans);
 }
 
+/* ── Collapsible Info Toggle Pills (TECH & TIP) ──────────── */
+.info-toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin: 14px auto 16px;
+    flex-wrap: wrap;
+}
+
+.info-pill-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 600;
+    font-family: var(--font-sans);
+    padding: 5px 14px;
+    border-radius: var(--r-pill);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    user-select: none;
+    box-shadow: var(--shadow-sm);
+}
+
+.info-pill-btn:hover {
+    color: var(--text-main);
+    border-color: var(--accent);
+    background: var(--panel-bg-hover);
+}
+
+.info-pill-btn.active {
+    color: var(--text-main);
+    border-color: var(--accent);
+    background: var(--panel-bg-soft);
+}
+
+.info-pill-btn .info-badge {
+    font-size: 9.5px;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 4px;
+    letter-spacing: 0.06em;
+}
+
+.info-pill-btn .info-badge.tech {
+    background: var(--accent-soft);
+    color: var(--accent);
+}
+
+.info-pill-btn .info-badge.tip {
+    background: rgba(46, 160, 67, 0.15);
+    color: #56d364;
+}
+
+.info-pill-btn .arrow {
+    font-size: 10px;
+    color: var(--text-faint);
+    transition: transform 0.2s ease;
+}
+
+.info-pill-btn.active .arrow {
+    transform: rotate(180deg);
+}
+
+.info-expand-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.collapsible-info {
+    margin-top: 16px !important;
+    animation: fade-in 0.2s ease;
+}
+
 /* ── Complexity badges ───────────────────────────────────── */
 .complexity-container {
     display: flex;
@@ -751,6 +830,18 @@ pre {
     box-shadow: none;
 }
 .eng-ctrl-bar button:disabled { opacity: 0.3; cursor: not-allowed; }
+.eng-step-counter {
+    font-size: 10.5px;
+    font-family: var(--font-mono);
+    color: var(--accent);
+    background: var(--bg-sunken);
+    padding: 2px 7px;
+    border-radius: var(--r-pill);
+    border: 1px solid var(--panel-border);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    user-select: none;
+}
 .eng-step-label {
     font-size: 11px;
     color: var(--text-faint);
@@ -988,7 +1079,7 @@ body > p {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 12px;
     margin-bottom: 14px;
 }

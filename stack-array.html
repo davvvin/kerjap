@@ -71,6 +71,47 @@
             color: var(--text-muted);
         }
 
+        /* ── Canvas Card Wrapper ───────────────────────────────── */
+        .canvas-wrapper {
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: var(--r-lg);
+            box-shadow: var(--shadow-md);
+            max-width: 100%;
+            min-width: 280px;
+            height: 500px;
+            max-height: 500px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            box-sizing: border-box;
+            position: relative;
+            scrollbar-width: thin;
+            scrollbar-color: var(--panel-border) var(--bg-sunken);
+        }
+
+        .canvas-wrapper::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .canvas-wrapper::-webkit-scrollbar-track {
+            background: var(--bg-sunken);
+            border-radius: var(--r-pill);
+        }
+
+        .canvas-wrapper::-webkit-scrollbar-thumb {
+            background: var(--panel-border);
+            border-radius: var(--r-pill);
+        }
+
+        .canvas-wrapper::-webkit-scrollbar-thumb:hover {
+            background: var(--accent);
+        }
+
         /* ── Embedded Playground panel (replaces codebar in viz-row) ── */
         .playground-panel {
             background: var(--panel-bg);
@@ -78,10 +119,12 @@
             border-radius: var(--r-lg);
             box-shadow: var(--shadow-md);
             overflow: hidden;
-            flex: 1 1 680px;
-            min-width: 320px;
-            max-width: 820px;
+            flex: 1 1 720px;
+            min-width: 300px;
+            max-width: 880px;
             text-align: left;
+            display: flex;
+            flex-direction: column;
         }
 
         .pg-header {
@@ -92,6 +135,12 @@
             background: var(--panel-bg-soft);
             border-bottom: 1px solid var(--panel-border);
             gap: 12px;
+            flex-wrap: nowrap;
+        }
+
+        .lang-tabs,
+        .pg-actions {
+            flex-shrink: 0;
         }
 
         .pg-header-guide {
@@ -102,9 +151,17 @@
             font-size: 11.5px;
             color: var(--text-muted);
             background: var(--bg-sunken);
-            padding: 4px 14px;
+            padding: 4px 12px;
             border-radius: var(--r-pill);
             border: 1px solid var(--panel-border);
+            white-space: nowrap;
+            min-width: 0;
+            flex-shrink: 1;
+        }
+
+        .pg-header-guide .guide-text {
+            overflow: hidden;
+            text-overflow: ellipsis;
             white-space: nowrap;
         }
 
@@ -137,18 +194,25 @@
             justify-content: center;
         }
 
-        /* ── Two-panel playground ─────────────────────────────── */
+        /* ── Two-panel playground (Strictly balanced & adaptive) ────── */
         .pg-split {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
             gap: 0;
             border-bottom: 1px solid var(--panel-border);
             overflow: hidden;
+            width: 100%;
         }
 
         .pg-pane {
             display: flex;
             flex-direction: column;
+            min-width: 0;
+            overflow: hidden;
+        }
+
+        .pg-pane:first-child {
+            border-right: 1px solid var(--panel-border);
         }
 
         .pg-pane-label {
@@ -162,6 +226,10 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
+            min-width: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .pg-pane-label.locked {
@@ -184,8 +252,9 @@
 
         .pg-locked-body {
             background: var(--bg-sunken);
-            overflow: auto;
+            overflow: hidden;
             flex: 1;
+            min-width: 0;
         }
 
         .pg-locked-body pre {
@@ -201,6 +270,23 @@
         .pg-editable-body {
             flex: 1;
             background: var(--bg-sunken);
+            min-width: 0;
+            overflow: hidden;
+        }
+
+        /* Responsive adaptation: on screens <= 860px, stack vertically so code is never squeezed */
+        @media (max-width: 860px) {
+            .canvas-wrapper {
+                height: 380px;
+                max-height: 380px;
+            }
+            .pg-split {
+                grid-template-columns: 1fr;
+            }
+            .pg-pane:first-child {
+                border-right: none;
+                border-bottom: 1px solid var(--panel-border);
+            }
         }
 
         /* Error panel below the split */
@@ -253,10 +339,27 @@
     <nav-bar></nav-bar>
     <h2>Stack – Array Implementation</h2>
 
-    <div class="tech-panel" style="margin-top: 20px;">
-        <strong>Deskripsi Teknis:</strong> Stack (Tumpukan) adalah struktur data linear yang mengikuti prinsip
-        Last-In-First-Out (LIFO). Implementasi dengan array memiliki alokasi memori statis terbatas di mana operasi
-        didorong (push) dan ditarik (pop) dari satu ujung (Top).
+    <!-- Collapsible Theory & Analogy Pills -->
+    <div class="info-toggle-row">
+        <button class="info-pill-btn" id="btnToggleTech" onclick="toggleInfoPanel('tech')">
+            <span class="info-badge tech">TECH</span> Deskripsi Teknis <span class="arrow" id="arrowTech">&#9662;</span>
+        </button>
+        <button class="info-pill-btn" id="btnToggleTip" onclick="toggleInfoPanel('tip')">
+            <span class="info-badge tip">TIP</span> Analogi Dunia Nyata <span class="arrow" id="arrowTip">&#9662;</span>
+        </button>
+    </div>
+
+    <div class="info-expand-container">
+        <div id="techPanel" class="tech-panel collapsible-info" style="display:none;">
+            <strong>Deskripsi Teknis:</strong> Stack (Tumpukan) adalah struktur data linear yang mengikuti prinsip
+            Last-In-First-Out (LIFO). Implementasi dengan array memiliki alokasi memori statis terbatas di mana operasi
+            didorong (push) dan ditarik (pop) dari satu ujung (Top).
+        </div>
+        <div id="tipPanel" class="analogy-panel collapsible-info" style="display:none;">
+            <strong>Analogi Dunia Nyata:</strong> Stack (Tumpukan) bekerja seperti fitur "Undo" pada aplikasi komputer,
+            atau tumpukan piring di prasmanan. Piring terakhir yang Anda taruh (Push) adalah piring pertama yang harus
+            Anda ambil (Pop) — prinsip LIFO (Last In, First Out).
+        </div>
     </div>
 
     <!-- STEP 1: Mode selection -->
@@ -276,7 +379,7 @@
 
     <!-- STEP 2a: Size input (UI mode only) -->
     <div id="initScreen" style="display:none">
-        <label>Max size: <input id="sizeInput" type="number" min="1" max="20" placeholder="e.g. 6" /></label>
+        <label>Max size: <input id="sizeInput" type="number" min="1" max="50" placeholder="e.g. 6" /></label>
         <button onclick="initStack()">Create Stack</button>
     </div>
 
@@ -302,8 +405,7 @@
         </div>
 
         <div class="viz-row">
-            <div class="canvas-wrapper"
-                style="overflow: hidden; max-width: 100%; border: 1px solid var(--panel-border); border-radius: var(--r-lg); background: var(--panel-bg); display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 280px; align-self: stretch; padding: 16px; box-shadow: var(--shadow-md);">
+            <div class="canvas-wrapper" id="canvasWrapper">
                 <canvas id="c" style="border: none; background: transparent; box-shadow: none;"></canvas>
             </div>
 
@@ -330,11 +432,12 @@
 
                     <div class="pg-header-guide" id="pgHeaderGuide">
                         <span class="guide-tag">Guide</span>
-                        <span>Write operations in <code>main()</code> &bull; e.g. <code>s.push(10)</code>,
-                            <code>s.pop()</code></span>
+                        <span class="guide-text">Write operations in <code>main()</code> &bull; e.g. <code>s.push(10)</code>, <code>s.pop()</code></span>
                     </div>
 
                     <div class="pg-actions">
+                        <input type="file" id="pgFileInput" accept=".py,.java,.txt" style="display:none" onchange="handleFileUpload(event)">
+                        <button class="pg-btn-secondary" onclick="document.getElementById('pgFileInput').click()" title="Import code from .py or .java file">Upload</button>
                         <button class="pg-btn-secondary" onclick="resetCode()">Reset</button>
                         <button class="pg-btn-run" id="runBtn" onclick="runCode()">Run</button>
                     </div>
@@ -377,12 +480,6 @@
             </div>
         </div>
         <div id="msg" class="msg"></div>
-
-        <div class="analogy-panel" style="margin-top: 20px;">
-            <strong>Analogi Dunia Nyata:</strong> Stack (Tumpukan) bekerja seperti fitur "Undo" pada aplikasi komputer,
-            atau tumpukan piring di prasmanan. Piring terakhir yang Anda taruh (Push) adalah piring pertama yang harus
-            Anda ambil (Pop) — prinsip LIFO (Last In, First Out).
-        </div>
     </div>
 
     <!-- POPUP -->
@@ -409,6 +506,18 @@
     <script src="engine.js"></script>
 
     <script>
+        // ── Info Panels Toggle (TECH & TIP) ───────────────────────
+        function toggleInfoPanel(type) {
+            const isTech = type === 'tech';
+            const panel = document.getElementById(isTech ? 'techPanel' : 'tipPanel');
+            const btn = document.getElementById(isTech ? 'btnToggleTech' : 'btnToggleTip');
+            if (!panel || !btn) return;
+
+            const isVisible = panel.style.display !== 'none';
+            panel.style.display = isVisible ? 'none' : 'block';
+            btn.classList.toggle('active', !isVisible);
+        }
+
         const CELL_W = 160, CELL_H = 50, CELL_X = 20;
         const canvas = document.getElementById('c');
         const ctx = canvas.getContext('2d');
@@ -449,7 +558,7 @@
         function initStack() {
             const size = parseInt(document.getElementById('sizeInput').value);
             if (!size || size < 1) { showPopup('Please enter a valid size.'); return; }
-            maxSize = size;
+            maxSize = Math.min(100, Math.max(1, size));
             stack = [];
             document.getElementById('initScreen').style.display = 'none';
             document.getElementById('mainScreen').style.display = 'block';
@@ -515,40 +624,156 @@
 
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if (maxSize <= 0) return;
+            updateCanvasWrapperLayout();
+
+            const rootStyle = getComputedStyle(document.documentElement);
+            const colHead = rootStyle.getPropertyValue('--canvas-head').trim() || '#0d1a2e';
+            const colFilled = rootStyle.getPropertyValue('--canvas-filled').trim() || '#151a26';
+            const colEmpty = rootStyle.getPropertyValue('--canvas-empty').trim() || '#0e1218';
+            const colBorder = rootStyle.getPropertyValue('--canvas-border').trim() || '#64a8e0';
+            const colBorderEmpty = rootStyle.getPropertyValue('--canvas-border-empty').trim() || '#1a1e2a';
+            const colAccent = rootStyle.getPropertyValue('--canvas-accent').trim() || '#c586c0';
+            const colText = rootStyle.getPropertyValue('--canvas-text').trim() || '#e0e3eb';
+            const colTextEmpty = rootStyle.getPropertyValue('--canvas-text-empty').trim() || '#3e4558';
+            const colMuted = rootStyle.getPropertyValue('--text-muted').trim() || '#8b949e';
+
             const cellX = Math.round((canvas.width - CELL_W) / 2);
+            const startY = 34;
+
+            // 1. Header status pill: [ Empty Stack · 0/5 ] or [ Count: 3/5 ]
+            const count = stack.length;
+            const isFull = count === maxSize;
+            const isEmpty = count === 0;
+            const statusText = isEmpty ? `Empty Stack (0 / ${maxSize})` : isFull ? `Full Stack (${count} / ${maxSize})` : `Count: ${count} / ${maxSize}`;
+            
+            ctx.font = '600 11px Arial, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            const tagW = ctx.measureText(statusText).width + 18;
+            const tagX = (canvas.width - tagW) / 2;
+            const tagY = 10;
+            ctx.fillStyle = isEmpty ? 'rgba(255,255,255,0.04)' : isFull ? 'rgba(200,50,50,0.12)' : 'rgba(100,168,224,0.10)';
+            ctx.strokeStyle = isEmpty ? colBorderEmpty : isFull ? 'rgba(200,50,50,0.35)' : 'rgba(100,168,224,0.25)';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([]);
+            ctx.beginPath();
+            if (ctx.roundRect) {
+                ctx.roundRect(tagX, tagY, tagW, 18, 9);
+            } else {
+                ctx.rect(tagX, tagY, tagW, 18);
+            }
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = isEmpty ? colTextEmpty : isFull ? '#f87171' : colBorder;
+            ctx.fillText(statusText, canvas.width / 2, tagY + 9);
+
+            // 2. Draw slots
             for (let slot = 0; slot < maxSize; slot++) {
                 const visualRow = maxSize - 1 - slot;
-                const y = 14 + visualRow * CELL_H;
+                const y = startY + visualRow * CELL_H;
                 const val = stack[slot];
                 const hasVal = val !== undefined;
                 const isTop = hasVal && slot === stack.length - 1;
-                ctx.fillStyle = isTop ? getComputedStyle(document.documentElement).getPropertyValue('--canvas-head') : hasVal ? getComputedStyle(document.documentElement).getPropertyValue('--canvas-filled') : getComputedStyle(document.documentElement).getPropertyValue('--canvas-empty');
+
+                // Slot background
+                ctx.fillStyle = isTop ? colHead : hasVal ? colFilled : colEmpty;
                 ctx.fillRect(cellX, y, CELL_W, CELL_H);
-                ctx.strokeStyle = isTop ? getComputedStyle(document.documentElement).getPropertyValue('--canvas-accent') : hasVal ? getComputedStyle(document.documentElement).getPropertyValue('--canvas-border') : getComputedStyle(document.documentElement).getPropertyValue('--canvas-filled');
+
+                // Slot border (dashed if empty, solid if filled)
+                ctx.strokeStyle = isTop ? colAccent : hasVal ? colBorder : colBorderEmpty;
                 ctx.lineWidth = isTop ? 2 : 1;
+                if (!hasVal) {
+                    ctx.setLineDash([4, 3]);
+                } else {
+                    ctx.setLineDash([]);
+                }
                 ctx.strokeRect(cellX, y, CELL_W, CELL_H);
-                ctx.fillStyle = hasVal ? getComputedStyle(document.documentElement).getPropertyValue('--canvas-text') : getComputedStyle(document.documentElement).getPropertyValue('--canvas-text-empty');
-                ctx.font = hasVal ? 'bold 15px Arial' : '12px Arial';
+                ctx.setLineDash([]);
+
+                // Left side: Array index [slot]
+                ctx.fillStyle = hasVal ? colBorder : colTextEmpty;
+                ctx.font = '500 10.5px monospace';
+                ctx.textAlign = 'right';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(`[${slot}]`, cellX - 8, y + CELL_H / 2);
+
+                // Cell content text
+                ctx.fillStyle = hasVal ? colText : colTextEmpty;
+                ctx.font = hasVal ? 'bold 15px monospace' : '11px Arial, sans-serif';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
                 ctx.fillText(hasVal ? val : 'empty', cellX + CELL_W / 2, y + CELL_H / 2);
+
+                // Right side: TOP indicator
                 if (isTop) {
-                    ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--canvas-accent');
-                    ctx.font = 'bold 11px Arial';
+                    ctx.fillStyle = colAccent;
+                    ctx.font = 'bold 11px Arial, sans-serif';
                     ctx.textAlign = 'left';
                     ctx.fillText('← TOP', cellX + CELL_W + 8, y + CELL_H / 2);
                 }
             }
-            ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--text-muted');
-            ctx.font = '11px Arial';
+
+            // 3. Bottom indicator & empty stack TOP = -1 indicator
+            const bottomY = startY + maxSize * CELL_H + 10;
+            ctx.fillStyle = colMuted;
+            ctx.font = '10.5px Arial, sans-serif';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'top';
-            ctx.fillText('▲ BOTTOM', canvas.width / 2, 14 + maxSize * CELL_H + 8);
+            ctx.fillText('▲ BOTTOM (Index 0)', canvas.width / 2, bottomY);
+
+            // If stack is empty, point to top = -1
+            if (isEmpty) {
+                ctx.fillStyle = colAccent;
+                ctx.font = 'bold 11px Arial, sans-serif';
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('← TOP = -1', cellX + CELL_W + 8, startY + (maxSize - 1) * CELL_H + 28);
+            }
+
+            scrollCanvasToActive(false);
+        }
+
+        function updateCanvasWrapperLayout() {
+            const wrapper = document.getElementById('canvasWrapper') || canvas.parentElement;
+            if (!wrapper) return;
+            if (canvas.height > wrapper.clientHeight) {
+                wrapper.style.justifyContent = 'flex-start';
+            } else {
+                wrapper.style.justifyContent = 'center';
+            }
+        }
+
+        function scrollCanvasToActive(immediate = false) {
+            const wrapper = document.getElementById('canvasWrapper') || canvas.parentElement;
+            if (!wrapper || canvas.height <= wrapper.clientHeight) return;
+
+            // Target the active slot: stack.length - 1 if items exist, or slot 0 (bottom) if empty
+            const activeSlot = stack.length > 0 ? (stack.length - 1) : 0;
+            const visualRow = maxSize - 1 - activeSlot;
+            const targetY = 34 + visualRow * CELL_H + (CELL_H / 2);
+
+            // Center targetY vertically in wrapper viewport
+            const desiredTop = targetY - (wrapper.clientHeight / 2);
+            const maxScroll = wrapper.scrollHeight - wrapper.clientHeight;
+            const targetScroll = Math.max(0, Math.min(maxScroll, desiredTop));
+
+            if (immediate) {
+                wrapper.scrollTop = targetScroll;
+            } else {
+                wrapper.scrollTo({
+                    top: targetScroll,
+                    behavior: 'smooth'
+                });
+            }
         }
 
         function resizeCanvas() {
             canvas.width = 320;
-            canvas.height = 14 + maxSize * CELL_H + 36;
+            canvas.height = 34 + maxSize * CELL_H + 38;
+            updateCanvasWrapperLayout();
+            setTimeout(() => scrollCanvasToActive(true), 15);
         }
 
         function setCode(t) {
@@ -635,7 +860,8 @@
     }
 
     public boolean isEmpty() { return top == -1; }
-    public boolean isFull()  { return top == maxSize - 1; }`;
+    public boolean isFull()  { return top == maxSize - 1; }
+}`;
 
         // Default editable main sections
         function getPythonMain() {
@@ -647,11 +873,11 @@ s.pop()`;
         }
 
         function getJavaMain() {
-            return `        StackArray s = new StackArray(5);
-        s.push(10);
-        s.push(20);
-        s.push(30);
-        s.pop();`;
+            return `StackArray s = new StackArray(5);
+s.push(10);
+s.push(20);
+s.push(30);
+s.pop();`;
         }
 
         let pgEditor = null;
@@ -754,6 +980,10 @@ s.pop()`;
                 pgLockedEditor.setOption('mode', lang === 'python' ? 'python' : 'text/x-java');
                 pgLockedEditor.setValue(lang === 'python' ? PYTHON_CLASS_LOCKED : JAVA_CLASS_LOCKED);
             }
+            setTimeout(() => {
+                if (pgEditor) pgEditor.refresh();
+                if (pgLockedEditor) pgLockedEditor.refresh();
+            }, 30);
             _hidePgError();
         }
 
@@ -763,13 +993,142 @@ s.pop()`;
             _hidePgError();
         }
 
-        function _hidePgError() {
-            document.getElementById('errorPanel').style.display = 'none';
+        // ── File Upload & Main Extraction ─────────────────────────
+        function handleFileUpload(event) {
+            const file = event.target.files && event.target.files[0];
+            if (!file) return;
+
+            const filename = file.name || 'code';
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                const rawContent = e.target.result;
+                processUploadedCode(filename, rawContent);
+                event.target.value = '';
+            };
+
+            reader.readAsText(file);
         }
 
-        function _showPgError(title, msg) {
+        function processUploadedCode(filename, content) {
+            const isJava = filename.endsWith('.java') || /\bpublic\s+class\b/.test(content) || /\bpublic\s+static\s+void\s+main\b/.test(content);
+            const targetLang = isJava ? 'java' : 'python';
+
+            switchLang(targetLang);
+
+            let extracted = '';
+            if (isJava) {
+                extracted = extractJavaMain(content);
+            } else {
+                extracted = extractPyMain(content);
+            }
+
+            if (pgEditor) {
+                pgEditor.setValue(extracted);
+                setTimeout(() => pgEditor.refresh(), 40);
+            }
+
+            // Visual confirmation banner in guide pill
+            const guideEl = document.getElementById('pgHeaderGuide');
+            if (guideEl) {
+                const originalHtml = guideEl.innerHTML;
+                guideEl.innerHTML = `<span class="guide-tag" style="background:rgba(46,160,67,0.2); color:#56d364;">Imported</span> <span>Loaded from <code>${filename}</code></span>`;
+                setTimeout(() => {
+                    if (guideEl && guideEl.innerHTML.includes('Imported')) {
+                        guideEl.innerHTML = originalHtml;
+                    }
+                }, 3500);
+            }
+        }
+
+        function extractJavaMain(code) {
+            // Find public static void main(...) {
+            const mainMatch = code.match(/public\s+static\s+void\s+main\s*\([^)]*\)\s*\{/);
+            if (!mainMatch) {
+                return code.replace(/^\s*(?:package|import)\s+[^;]+;\s*/gm, '').trim();
+            }
+
+            const startIdx = mainMatch.index + mainMatch[0].length;
+            let depth = 1;
+            let endIdx = startIdx;
+            for (let i = startIdx; i < code.length; i++) {
+                if (code[i] === '{') depth++;
+                else if (code[i] === '}') {
+                    depth--;
+                    if (depth === 0) { endIdx = i; break; }
+                }
+            }
+
+            const body = code.substring(startIdx, endIdx);
+            return _dedentText(body);
+        }
+
+        function extractPyMain(code) {
+            // Check for if __name__ == '__main__': block
+            if (code.includes('__main__')) {
+                const m = code.match(/if\s+__name__\s*==\s*['"]__main__['"]\s*:\s*\r?\n([\s\S]+)/);
+                if (m && m[1]) {
+                    return _dedentText(m[1]);
+                }
+            }
+
+            // If file contains a class definition, extract top-level lines outside the class
+            const lines = code.split('\n');
+            let insideClass = false;
+            const bodyLines = [];
+            for (const l of lines) {
+                if (/^class\s+/.test(l)) { insideClass = true; continue; }
+                if (insideClass) {
+                    if (/^\s+/.test(l) || l.trim() === '') continue;
+                    insideClass = false;
+                }
+                if (!insideClass && !/^(?:import|from)\s+/.test(l)) {
+                    bodyLines.push(l);
+                }
+            }
+            const res = bodyLines.join('\n').trim();
+            return res || code.trim();
+        }
+
+        function _dedentText(text) {
+            const lines = text.split('\n');
+            let minIndent = Infinity;
+            for (const l of lines) {
+                if (!l.trim()) continue;
+                const indent = l.match(/^\s*/)[0].length;
+                if (indent < minIndent) minIndent = indent;
+            }
+            if (minIndent === Infinity) minIndent = 0;
+            return lines.map(l => l.substring(minIndent)).join('\n').trim();
+        }
+
+        function _hidePgError() {
+            document.getElementById('errorPanel').style.display = 'none';
+            const retryBtn = document.getElementById('pgRetryBtn');
+            if (retryBtn) retryBtn.style.display = 'none';
+        }
+
+        function _showPgError(title, msg, onRetry = null) {
             document.getElementById('errorTitle').textContent = title || 'Error';
             document.getElementById('errorBody').textContent = msg || 'Unknown error';
+            let retryBtn = document.getElementById('pgRetryBtn');
+            if (onRetry) {
+                if (!retryBtn) {
+                    retryBtn = document.createElement('button');
+                    retryBtn.id = 'pgRetryBtn';
+                    retryBtn.className = 'pg-btn-secondary';
+                    retryBtn.style.cssText = 'margin: 8px 14px 12px; font-size: 11.5px; padding: 4px 14px; border-color: rgba(248,113,113,0.4); color: #fca5a5;';
+                    document.getElementById('errorPanel').appendChild(retryBtn);
+                }
+                retryBtn.textContent = 'Retry Execution';
+                retryBtn.onclick = () => {
+                    _hidePgError();
+                    onRetry();
+                };
+                retryBtn.style.display = 'inline-block';
+            } else if (retryBtn) {
+                retryBtn.style.display = 'none';
+            }
             document.getElementById('errorPanel').style.display = 'block';
         }
 
@@ -838,7 +1197,10 @@ except NameError as e:
 
             Sk.builtins['_am_set_size'] = new Sk.builtin.func(function (skSize) {
                 const size = skSize && skSize.v !== undefined ? parseInt(skSize.v) : maxSize;
-                if (size > 0) { maxSize = size; resizeCanvas(); }
+                if (size > 0) { 
+                    maxSize = Math.min(100, Math.max(1, size)); 
+                    resizeCanvas(); 
+                }
                 return Sk.builtin.none.none$;
             });
 
@@ -898,7 +1260,7 @@ except NameError as e:
             if (!pgEditor) { _showPgError('Editor Error', 'Editor not ready.'); return; }
 
             const userMain = pgEditor.getValue();
-            const fullJava = JAVA_CLASS_LOCKED + `
+            const fullJava = JAVA_CLASS_LOCKED.replace(/\s*}\s*$/, '') + `
 
     public static void main(String[] args) {
 ${userMain}
@@ -910,77 +1272,101 @@ ${userMain}
             runBtn.disabled = true;
             runBtn.textContent = 'Running...';
             runningLabel.classList.add('active');
-            runningLabel.innerHTML = '<span>&#9654;</span> Checking local Java runner...';
+            runningLabel.innerHTML = '<span>&#9654;</span> Compiling via Cloud Java Engine...';
             _hidePgError();
 
             let stdout = '';
             let stderr = '';
-            let usedLocal = false;
 
-            // 1. Try local server first (with 2.5s timeout)
-            try {
-                const ctrl = new AbortController();
-                const timeoutId = setTimeout(() => ctrl.abort(), 2500);
-                const localResp = await fetch('http://localhost:3001/run/java', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ code: fullJava }),
-                    signal: ctrl.signal
-                });
-                clearTimeout(timeoutId);
+            const isLocal = ['localhost', '127.0.0.1'].includes(window.location.hostname);
 
-                if (localResp.ok) {
-                    const data = await localResp.json();
-                    // If server reports javac is missing or not installed, fallback
-                    if (!data.stderr || (!data.stderr.includes('javac') && !data.stderr.includes('JDK_NOT_INSTALLED'))) {
-                        stdout = data.stdout || '';
-                        stderr = data.stderr || '';
-                        usedLocal = true;
-                    }
-                }
-            } catch (_) {
-                // Local server offline or timed out
-            }
-
-            // 2. If local server unavailable or JDK not found, fall back to Cloud API
-            if (!usedLocal) {
-                runningLabel.innerHTML = '<span>&#9654;</span> Compiling via Cloud Java Engine...';
+            // On local dev: try local server first, fall back to Piston
+            // On deployed (Vercel etc.): skip straight to Piston
+            if (isLocal) {
+                runningLabel.innerHTML = '<span>&#9654;</span> Checking local Java runner...';
+                let usedLocal = false;
                 try {
-                    const cloudResp = await fetch('https://emkc.org/api/v2/piston/execute', {
+                    const ctrl = new AbortController();
+                    const timeoutId = setTimeout(() => ctrl.abort(), 2500);
+                    const localResp = await fetch('http://localhost:3001/run/java', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            language: 'java',
-                            version: '15.0.2',
-                            files: [{ name: 'StackArray.java', content: fullJava }]
-                        })
+                        body: JSON.stringify({ code: fullJava }),
+                        signal: ctrl.signal
                     });
+                    clearTimeout(timeoutId);
 
-                    if (!cloudResp.ok) throw new Error('Cloud API status ' + cloudResp.status);
-                    const cloudData = await cloudResp.json();
-                    stdout = (cloudData.run && cloudData.run.stdout) ? cloudData.run.stdout : '';
-                    stderr = (cloudData.run && cloudData.run.stderr) ? cloudData.run.stderr : '';
-                } catch (cloudErr) {
+                    if (localResp.ok) {
+                        const data = await localResp.json();
+                        if (!data.stderr || (!data.stderr.includes('javac') && !data.stderr.includes('JDK_NOT_INSTALLED'))) {
+                            stdout = data.stdout || '';
+                            stderr = data.stderr || '';
+                            usedLocal = true;
+                        }
+                    }
+                } catch (_) {
+                    // Local server offline or timed out — fall through to Piston
+                }
+
+                if (usedLocal) {
                     runBtn.disabled = false;
                     runBtn.textContent = 'Run';
                     runningLabel.classList.remove('active');
-                    _showPgError('Java Runner Error',
-                        'Local JDK compiler (javac) is not installed, and could not reach the Cloud API.\n\n' +
-                        'To run Java locally:\n' +
-                        '  1. Install Java JDK (e.g. OpenJDK or Eclipse Temurin)\n' +
-                        '  2. Ensure "javac" is in your system PATH\n\n' +
-                        'Or connect to the internet to use the automatic Cloud compiler.');
+                    _parseJavaOutput(stdout, stderr, 'Java (Local)');
                     return;
                 }
+
+                runningLabel.innerHTML = '<span>&#9654;</span> Compiling via Cloud Java Engine...';
+            }
+
+            // Cloud fallback (always used on Vercel; used on local only if server unavailable)
+            // Using Wandbox API — free, no API key required (https://wandbox.org)
+            const wandboxCtrl = new AbortController();
+            const wandboxTimeout = setTimeout(() => wandboxCtrl.abort(), 7000);
+            try {
+                // Wandbox runs `java Main` by default, so rename StackArray → Main for submission only
+                const wandboxCode = fullJava.replace(/\bStackArray\b/g, 'prog');
+                const cloudResp = await fetch('https://wandbox.org/api/compile.json', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        compiler: 'openjdk-jdk-22+36',
+                        code: wandboxCode,
+                        options: ''
+                    }),
+                    signal: wandboxCtrl.signal
+                });
+                clearTimeout(wandboxTimeout);
+
+                if (!cloudResp.ok) throw new Error('Cloud API returned status ' + cloudResp.status);
+                const cloudData = await cloudResp.json();
+                // Wandbox response fields: program_output (stdout), program_error (stderr), compiler_error (compile errors)
+                stdout = cloudData.program_output || '';
+                stderr = cloudData.compiler_error || cloudData.program_error || '';
+            } catch (cloudErr) {
+                clearTimeout(wandboxTimeout);
+                runBtn.disabled = false;
+                runBtn.textContent = 'Run';
+                runningLabel.classList.remove('active');
+                const isTimeout = cloudErr.name === 'AbortError';
+                const msg = isTimeout
+                    ? 'Cloud Java compiler request timed out (7s).\nWandbox took too long to respond. Please check your connection and click Retry.'
+                    : 'Could not reach the Cloud Java compiler (Wandbox API).\n\nPossible causes:\n  - No internet connection\n  - Wandbox cloud service temporarily unavailable\n\nPlease check your connection and click Retry.';
+                _showPgError('Java Runner Error', msg, () => _runJava());
+                return;
             }
 
             runBtn.disabled = false;
             runBtn.textContent = 'Run';
             runningLabel.classList.remove('active');
+            _parseJavaOutput(stdout, stderr, 'Java (Cloud)');
+        }
 
+        // Shared parser: turns Java stdout tokens into animation steps
+        function _parseJavaOutput(stdout, stderr, sourceLabel) {
             if (stderr && stderr.trim()) {
                 const mainStartLine = JAVA_CLASS_LOCKED.split('\n').length + 3;
-                const cleanErr = stderr.replace(/StackArray\.java:(\d+)/g, (match, lineStr) => {
+                const cleanErr = stderr.replace(/(?:StackArray|Main)\.java:(\d+)/g, (match, lineStr) => {
                     const userLine = parseInt(lineStr) - mainStartLine;
                     return userLine > 0 ? 'Line ' + userLine + ' in your main()' : match;
                 });
@@ -988,7 +1374,6 @@ ${userMain}
                 return;
             }
 
-            // Parse stdout tokens → animation steps
             _pgSteps = [];
             let simStack = [];
             for (const rawLine of stdout.trim().split('\n')) {
@@ -996,7 +1381,7 @@ ${userMain}
                 if (!line) continue;
                 if (line.startsWith('INIT ')) {
                     const sz = parseInt(line.split(' ')[1]) || maxSize;
-                    maxSize = sz; resizeCanvas();
+                    maxSize = Math.min(100, Math.max(1, sz)); resizeCanvas();
                 } else if (line.startsWith('PUSH ')) {
                     const val = parseFloat(line.split(' ')[1]);
                     simStack = [...simStack, val];
@@ -1019,7 +1404,6 @@ ${userMain}
             }
 
             stack = [...simStack];
-            const sourceLabel = usedLocal ? 'Java (Local)' : 'Java (Cloud)';
             animEngine.loadSteps([
                 { stackState: [], code: `// [${sourceLabel}] Execution completed`, line: '', msg: `${sourceLabel}: execution finished` },
                 ..._pgSteps

@@ -30,7 +30,17 @@ class AnimEngine {
         const hasNext = this.steps.length > 1;
         if (btnNext) btnNext.disabled = !hasNext;
         if (btnAuto) btnAuto.disabled = !hasNext;
-        if (btnAuto) btnAuto.textContent = '▶️ Auto';
+        if (btnAuto) btnAuto.textContent = '▶ Auto';
+
+        const counter = document.getElementById('stepCounter');
+        if (counter) {
+            if (this.steps.length > 1) {
+                counter.style.display = 'inline-block';
+                counter.textContent = `1 / ${this.steps.length}`;
+            } else {
+                counter.style.display = 'none';
+            }
+        }
         
         this.next();
     }
@@ -67,12 +77,22 @@ class AnimEngine {
             msgEl.textContent = step.msg;
         }
 
-        // 4. Perbarui status tombol navigasi
+        // 4. Perbarui status tombol navigasi dan indikator step
         const btnPrev = document.getElementById('btnPrev');
         const btnNext = document.getElementById('btnNext');
         
-        if (btnPrev) btnPrev.disabled = (this.currentStep === 0);
-        if (btnNext) btnNext.disabled = (this.currentStep === this.steps.length - 1);
+        if (btnPrev) btnPrev.disabled = (this.currentStep <= 0);
+        if (btnNext) btnNext.disabled = (this.currentStep >= this.steps.length - 1);
+
+        const counter = document.getElementById('stepCounter');
+        if (counter) {
+            if (this.steps.length > 1) {
+                counter.style.display = 'inline-block';
+                counter.textContent = `${this.currentStep + 1} / ${this.steps.length}`;
+            } else {
+                counter.style.display = 'none';
+            }
+        }
 
         if (this.currentStep === this.steps.length - 1) {
             this.stopAuto();
@@ -99,7 +119,7 @@ class AnimEngine {
             this.stopAuto();
         } else {
             if (this.currentStep === this.steps.length - 1) return;
-            if (btnAuto) btnAuto.textContent = '⏸ Pause';
+            if (btnAuto) btnAuto.textContent = '❚❚ Pause';
             this.autoTimer = setInterval(() => {
                 this.next();
             }, 1000);
@@ -110,6 +130,6 @@ class AnimEngine {
         const btnAuto = document.getElementById('btnAuto');
         if (this.autoTimer) clearInterval(this.autoTimer);
         this.autoTimer = null;
-        if (btnAuto) btnAuto.textContent = '▶️ Auto';
+        if (btnAuto) btnAuto.textContent = '▶ Auto';
     }
 }
